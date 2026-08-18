@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
+    new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
     {
@@ -29,6 +29,20 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
-  assert.match(html, /<h1>Nicole Jiang<\/h1>/i);
+  assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
+  assert.match(html, />Google Maps<\/span>/i);
+  assert.match(html, />Pinterest<\/span>/i);
+  assert.match(html, />Spotify<\/span>/i);
+  assert.match(html, />LinkedIn<\/span>/i);
+  assert.match(html, /class="theme-toggle"/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
+});
+
+test("server-renders the résumé and CV pages", async () => {
+  for (const [pathname, title] of [["/resume", "Résumé"], ["/cv", "CV"]]) {
+    const response = await render(pathname);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, new RegExp(`<h1[^>]*>${title}<\\/h1>`, "i"));
+  }
 });
