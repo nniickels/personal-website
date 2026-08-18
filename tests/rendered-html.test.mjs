@@ -30,19 +30,23 @@ test("server-renders Nicole Jiang's homepage", async () => {
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
-  assert.match(html, />Google Maps<\/span>/i);
-  assert.match(html, />Pinterest<\/span>/i);
-  assert.match(html, />Spotify<\/span>/i);
-  assert.match(html, />LinkedIn<\/span>/i);
+  assert.match(html, />Google Maps<\/a>/i);
+  assert.match(html, />Pinterest<\/a>/i);
+  assert.match(html, />Spotify<\/a>/i);
+  assert.match(html, />LinkedIn<\/a>/i);
   assert.match(html, /class="theme-toggle"/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
 });
 
-test("server-renders the résumé and CV pages", async () => {
-  for (const [pathname, title] of [["/resume", "Résumé"], ["/cv", "CV"]]) {
-    const response = await render(pathname);
-    assert.equal(response.status, 200);
-    const html = await response.text();
-    assert.match(html, new RegExp(`<h1[^>]*>${title}<\\/h1>`, "i"));
-  }
+test("server-renders the combined résumé and CV page", async () => {
+  const response = await render("/resume");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /<h1[^>]*>Résumé \/ CV<\/h1>/i);
+});
+
+test("redirects the old CV route to the combined page", async () => {
+  const response = await render("/cv");
+  assert.equal(response.status, 308);
+  assert.equal(response.headers.get("location"), "http://localhost/resume");
 });

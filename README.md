@@ -2,6 +2,13 @@
 
 The source for [nicolejiang.com](https://nicolejiang.com).
 
+## Structure
+
+- `src/app` contains the pages and styles.
+- `src/worker.ts` connects the app to Cloudflare.
+- `public` contains static images and icons.
+- `tests` contains rendered-page checks.
+
 ## Local development
 
 ```bash

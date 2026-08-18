@@ -8,8 +8,7 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    const current = document.documentElement.dataset.theme;
-    setTheme(current === "dark" ? "dark" : "light");
+    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   }, []);
 
   function toggleTheme() {
@@ -27,8 +26,9 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${nextTheme} mode`}
+      title={`Switch to ${nextTheme} mode`}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      <span aria-hidden="true">{theme === "dark" ? "☀︎" : "☾"}</span>
     </button>
   );
 }
