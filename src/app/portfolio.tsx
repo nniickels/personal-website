@@ -19,11 +19,13 @@ const funProfiles = [
   { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime" },
 ] as const;
 
+
 const seriousSections = [
   {
     title: "Experience",
     heading: "Professional experience",
-    note: "Roles, organizations and dates will appear here.",
+    note: "Roles, organizations and dates will appear here."
+    
   },
   {
     title: "Education",
@@ -144,7 +146,7 @@ export function Portfolio() {
         <section className="hero">
           <h1>Nicole Jiang</h1>
           <p className="subtitle">
-            {mode === "serious" ? "Experience, projects & selected work" : "Pins, places & playlists"}
+            {mode === "serious" ? "Astrophysics undergrad @ UofT" : "hello gello"}
           </p>
           <nav className="profile-links" aria-label="External profiles">
             {profiles.map((profile, index) => (
