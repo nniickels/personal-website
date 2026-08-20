@@ -32,11 +32,15 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, />LinkedIn<\/a>/i);
   assert.doesNotMatch(html, />Google Maps<\/a>|>Pinterest<\/a>|>Spotify<\/a>/i);
-  assert.match(html, /class="theme-toggle"/i);
-  assert.match(html, />Serious Mode<\/button>/i);
+  assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, />Fun Mode!<\/button>/i);
   assert.match(html, /<h2>Experience<\/h2>/i);
-  assert.match(html, /<h2>Projects<\/h2>/i);
+  assert.match(html, /<h2>Research &amp; Technical Projects<\/h2>/i);
+  assert.match(html, /University of Toronto/i);
+  assert.match(html, /Undergraduate Researcher/i);
+  assert.match(html, /Royal Astronomical Society of Canada/i);
+  assert.match(html, /Ontario Science Centre/i);
+  assert.match(html, /theme-icon__sun/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
 });
 

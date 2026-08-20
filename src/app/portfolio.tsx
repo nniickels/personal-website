@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { ThemeToggle } from "./theme-toggle";
 
 type Mode = "serious" | "fun";
@@ -19,46 +20,145 @@ const funProfiles = [
   { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime" },
 ] as const;
 
+const experience = [
+  {
+    organization: "University of Toronto",
+    role: "Undergraduate Researcher",
+    dates: "February 2026 - Present",
+    details: [
+      "Building a standardized, provenance-tracked catalogue of JWST-identified accreting black holes at z >= 4 while preserving uncertainties, inference methods, assumptions, and quality flags.",
+      "Designing vectorized NumPy models across seed mass, formation redshift, Eddington ratio, Kerr spin, radiative efficiency, and merger contribution.",
+      "Propagating asymmetric mass uncertainties with 10,000 Monte Carlo draws per object and producing growth tracks, compatibility heatmaps, and sensitivity analyses.",
+      "Directing technical priorities and presenting findings to Prof. Pratika Dayal at CITA.",
+    ],
+  },
+  {
+    organization: "Royal Astronomical Society of Canada (RASC)",
+    role: "Volunteer Journal Editor",
+    dates: "September 2025 - Present",
+    details: [
+      "Producing planet ephemerides and curating noteworthy observational astronomy events for the RASC Journal.",
+      "Assisting with observatory maintenance at the E.C. Carr Astronomical Observatory.",
+    ],
+  },
+  {
+    organization: "Ontario Science Centre",
+    role: "Student Host",
+    dates: "February - June 2024",
+    details: [
+      "Designed and prototyped an interactive exhibition about the chemistry of art restoration that engaged 100+ visitors.",
+      "Created and presented a solar-eclipse puppet show for elementary school classrooms across Toronto.",
+    ],
+  },
+] as const;
 
-const seriousSections = [
+const projects = [
   {
-    title: "Experience",
-    heading: "Professional experience",
-    note: "Roles, organizations and dates will appear here."
-    
+    title: "Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations",
+    dates: "May 2025",
+    details: [
+      "Queried and processed 11,000,000+ galaxy records from EAGLE and IllustrisTNG using Python, SSH, and pickle serialization.",
+      "Visualized SFR-M* trends across redshifts 0 <= z < 0.5 and compared single- and multi-snapshot datasets.",
+      "Drafted an AAS-style scientific paper in LaTeX using the AAS journal submission template.",
+    ],
   },
   {
-    title: "Education",
-    heading: "Education details",
-    note: "Degrees, programs and institutions will appear here.",
+    title: "Predicting APA Site Choice from mRNA Sequences",
+    dates: "September 2025",
+    href: "https://devpost.com/software/predicting-apa-site-choice-from-mrna-sequences",
+    details: [
+      "Placed 2nd of 23 teams at the Toronto Bioinformatics Hackathon as part of a five-member undergraduate team.",
+      "Built and scaled the preprocessing pipeline for DNABERT-2-117M on approximately 800,000 RNA sequences.",
+      "Co-developed the project strategy and presented a model that achieved 86% poly(A) site prediction accuracy.",
+    ],
   },
   {
-    title: "Projects",
-    heading: "Selected projects",
-    note: "Project summaries, links and tools will appear here.",
-  },
-  {
-    title: "Skills",
-    heading: "Skills & interests",
-    note: "Technical skills, languages and interests will appear here.",
+    title: "Saturn and Moons Observation with HDR Imaging",
+    dates: "October - December 2024",
+    details: [
+      "Captured and compiled images of Saturn and its moons and calibrated a pixel-to-kilometre conversion.",
+      "Cross-referenced 189 images over two months to evaluate Titan's orbital period.",
+    ],
   },
 ] as const;
 
 const listeningLists = ["Artists", "Tracks", "Albums"] as const;
 const emptyRanking = Array.from({ length: 10 }, (_, index) => index + 1);
 
+function BulletList({ items }: { items: readonly string[] }) {
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+
 function SeriousContent() {
   return (
     <div className="mode-content" aria-label="Serious mode content">
-      {seriousSections.map((section) => (
-        <section className="section" key={section.title}>
-          <h2>{section.title}</h2>
-          <article className="entry placeholder-entry">
-            <h3>{section.heading}</h3>
-            <p>{section.note}</p>
-          </article>
-        </section>
-      ))}
+      <section className="section" id="education">
+        <h2>Education</h2>
+        <article className="resume-item subsection-item">
+          <div className="entry-head">
+            <h3>University of Toronto</h3>
+            <p className="entry-dates">2024 - 2029</p>
+          </div>
+          <p>HBSc, Astronomy &amp; Physics Specialist · Statistics Minor · Philosophy Minor</p>
+          <p className="item-detail">
+            Relevant coursework: Computational Astrophysics, Stars and Galaxies, Sun and its
+            Neighbours, Introduction to Computer Programming, Practical Physics I, Multivariable
+            Calculus with Proofs, Thermal Physics, and Probability and Statistics I.
+          </p>
+        </article>
+      </section>
+
+      <section className="section" id="skills">
+        <h2>Skills</h2>
+        <article className="skills-list subsection-item">
+          <p><strong>Programming:</strong> Python (NumPy, SciPy, pandas, astropy, Matplotlib), SQL, Bash, Git, SSH</p>
+          <p><strong>Data / ML:</strong> scikit-learn, PyTorch, Transformers</p>
+          <p><strong>Writing / Tools:</strong> LaTeX, Overleaf, Jupyter, VS Code, Microsoft Office, Google Workspace</p>
+        </article>
+      </section>
+
+      <section className="section" id="experience">
+        <h2>Experience</h2>
+        <div className="entries">
+          {experience.map((item) => (
+            <article className="resume-item subsection-item" key={`${item.organization}-${item.role}`}>
+              <div className="entry-head">
+                <h3>{item.organization}</h3>
+                <p className="entry-dates">{item.dates}</p>
+              </div>
+              <p>{item.role}</p>
+              <BulletList items={item.details} />
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section" id="projects">
+        <h2>Research &amp; Technical Projects</h2>
+        <div className="entries">
+          {projects.map((project) => (
+            <article className="resume-item subsection-item" key={project.title}>
+              <div className="entry-head">
+                <h3>
+                  {"href" in project ? (
+                    <a className="text-link" href={project.href} target="_blank" rel="noreferrer">
+                      {project.title}
+                    </a>
+                  ) : project.title}
+                </h3>
+                <p className="entry-dates">{project.dates}</p>
+              </div>
+              <BulletList items={project.details} />
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
@@ -107,9 +207,22 @@ export function Portfolio() {
     setMode(localStorage.getItem("portfolio-mode") === "fun" ? "fun" : "serious");
   }, []);
 
-  function chooseMode(nextMode: Mode) {
-    setMode(nextMode);
-    localStorage.setItem("portfolio-mode", nextMode);
+  function switchMode() {
+    const nextMode: Mode = mode === "serious" ? "fun" : "serious";
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const applyMode = () => {
+      setMode(nextMode);
+      localStorage.setItem("portfolio-mode", nextMode);
+    };
+
+    if (reducedMotion || typeof document.startViewTransition !== "function") {
+      applyMode();
+      return;
+    }
+
+    document.startViewTransition(() => {
+      flushSync(applyMode);
+    });
   }
 
   const profiles = mode === "serious" ? [linkedin] : funProfiles;
@@ -117,28 +230,19 @@ export function Portfolio() {
   return (
     <>
       <header className="bar topbar">
-        <div className="container bar-content topbar-content">
-          <a className="home-link" href="/" aria-label="Nicole Jiang home">nj</a>
-          <div className="mode-toggle" role="group" aria-label="Portfolio mode">
+        <div className="container topbar-content">
+          <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home">nj</a>
+          <div className="topbar-actions">
             <button
               type="button"
-              className={mode === "serious" ? "is-active" : undefined}
-              aria-pressed={mode === "serious"}
-              onClick={() => chooseMode("serious")}
+              className="text-btn mode-switch"
+              onClick={switchMode}
+              aria-label={`Switch to ${mode === "serious" ? "fun" : "serious"} mode`}
             >
-              Serious Mode
+              {mode === "serious" ? "Fun Mode!" : "Serious Mode"}
             </button>
-            <span aria-hidden="true">|</span>
-            <button
-              type="button"
-              className={mode === "fun" ? "is-active" : undefined}
-              aria-pressed={mode === "fun"}
-              onClick={() => chooseMode("fun")}
-            >
-              Fun Mode!
-            </button>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
         </div>
       </header>
 
@@ -146,13 +250,13 @@ export function Portfolio() {
         <section className="hero">
           <h1>Nicole Jiang</h1>
           <p className="subtitle">
-            {mode === "serious" ? "Astrophysics undergrad @ UofT" : "hello gello"}
+            {mode === "serious" ? "Astronomy & Physics @ UofT" : "hello gello"}
           </p>
           <nav className="profile-links" aria-label="External profiles">
             {profiles.map((profile, index) => (
               <span key={profile.name}>
                 {index > 0 && <span className="separator" aria-hidden="true">|</span>}
-                <a href={profile.href} target="_blank" rel="noreferrer">
+                <a className="text-link" href={profile.href} target="_blank" rel="noreferrer">
                   {profile.name}
                 </a>
               </span>
@@ -163,7 +267,7 @@ export function Portfolio() {
       </main>
 
       <footer className="bar bottombar">
-        <div className="container bar-content footer-content">
+        <div className="container footer-content">
           <p>© {new Date().getFullYear()} Nicole Jiang</p>
         </div>
       </footer>
