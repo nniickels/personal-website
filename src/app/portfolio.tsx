@@ -20,46 +20,19 @@ const funProfiles = [
   { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime" },
 ] as const;
 
-const experience = [
+const projects = [
   {
-    organization: "University of Toronto",
-    role: "Undergraduate Researcher",
+    title: "Mapping Black-Hole Growth Scenarios for Early Giants",
     dates: "February 2026 - Present",
     details: [
-      "Building a standardized, provenance-tracked catalogue of JWST-identified accreting black holes at z >= 4 while preserving uncertainties, inference methods, assumptions, and quality flags.",
-      "Designing vectorized NumPy models across seed mass, formation redshift, Eddington ratio, Kerr spin, radiative efficiency, and merger contribution.",
-      "Propagating asymmetric mass uncertainties with 10,000 Monte Carlo draws per object and producing growth tracks, compatibility heatmaps, and sensitivity analyses.",
-      "Directing technical priorities and presenting findings to Prof. Pratika Dayal at CITA.",
+      "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes at high redshift to evaluates objects against different growth scenarios (seed mass, formation redshift, Eddington ratio, Kerr spin, radiative efficiency, and merger contribution combinations). Supervised by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
     ],
   },
-  {
-    organization: "Royal Astronomical Society of Canada (RASC)",
-    role: "Volunteer Journal Editor",
-    dates: "September 2025 - Present",
-    details: [
-      "Producing planet ephemerides and curating noteworthy observational astronomy events for the RASC Journal.",
-      "Assisting with observatory maintenance at the E.C. Carr Astronomical Observatory.",
-    ],
-  },
-  {
-    organization: "Ontario Science Centre",
-    role: "Student Host",
-    dates: "February - June 2024",
-    details: [
-      "Designed and prototyped an interactive exhibition about the chemistry of art restoration that engaged 100+ visitors.",
-      "Created and presented a solar-eclipse puppet show for elementary school classrooms across Toronto.",
-    ],
-  },
-] as const;
-
-const projects = [
   {
     title: "Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations",
     dates: "May 2025",
     details: [
-      "Queried and processed 11,000,000+ galaxy records from EAGLE and IllustrisTNG using Python, SSH, and pickle serialization.",
-      "Visualized SFR-M* trends across redshifts 0 <= z < 0.5 and compared single- and multi-snapshot datasets.",
-      "Drafted an AAS-style scientific paper in LaTeX using the AAS journal submission template.",
+      "Queried and processed galaxy records from EAGLE and IllustrisTNG to visualize SFR-M* trends across low redshifts.",
     ],
   },
   {
@@ -67,19 +40,47 @@ const projects = [
     dates: "September 2025",
     href: "https://devpost.com/software/predicting-apa-site-choice-from-mrna-sequences",
     details: [
-      "Placed 2nd of 23 teams at the Toronto Bioinformatics Hackathon as part of a five-member undergraduate team.",
-      "Built and scaled the preprocessing pipeline for DNABERT-2-117M on approximately 800,000 RNA sequences.",
-      "Co-developed the project strategy and presented a model that achieved 86% poly(A) site prediction accuracy.",
+      "APA site prediction pre-processing pipeline for the DNABERT-2 genome transformer model. Part of a five-member undergraduate team; 2nd place at the Toronto Bioinformatics Hackathon.",
     ],
   },
   {
     title: "Saturn and Moons Observation with HDR Imaging",
-    dates: "October - December 2024",
+    dates: "October 2024 - December 2024",
     details: [
-      "Captured and compiled images of Saturn and its moons and calibrated a pixel-to-kilometre conversion.",
-      "Cross-referenced 189 images over two months to evaluate Titan's orbital period.",
+      "Captured and compiled images of Saturn and its moons to evaluate Titan's orbital period.",
+    ],
+    
+  },
+] as const;
+
+
+const experience = [
+  {
+    organization: "Royal Astronomical Society of Canada (RASC)",
+    role: "Journal Contributor; Observatory Maintenance",
+    dates: "September 2025 - Present",
+    details: [
+     
     ],
   },
+
+  {
+    organization: "University of Toronto Aerospace Team (UTAT)",
+    role: "Researcher",
+    dates: "October 2025 - April 2026",
+    details: [
+    ],
+  },
+
+  {
+    organization: "Ontario Science Centre",
+    role: "Student Host",
+    dates: "February 2024 - June 2024",
+    details: [
+      
+    ],
+  },
+
 ] as const;
 
 const listeningLists = ["Artists", "Tracks", "Albums"] as const;
@@ -106,38 +107,9 @@ function SeriousContent() {
             <p className="entry-dates">2024 - 2029</p>
           </div>
           <p>HBSc, Astronomy &amp; Physics Specialist · Statistics Minor · Philosophy Minor</p>
-          <p className="item-detail">
-            Relevant coursework: Computational Astrophysics, Stars and Galaxies, Sun and its
-            Neighbours, Introduction to Computer Programming, Practical Physics I, Multivariable
-            Calculus with Proofs, Thermal Physics, and Probability and Statistics I.
-          </p>
         </article>
       </section>
 
-      <section className="section" id="skills">
-        <h2>Skills</h2>
-        <article className="skills-list subsection-item">
-          <p><strong>Programming:</strong> Python (NumPy, SciPy, pandas, astropy, Matplotlib), SQL, Bash, Git, SSH</p>
-          <p><strong>Data / ML:</strong> scikit-learn, PyTorch, Transformers</p>
-          <p><strong>Writing / Tools:</strong> LaTeX, Overleaf, Jupyter, VS Code, Microsoft Office, Google Workspace</p>
-        </article>
-      </section>
-
-      <section className="section" id="experience">
-        <h2>Experience</h2>
-        <div className="entries">
-          {experience.map((item) => (
-            <article className="resume-item subsection-item" key={`${item.organization}-${item.role}`}>
-              <div className="entry-head">
-                <h3>{item.organization}</h3>
-                <p className="entry-dates">{item.dates}</p>
-              </div>
-              <p>{item.role}</p>
-              <BulletList items={item.details} />
-            </article>
-          ))}
-        </div>
-      </section>
 
       <section className="section" id="projects">
         <h2>Research &amp; Technical Projects</h2>
@@ -159,6 +131,23 @@ function SeriousContent() {
           ))}
         </div>
       </section>
+
+        <section className="section" id="experience">
+        <h2>Other Roles</h2>
+        <div className="entries">
+          {experience.map((item) => (
+            <article className="resume-item subsection-item" key={`${item.organization}-${item.role}`}>
+              <div className="entry-head">
+                <h3>{item.organization}</h3>
+                <p className="entry-dates">{item.dates}</p>
+              </div>
+              <p>{item.role}</p>
+              <BulletList items={item.details} />
+            </article>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }
@@ -250,7 +239,7 @@ export function Portfolio() {
         <section className="hero">
           <h1>Nicole Jiang</h1>
           <p className="subtitle">
-            {mode === "serious" ? "Astronomy & Physics @ UofT" : "hello gello"}
+            {mode === "serious" ? "astronomy and physics undergrad @ uoft" : "hello gello"}
           </p>
           <nav className="profile-links" aria-label="External profiles">
             {profiles.map((profile, index) => (
