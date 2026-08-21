@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: "The personal website of Nicole Jiang.",
     icons: {
       icon: [{ url: "/favicon.svg", type: "image/svg+xml", sizes: "any" }],
-      shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      shortcut: "/favicon.svg",
     },
     openGraph: {
       title: "Nicole Jiang",

@@ -39,8 +39,8 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, />Serious Mode<\/button>/i);
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>\s*同同\s*<\/a>/i);
-  assert.match(html, /astronomy and physics undergrad @ uoft/i);
-  assert.match(html, /href="\/resume\.pdf"[^>]*target="_blank"/i);
+  assert.match(html, /astrophysics undergrad @ uoft/i);
+  assert.match(html, /href="\/resume\.pdf"[^>]*target="_blank"[\s\S]*?class="external-link-icon"/i);
   assert.match(html, /src="\/university-of-toronto\.png"/i);
   assert.match(html, /src="\/ontario-science-centre\.png"/i);
   assert.match(html, /Ontario Science Centre Science School/i);
@@ -49,10 +49,11 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /<h2>Service &amp; Leadership<\/h2>/i);
   assert.match(html, /University of Toronto/i);
   assert.match(html, /class="project-description"/i);
-  assert.match(html, /Predicting APA Site Choice from mRNA Sequences[\s\S]*?class="link-icon"/i);
+  assert.match(html, /Predicting APA Site Choice from mRNA Sequences[\s\S]*?class="external-link-icon"/i);
   assert.match(html, /Royal Astronomical Society of Canada/i);
   assert.match(html, /Ontario Science Centre/i);
   assert.match(html, /class="service-description"/i);
+  assert.match(html, /class="hero-postscript"[^>]*>\s*P\.S\./i);
   assert.doesNotMatch(html, /<ul\b/i);
   assert.match(html, /theme-icon__sun/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
@@ -65,7 +66,7 @@ test("does not publish separate résumé or CV pages", async () => {
   }
 });
 
-test("publishes the résumé, education logos, and calligraphic favicon", async () => {
+test("publishes the résumé, education logos, and single-character favicon", async () => {
   const resume = await readFile(new URL("../public/resume.pdf", import.meta.url));
   assert.equal(resume.subarray(0, 5).toString(), "%PDF-");
 
@@ -81,16 +82,38 @@ test("publishes the résumé, education logos, and calligraphic favicon", async 
   assert.equal(scienceCentreLogo.readUInt32BE(20), 360);
 
   const favicon = await readFile(new URL("../public/favicon.svg", import.meta.url), "utf8");
-  assert.match(favicon, /id="tong"/);
-  assert.equal((favicon.match(/href="#tong"/g) ?? []).length, 2);
+  assert.match(favicon, />同<\/text>/);
+  assert.doesNotMatch(favicon, /同同/);
+  assert.match(favicon, /STKaiti/);
   assert.match(favicon, /prefers-color-scheme:\s*dark/);
-  assert.doesNotMatch(favicon, /<text\b/);
+});
 
-  const calligraphyFont = await readFile(
-    new URL("../public/fonts/zhi-mang-xing-tong.ttf", import.meta.url),
-  );
-  assert.deepEqual([...calligraphyFont.subarray(0, 4)], [0, 1, 0, 0]);
+test("keeps the Fun Mode interest sections and stats in the requested order", async () => {
+  const source = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
+  const headings = [
+    "<h2>Pinterest</h2>",
+    "<h2>Reading</h2>",
+    "<h2>Music</h2>",
+    "<h2>Gaming</h2>",
+    "<h2>Other Media</h2>",
+    "<h2>Collections</h2>",
+    "<h2>Food</h2>",
+  ];
+  const positions = headings.map((heading) => source.indexOf(heading));
 
-  const fontLicense = await readFile(new URL("../public/fonts/OFL.txt", import.meta.url), "utf8");
-  assert.match(fontLicense, /SIL OPEN FONT LICENSE/i);
+  positions.forEach((position) => assert.notEqual(position, -1));
+  assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+
+  for (const label of ["Top 5 Genres", "Top 10 Artists", "Top 10 Tracks"]) {
+    assert.match(source, new RegExp(label));
+  }
+
+  for (const collection of [
+    "Plants & Dried Plants",
+    "Rocks & Fossils",
+    "Scrapbook",
+    "Pokémon Cards",
+  ]) {
+    assert.match(source, new RegExp(collection.replace("&", "&amp;|&")));
+  }
 });

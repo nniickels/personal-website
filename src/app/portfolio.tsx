@@ -89,8 +89,30 @@ const experience = [
   },
 ] as const;
 
-const listeningLists = ["Artists", "Tracks", "Albums"] as const;
-const emptyRanking = Array.from({ length: 10 }, (_, index) => index + 1);
+const musicRankings = [
+  { title: "Top 5 Genres", count: 5 },
+  { title: "Top 10 Artists", count: 10 },
+  { title: "Top 10 Tracks", count: 10 },
+] as const;
+
+const collections = [
+  {
+    title: "Plants & Dried Plants",
+    placeholder: "Favourite plants, pressed flowers, and dried specimens will go here.",
+  },
+  {
+    title: "Rocks & Fossils",
+    placeholder: "Highlights from my rocks and fossils collection will go here.",
+  },
+  {
+    title: "Scrapbook",
+    placeholder: "Selected scrapbook pages and notes will go here.",
+  },
+  {
+    title: "Pokémon Cards",
+    placeholder: "Favourite cards and collection highlights will go here.",
+  },
+] as const;
 
 function SocialIcon({ name }: { name: IconName }) {
   if (name === "github") {
@@ -166,17 +188,16 @@ function SocialIcon({ name }: { name: IconName }) {
   );
 }
 
-function LinkIcon() {
+function ExternalLinkIcon() {
   return (
     <svg
-      className="link-icon"
+      className="external-link-icon"
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
     >
-      <path d="m9.5 14.5 5-5" />
-      <path d="M7.2 16.8 5.7 18.3a3.2 3.2 0 0 1-4.5-4.5l3.6-3.6a3.2 3.2 0 0 1 4.5 0" />
-      <path d="m16.8 7.2 1.5-1.5a3.2 3.2 0 0 1 4.5 4.5l-3.6 3.6a3.2 3.2 0 0 1-4.5 0" />
+      <path d="M7 17 17 7" />
+      <path d="M9 7h8v8" />
     </svg>
   );
 }
@@ -251,7 +272,7 @@ function SeriousContent() {
                   {"href" in project ? (
                     <a className="text-link" href={project.href} target="_blank" rel="noreferrer">
                       {project.title}
-                      <LinkIcon />
+                      <ExternalLinkIcon />
                     </a>
                   ) : project.title}
                 </h3>
@@ -287,7 +308,7 @@ function SeriousContent() {
 function FunContent() {
   return (
     <div className="mode-content fun-content" aria-label="Fun mode content">
-      <section className="section">
+      <section className="section" id="pinterest">
         <h2>Pinterest</h2>
         <article className="metric-entry">
           <div>
@@ -298,15 +319,25 @@ function FunContent() {
         </article>
       </section>
 
-      <section className="section">
-        <h2>Lifetime listening</h2>
+      <section className="section" id="reading">
+        <h2>Reading</h2>
+        <p className="placeholder-copy">
+          Notes on books I’m reading and favourites I return to will go here.
+        </p>
+      </section>
+
+      <section className="section" id="music">
+        <h2>Music</h2>
+        <p className="placeholder-copy">
+          A few notes about what I listen to—and why I love it—will go here.
+        </p>
         <p className="data-note">Listening data connection required.</p>
-        <div className="listening-grid">
-          {listeningLists.map((list) => (
-            <article className="ranking-card" key={list}>
-              <h3>Top 10 {list}</h3>
+        <div className="music-rankings">
+          {musicRankings.map(({ title, count }) => (
+            <article className="ranking-card" key={title}>
+              <h3>{title}</h3>
               <ol>
-                {emptyRanking.map((rank) => (
+                {Array.from({ length: count }, (_, index) => index + 1).map((rank) => (
                   <li key={rank}>
                     <span>{String(rank).padStart(2, "0")}</span>
                     <span>—</span>
@@ -316,6 +347,39 @@ function FunContent() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="section" id="gaming">
+        <h2>Gaming</h2>
+        <p className="placeholder-copy">
+          Games I’m playing, favourites, and future live stats will go here.
+        </p>
+      </section>
+
+      <section className="section" id="other-media">
+        <h2>Other Media</h2>
+        <p className="placeholder-copy">
+          Films, shows, videos, and other things I’m enjoying will go here.
+        </p>
+      </section>
+
+      <section className="section" id="collections">
+        <h2>Collections</h2>
+        <div className="collections-grid">
+          {collections.map((collection) => (
+            <article className="collection-entry" key={collection.title}>
+              <h3>{collection.title}</h3>
+              <p className="placeholder-copy">{collection.placeholder}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section" id="food">
+        <h2>Food</h2>
+        <p className="placeholder-copy">
+          Recipes, restaurants, and favourite things to cook and eat will go here.
+        </p>
       </section>
     </div>
   );
@@ -384,15 +448,37 @@ export function Portfolio() {
                 </span>
                 <a className="text-link" href="/resume.pdf" target="_blank" rel="noreferrer">
                   resume
+                  <ExternalLinkIcon />
                 </a>
               </>
-            ) : "nickel / nickels / nnickels / nnickelsj"}
+            ) : "nic / nickel / nickels / nnickels / nnickelsj"}
           </p>
-          <p className="hero-description">
-            {mode === "serious"
-              ? "Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University of Toronto. My research interests include galaxy formation and evolution, observational cosmology, early universe physics, and stellar remnants. Below is a quick overview of my academic profile. Feel free to reach out via email or connect with me on LinkedIn :)) P.S. I also have a fun mode for my more casual side and personal interests!"
-              : "Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm very interested in philosopy (namely metaphysics and epistemolgy, though intersecitonal questions are my favourite). I enjoy listening to music, cooking, gardening, house-plant-keeping, exploring the outdoors, fossil-hunting, rock-collecting, dried-flower-keeping, flower-pressing, scrapbooking, reading, and gaming. I'd like to share my many collections and hobbies with you in this mode, so please enjoy! :))"}
-          </p>
+          <div className="hero-description">
+            {mode === "serious" ? (
+              <>
+                <p>
+                  Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University
+                  of Toronto. My research interests include galaxy formation and evolution,
+                  observational cosmology, early universe physics, and stellar remnants. Below is a
+                  quick overview of my academic profile. Feel free to reach out via email or connect
+                  with me on LinkedIn :))
+                </p>
+                <p className="hero-postscript">
+                  P.S. I also have a fun mode for my more casual side and personal interests!
+                </p>
+              </>
+            ) : (
+              <p>
+                Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
+                very interested in philosopy (namely metaphysics and epistemolgy, though
+                intersecitonal questions are my favourite). I enjoy listening to music, cooking,
+                gardening, house-plant-keeping, exploring the outdoors, fossil-hunting,
+                rock-collecting, dried-flower-keeping, flower-pressing, scrapbooking, reading, and
+                gaming. I'd like to share my many collections and hobbies with you in this mode, so
+                please enjoy! :))
+              </p>
+            )}
+          </div>
         </section>
         {mode === "serious" ? <SeriousContent /> : <FunContent />}
       </main>
