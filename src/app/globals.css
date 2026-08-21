@@ -1208,6 +1208,23 @@ button {
 }
 
 @media (max-width: 520px) {
+  .hero-heading {
+    gap: 0.55rem;
+  }
+
+  .hero h1 {
+    flex: 0 1 auto;
+    font-size: clamp(2.35rem, 11.25vw, 2.75rem);
+    white-space: nowrap;
+  }
+
+  .social-links {
+    display: grid;
+    grid-template-columns: repeat(2, 1.72rem);
+    gap: 0.12rem 0.5rem;
+    justify-content: end;
+  }
+
   .pokemon-card-lightbox,
   .listening-cover-lightbox {
     padding-inline: 0.75rem;

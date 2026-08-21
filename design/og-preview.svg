@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#121212"/>
+  <rect x="48" y="48" width="1104" height="534" rx="4" fill="none" stroke="#2a2a2a" stroke-width="2"/>
+
+  <text x="96" y="304" fill="#d7d7d7" font-family="Iowan Old Style, Palatino Linotype, Times New Roman, serif" font-size="84" font-weight="600">Nicole Jiang</text>
+  <text x="101" y="366" fill="#a1a1a1" font-family="Iowan Old Style, Palatino Linotype, Times New Roman, serif" font-size="29">astronomy &amp; physics undergrad @ uoft</text>
+  <text x="101" y="535" fill="#777" font-family="Iowan Old Style, Palatino Linotype, Times New Roman, serif" font-size="24">nicolejiang.com</text>
+</svg>

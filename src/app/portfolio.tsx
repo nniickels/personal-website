@@ -546,7 +546,27 @@ function SeriousContent() {
 function PokemonCardWheel() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const wheelRef = useRef<HTMLDivElement>(null);
+  const wheelItemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const selectedCard = selectedIndex === null ? null : pokemonCards[selectedIndex];
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const wheel = wheelRef.current;
+    const item = wheelItemRefs.current[selectedIndex];
+    if (!wheel || !item) return;
+
+    const wheelRect = wheel.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const nextLeft =
+      wheel.scrollLeft + itemRect.left - wheelRect.left - (wheel.clientWidth - itemRect.width) / 2;
+
+    wheel.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }, [selectedIndex]);
 
   useEffect(() => {
     if (selectedIndex === null) {
@@ -580,9 +600,21 @@ function PokemonCardWheel() {
 
   return (
     <>
-      <div className="pokemon-card-wheel" role="list" aria-label="Pokémon card collection">
+      <div
+        className="pokemon-card-wheel"
+        role="list"
+        aria-label="Pokémon card collection"
+        ref={wheelRef}
+      >
         {pokemonCards.map((card, index) => (
-          <div className="pokemon-card-wheel-item" role="listitem" key={card.href}>
+          <div
+            className="pokemon-card-wheel-item"
+            role="listitem"
+            key={card.href}
+            ref={(element) => {
+              wheelItemRefs.current[index] = element;
+            }}
+          >
             <button
               className="pokemon-card-thumbnail"
               type="button"
@@ -664,6 +696,8 @@ function ListeningCoverWheel() {
   const [previewError, setPreviewError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const wheelRef = useRef<HTMLDivElement>(null);
+  const wheelItemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const keepPlayingRef = useRef(false);
   const longPressTimerRef = useRef<number | null>(null);
   const touchPressRef = useRef<{
@@ -678,6 +712,24 @@ function ListeningCoverWheel() {
   const lastTouchAtRef = useRef(0);
   const activeTrack = activeIndex === null ? null : listeningTracks[activeIndex];
   const selectedTrack = selectedIndex === null ? null : listeningTracks[selectedIndex];
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const wheel = wheelRef.current;
+    const item = wheelItemRefs.current[selectedIndex];
+    if (!wheel || !item) return;
+
+    const wheelRect = wheel.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const nextLeft =
+      wheel.scrollLeft + itemRect.left - wheelRect.left - (wheel.clientWidth - itemRect.width) / 2;
+
+    wheel.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }, [selectedIndex]);
 
   const resetPreview = () => {
     const audio = audioRef.current;
@@ -905,9 +957,21 @@ function ListeningCoverWheel() {
           </span>
         </div>
 
-        <div className="listening-cover-wheel" role="list" aria-label="Track preview covers">
+        <div
+          className="listening-cover-wheel"
+          role="list"
+          aria-label="Track preview covers"
+          ref={wheelRef}
+        >
           {listeningTracks.map((track, index) => (
-            <div className="listening-cover-wheel-item" role="listitem" key={track.id}>
+            <div
+              className="listening-cover-wheel-item"
+              role="listitem"
+              key={track.id}
+              ref={(element) => {
+                wheelItemRefs.current[index] = element;
+              }}
+            >
               <button
                 className="listening-cover-thumbnail"
                 type="button"

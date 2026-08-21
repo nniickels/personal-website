@@ -30,6 +30,12 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
+  assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
+  assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=1"/i);
+  assert.match(html, /property="og:image:width"[^>]*content="1200"/i);
+  assert.match(html, /property="og:image:height"[^>]*content="630"/i);
+  assert.match(html, /name="twitter:card"[^>]*content="summary_large_image"/i);
+  assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
   assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=3"/i);
   assert.doesNotMatch(html, /favicon\.svg/i);
@@ -301,6 +307,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /\.listening-volume output\s*\{[\s\S]*?text-align:\s*left/i);
   assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.72rem\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
