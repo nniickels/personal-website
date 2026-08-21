@@ -157,12 +157,12 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /<p className="gaming-widget-label">Recently Played<\/p>/);
   assert.match(source, /href="https:\/\/www\.youtube\.com\/@JacobGeller"/);
   assert.match(source, /href="https:\/\/www\.youtube\.com\/@DarylTalksGames"/);
-  assert.match(source, /A short description of my natural-history collections will go here\./);
-  assert.match(source, /A short description of my scrapbook and process will go here\./);
+  assert.match(source, /I like gardening and plant-keeping/);
+  assert.match(source, /I hoard \(and organize\) a bunch of junk/);
   assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
   assert.match(
     source,
-    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?A short introduction to my photo gallery will go here\.[\s\S]*?Pinterest monthly viewers[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Pinterest monthly viewers[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
   );
   assert.match(source, /Photo gallery placeholder/);
   assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 3);

@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import type { PublicStatsResponse } from "../api-stats";
 import { ThemeToggle } from "./theme-toggle";
 
 type Mode = "serious" | "fun";
@@ -547,6 +548,50 @@ function PokemonCardWheel() {
 }
 
 function FunContent() {
+  const [stats, setStats] = useState<PublicStatsResponse | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadStats() {
+      try {
+        const response = await fetch("/api/stats", { signal: controller.signal });
+        if (!response.ok) throw new Error(`Stats endpoint returned ${response.status}`);
+        setStats((await response.json()) as PublicStatsResponse);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        console.error("Unable to load portfolio stats.");
+      }
+    }
+
+    void loadStats();
+    return () => controller.abort();
+  }, []);
+
+  const pinterest = stats?.pinterest;
+  const spotify = stats?.spotify;
+  const clashRoyale = stats?.clashRoyale;
+  const steam = stats?.steam;
+
+  const rankingData = spotify?.status === "ok"
+    ? [
+        {
+          title: "Top 5 Genres",
+          count: 5,
+          items: spotify.data.genres.map((name) => ({ name, href: null })),
+        },
+        { title: "Top 10 Artists", count: 10, items: spotify.data.artists },
+        {
+          title: "Top 10 Tracks",
+          count: 10,
+          items: spotify.data.tracks.map((track) => ({
+            name: `${track.name} — ${track.artists.join(", ")}`,
+            href: track.href,
+          })),
+        },
+      ]
+    : listeningRankings.map(({ title, count }) => ({ title, count, items: [] }));
+
   return (
     <div className="mode-content fun-content" aria-label="Side Quests content">
       <section className="section" id="photo-gallery">
@@ -558,10 +603,16 @@ function FunContent() {
             <p className="placeholder-copy">
               I like taking photos! 
             </p>
-            <div className="api-placeholder" aria-label="Pinterest API placeholder">
+            <div className="api-placeholder" aria-label="Pinterest monthly viewers">
               <span>Pinterest monthly viewers</span>
-              <strong>—</strong>
-              <small>API connection required.</small>
+              <strong>
+                {pinterest?.status === "ok" ? pinterest.data.monthlyViews.toLocaleString() : "—"}
+              </strong>
+              <small>
+                {pinterest?.status === "ok"
+                  ? "Live from Pinterest."
+                  : pinterest?.message ?? "Loading live data…"}
+              </small>
             </div>
             <div className="media-placeholder media-placeholder--gallery">
               Photo gallery placeholder
@@ -572,16 +623,31 @@ function FunContent() {
 
       <section className="section" id="listening">
         <h2>Listening</h2>
-        <p className="data-note">Listening data connection required.</p>
+        <p className="data-note">
+          {spotify?.status === "ok"
+            ? "Spotify long-term listening data (approximately one year)."
+            : spotify?.message ?? "Loading live data…"}
+        </p>
         <div className="listening-rankings">
-          {listeningRankings.map(({ title, count }) => (
+          {rankingData.map(({ title, count, items }) => (
             <article className="ranking-card" key={title}>
               <h3>{title}</h3>
               <ol>
-                {Array.from({ length: count }, (_, index) => index + 1).map((rank) => (
-                  <li key={rank}>
-                    <span>{String(rank).padStart(2, "0")}</span>
-                    <span>—</span>
+                {Array.from({ length: count }, (_, index) => index).map((index) => (
+                  <li key={index}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    {items[index]?.href ? (
+                      <a
+                        className="text-link"
+                        href={items[index].href ?? undefined}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {items[index].name}
+                      </a>
+                    ) : (
+                      <span>{items[index]?.name ?? "—"}</span>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -656,20 +722,44 @@ function FunContent() {
           <article className="gaming-widget">
             <h3>Clash Royale</h3>
             <p className="gaming-widget-label">Trophies</p>
-            <p className="gaming-widget-value" aria-label="Clash Royale trophies pending">
-              —
+            <p className="gaming-widget-value" aria-label="Clash Royale trophies">
+              {clashRoyale?.status === "ok" ? clashRoyale.data.trophies.toLocaleString() : "—"}
             </p>
-            <p className="data-note">API connection required.</p>
+            <p className="data-note">
+              {clashRoyale?.status === "ok"
+                ? "Live player trophies."
+                : clashRoyale?.message ?? "Loading live data…"}
+            </p>
           </article>
           <article className="gaming-widget">
             <h3>Steam</h3>
             <p className="gaming-widget-label">Recently Played</p>
-            <ol className="recently-played-placeholder" aria-label="Steam recently played pending">
-              {Array.from({ length: 3 }, (_, index) => (
-                <li key={index}>—</li>
-              ))}
+            <ol className="recently-played-placeholder" aria-label="Steam recently played">
+              {steam?.status === "ok" && steam.data.recentlyPlayed.length > 0
+                ? steam.data.recentlyPlayed.map((game) => (
+                    <li key={game.storeHref}>
+                      <a
+                        className="text-link"
+                        href={game.storeHref}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {game.name}
+                      </a>
+                      {game.playtimeMinutes !== null && (
+                        <small>{(game.playtimeMinutes / 60).toFixed(1)} h in the last 2 weeks</small>
+                      )}
+                    </li>
+                  ))
+                : Array.from({ length: 3 }, (_, index) => <li key={index}>—</li>)}
             </ol>
-            <p className="data-note">API connection required.</p>
+            <p className="data-note">
+              {steam?.status === "ok"
+                ? steam.data.recentlyPlayed.length > 0
+                  ? "Live from Steam."
+                  : "No recently played games."
+                : steam?.message ?? "Loading live data…"}
+            </p>
           </article>
         </div>
       </section>

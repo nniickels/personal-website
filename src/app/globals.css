@@ -169,6 +169,25 @@ button {
   width: min(760px, calc(100% - 2rem));
 }
 
+.privacy-page {
+  display: grid;
+  gap: 2.2rem;
+  min-height: 100vh;
+  padding-top: calc(var(--header-height) + 4rem);
+  padding-bottom: calc(var(--footer-height) + 4rem);
+}
+
+.privacy-page > p,
+.privacy-page section p {
+  max-width: 68ch;
+  color: var(--muted);
+}
+
+.privacy-page section {
+  display: grid;
+  gap: 0.7rem;
+}
+
 .bar {
   position: fixed;
   right: 0;
@@ -384,7 +403,7 @@ button {
 }
 
 .hero h1 {
-  font-size: 2.95rem;
+  font-size: 3.3rem;
   font-weight: 560;
   line-height: 1.1;
 }
@@ -966,7 +985,7 @@ button {
   }
 
   .hero h1 {
-    font-size: 2.45rem;
+    font-size: 2.75rem;
   }
 
   .hero-heading {

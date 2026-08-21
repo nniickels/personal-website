@@ -1,10 +1,10 @@
 /** Cloudflare Worker entry point for the site. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { getPublicStats, type StatsEnv } from "./api-stats";
 
-interface Env {
-  ASSETS: Fetcher;
-  DB: D1Database;
+interface Env extends StatsEnv {
+  ASSETS: { fetch(request: Request): Promise<Response> };
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -38,6 +38,22 @@ const worker = {
           return result.response();
         },
       }, allowedWidths);
+    }
+
+    if (url.pathname === "/api/stats") {
+      if (request.method !== "GET") {
+        return Response.json(
+          { error: "Method not allowed" },
+          { status: 405, headers: { Allow: "GET" } },
+        );
+      }
+
+      const stats = await getPublicStats(env);
+      return Response.json(stats, {
+        headers: {
+          "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=3600",
+        },
+      });
     }
 
     return handler.fetch(request, env, ctx);
