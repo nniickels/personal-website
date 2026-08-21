@@ -322,14 +322,14 @@ function FunContent() {
       <section className="section" id="reading">
         <h2>Reading</h2>
         <p className="placeholder-copy">
-          My current favourite book is The Book of Laughter and Forgetting by Milan Kundera, from whom I also like The Unbearable Lightness of Being.
+          My current favourite book is <strong>The Book of Laughter and Forgetting</strong> by
+          Milan Kundera. 
           
           I've also recently read Derek Parfit's 1971 paper on Personal Identity in its entierety (finally), which is my favourite theory on the subject that I've read thus far. 
           
 
-          More casually, I like to read comics and manga. A favourite is the House of Slaughter Vol.2 by James Tynion IV.
-
-          
+          More casually, I like to read comics and manga. A favourite is the <strong>House of
+          Slaughter Vol.2</strong> by James Tynion IV. 
         </p>
       </section>
 
