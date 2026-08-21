@@ -9,6 +9,9 @@
   --foreground: #d7d7d7;
   --muted: #a1a1a1;
   --line: #2a2a2a;
+  --star-bright: rgba(215, 215, 215, 0.075);
+  --star-dim: rgba(215, 215, 215, 0.04);
+  --star-faint: rgba(215, 215, 215, 0.016);
 }
 
 :root[data-theme="light"] {
@@ -17,6 +20,9 @@
   --foreground: #161616;
   --muted: #505050;
   --line: #d5d5d5;
+  --star-bright: rgba(22, 22, 22, 0.065);
+  --star-dim: rgba(22, 22, 22, 0.034);
+  --star-faint: rgba(22, 22, 22, 0.014);
 }
 
 * {
@@ -30,7 +36,37 @@ body {
 
 body {
   margin: 0;
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle 3px at center, var(--star-bright) 0 62%, transparent 80%),
+    radial-gradient(ellipse 2.3px 10.5px at center, var(--star-bright) 0 42%, transparent 78%),
+    radial-gradient(ellipse 10.5px 2.3px at center, var(--star-bright) 0 42%, transparent 78%),
+    radial-gradient(circle 1.9px at center, var(--star-dim) 0 62%, transparent 80%),
+    radial-gradient(ellipse 1.45px 7px at center, var(--star-dim) 0 42%, transparent 78%),
+    radial-gradient(ellipse 7px 1.45px at center, var(--star-dim) 0 42%, transparent 78%),
+    radial-gradient(circle 1.1px at center, var(--star-faint) 0 62%, transparent 80%),
+    radial-gradient(ellipse 0.85px 4.2px at center, var(--star-faint) 0 42%, transparent 78%),
+    radial-gradient(ellipse 4.2px 0.85px at center, var(--star-faint) 0 42%, transparent 78%);
+  background-size:
+    181px 149px,
+    181px 149px,
+    181px 149px,
+    137px 193px,
+    137px 193px,
+    137px 193px,
+    229px 167px,
+    229px 167px,
+    229px 167px;
+  background-position:
+    23px 31px,
+    23px 31px,
+    23px 31px,
+    83px 74px,
+    83px 74px,
+    83px 74px,
+    146px 121px,
+    146px 121px,
+    146px 121px;
   color: var(--foreground);
   font: 400 15px/1.55 "Iowan Old Style", "Palatino Linotype", "URW Palladio L", "Times New Roman", serif;
 }

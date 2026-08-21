@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { ThemeToggle } from "./theme-toggle";
 
 type Mode = "serious" | "fun";
+const storedModeKey = "portfolio-mode";
 type IconName =
   | "email"
   | "github"
@@ -52,7 +53,7 @@ const projects = [
     title: "Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations",
     dates: "May 2025",
     description:
-      "Queried and processed galaxy records from EAGLE and IllustrisTNG to visualize SFR-M* trends across low redshifts.",
+      "Queried and processed galaxy records from EAGLE and IllustrisTNG to visualize SFR-M* trends at low redshifts.",
   },
   {
     title: "Predicting APA Site Choice from mRNA Sequences",
@@ -62,7 +63,7 @@ const projects = [
       "Built an APA site-prediction preprocessing pipeline for the DNABERT-2 genome transformer model as part of a five-member undergraduate team; placed 2nd at the Toronto Bioinformatics Hackathon.",
   },
   {
-    title: "Saturn and Moons Observation with HDR Imaging",
+    title: "Observation of Saturn and Its Moons with HDR Imaging",
     dates: "Oct 2024 - Dec 2024",
     description:
       "Captured and compiled images of Saturn and its moons to evaluate Titan's orbital period.",
@@ -75,7 +76,7 @@ const experience = [
     role: "Journal Contributor / Observatory Maintenance",
     dates: "Sep 2025 - Present",
     description:
-      "Curating planet ephemerides and observational astronomy events for the Journal centre-spread. Observatory maintenance at the E.C. Carr Astronomical Observatory.",
+      "Curating planet ephemerides and observational astronomy events for the Journal centre spread. Observatory maintenance at the E.C. Carr Astronomical Observatory.",
   },
   {
     organization: "Ontario Science Centre",
@@ -255,7 +256,7 @@ function SeriousContent() {
             <div className="resume-item">
               <div className="entry-head">
                 <h3>Ontario Science Centre Science School</h3>
-                <p className="entry-dates">Feb 2024 - June 2024</p>
+                <p className="entry-dates">Feb 2024 - Jun 2024</p>
               </div>
             </div>
           </article>
@@ -322,14 +323,16 @@ function FunContent() {
       <section className="section" id="reading">
         <h2>Reading</h2>
         <p className="placeholder-copy">
-          My current favourite book is <strong>The Book of Laughter and Forgetting</strong> by
+          My current favourite book is <strong><cite>The Book of Laughter and Forgetting</cite></strong> by
           Milan Kundera. 
           
-          I've also recently read Derek Parfit's 1971 paper on Personal Identity in its entierety (finally), which is my favourite theory on the subject that I've read thus far. 
+          I've also recently read Derek Parfit's 1971 paper on Personal Identity in its entirety
+          (finally), which presents my favourite theory on the subject that I've encountered thus
+          far.
           
 
-          More casually, I like to read comics and manga. A favourite is the <strong>House of
-          Slaughter Vol.2</strong> by James Tynion IV. 
+          More casually, I like to read comics and manga. A favourite is the <strong><cite>House of
+          Slaughter Vol.2</cite></strong> by James Tynion IV.
         </p>
       </section>
 
@@ -358,7 +361,7 @@ function FunContent() {
       <section className="section" id="gaming">
         <h2>Gaming</h2>
         <p className="placeholder-copy">
-          Games I’m playing, favourites, and future live stats will go here.
+          My favourite games include <strong><cite>Batman: Arkham Knight</cite></strong> and <strong><cite>UNBEATABLE</cite></strong>. I also enjoy the occasional two-week  <strong><cite>Minecraft</cite></strong> phase, and unfortunately have been finding myself going back to <strong><cite>League of Legends</cite></strong> more often than I would like to admit (though mostly Aram)... 
         </p>
       </section>
 
@@ -394,11 +397,31 @@ function FunContent() {
 export function Portfolio() {
   const [mode, setMode] = useState<Mode>("serious");
 
+  useEffect(() => {
+    try {
+      const storedMode = window.localStorage.getItem(storedModeKey);
+      if (storedMode === "serious" || storedMode === "fun") {
+        setMode(storedMode);
+      }
+    } catch {
+      // Keep Serious Mode as the default when browser storage is unavailable.
+    }
+  }, []);
+
+  function selectMode(nextMode: Mode) {
+    setMode(nextMode);
+    try {
+      window.localStorage.setItem(storedModeKey, nextMode);
+    } catch {
+      // Mode switching still works for the current page without browser storage.
+    }
+  }
+
   function switchMode() {
     const nextMode: Mode = mode === "serious" ? "fun" : "serious";
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const applyMode = () => {
-      setMode(nextMode);
+      selectMode(nextMode);
     };
 
     if (reducedMotion || typeof document.startViewTransition !== "function") {
@@ -421,7 +444,7 @@ export function Portfolio() {
             className="text-btn home-link"
             href="/"
             aria-label="Nicole Jiang home"
-            onClick={() => setMode("serious")}
+            onClick={() => selectMode("serious")}
           >
             同同
           </a>
@@ -476,8 +499,9 @@ export function Portfolio() {
             ) : (
               <p>
                 Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
-                very interested in philosopy (namely metaphysics and epistemolgy, though
-                intersecitonal questions are my favourite). I have many interests, collections, and hobbies I'd like to share with you in this mode...
+                very interested in philosophy (namely metaphysics and epistemology, though
+                intersectional questions are my favourite). I have many interests, collections,
+                and hobbies I'd like to share with you in this mode...
               </p>
             )}
           </div>

@@ -44,7 +44,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /src="\/university-of-toronto\.png"/i);
   assert.match(html, /src="\/ontario-science-centre\.png"/i);
   assert.match(html, /Ontario Science Centre Science School/i);
-  assert.match(html, /Feb 2024 - June 2024/i);
+  assert.match(html, /Feb 2024 - Jun 2024/i);
   assert.match(html, /<h2>Research &amp; Technical Projects<\/h2>/i);
   assert.match(html, /<h2>Service &amp; Leadership<\/h2>/i);
   assert.match(html, /University of Toronto/i);
