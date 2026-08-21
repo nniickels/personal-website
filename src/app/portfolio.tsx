@@ -322,14 +322,20 @@ function FunContent() {
       <section className="section" id="reading">
         <h2>Reading</h2>
         <p className="placeholder-copy">
-          Notes on books I’m reading and favourites I return to will go here.
+          My current favourite book is The Book of Laughter and Forgetting by Milan Kundera, from whom I also like The Unbearable Lightness of Being.
+          
+          I've also recently read Derek Parfit's 1971 paper on Personal Identity in its entierety (finally), which is my favourite theory on the subject that I've read thus far. 
+          
+
+          More casually, I like to read comics and manga. A favourite is the House of Slaughter Vol.2 by James Tynion IV.
+
+          
         </p>
       </section>
 
       <section className="section" id="music">
         <h2>Music</h2>
         <p className="placeholder-copy">
-          A few notes about what I listen to—and why I love it—will go here.
         </p>
         <p className="data-note">Listening data connection required.</p>
         <div className="music-rankings">
@@ -471,11 +477,7 @@ export function Portfolio() {
               <p>
                 Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
                 very interested in philosopy (namely metaphysics and epistemolgy, though
-                intersecitonal questions are my favourite). I enjoy listening to music, cooking,
-                gardening, house-plant-keeping, exploring the outdoors, fossil-hunting,
-                rock-collecting, dried-flower-keeping, flower-pressing, scrapbooking, reading, and
-                gaming. I'd like to share my many collections and hobbies with you in this mode, so
-                please enjoy! :))
+                intersecitonal questions are my favourite). I have many interests, collections, and hobbies I'd like to share with you in this mode...
               </p>
             )}
           </div>
