@@ -110,9 +110,9 @@ const pokemonCards = [
     href: "https://www.tcgcollector.com/cards/50611/mega-absol-ex-mega-brave-079-063",
   },
   {
-    name: "M Absol-EX (XY Promos No. 343)",
-    image: "/pokemon-cards/m-absol-ex-343.webp",
-    href: "https://www.tcgcollector.com/cards/59315/m-absol-ex-xy-promos-no-343",
+    name: "M Absol-EX (XY Promos XY63)",
+    image: "/pokemon-cards/m-absol-ex-xy63.png",
+    href: "https://www.tcgcollector.com/cards/7819/m-absol-ex-xy-promos-xy63",
   },
   {
     name: "Scizor (Ruler of the Black Flame 116/108)",
@@ -120,14 +120,14 @@ const pokemonCards = [
     href: "https://www.tcgcollector.com/cards/42038/scizor-ruler-of-the-black-flame-116-108",
   },
   {
-    name: "M Scizor-EX (Rage of the Broken Heavens 087/080)",
-    image: "/pokemon-cards/m-scizor-ex-087.jpg",
-    href: "https://www.tcgcollector.com/cards/23245/m-scizor-ex-rage-of-the-broken-heavens-087-080",
+    name: "M Scizor-EX (BREAKpoint 77/122)",
+    image: "/pokemon-cards/m-scizor-ex-077.png",
+    href: "https://www.tcgcollector.com/cards/8501/m-scizor-ex-breakpoint-77-122",
   },
   {
-    name: "M Scizor-EX (Rage of the Broken Heavens 058/080)",
-    image: "/pokemon-cards/m-scizor-ex-058.jpg",
-    href: "https://www.tcgcollector.com/cards/23216/m-scizor-ex-rage-of-the-broken-heavens-058-080",
+    name: "M Scizor-EX (BREAKpoint 120/122)",
+    image: "/pokemon-cards/m-scizor-ex-120.png",
+    href: "https://www.tcgcollector.com/cards/8544/m-scizor-ex-breakpoint-120-122",
   },
   {
     name: "Team Rocket's Houndoom (The Glory of Team Rocket 100/098)",
@@ -672,7 +672,7 @@ function ListeningCoverWheel() {
     startX: number;
     startY: number;
     cancelled: boolean;
-    expanded: boolean;
+    previewing: boolean;
   } | null>(null);
   const suppressClickRef = useRef(false);
   const lastTouchAtRef = useRef(0);
@@ -732,13 +732,10 @@ function ListeningCoverWheel() {
     void playPreview(index);
   };
 
-  const togglePreview = (index: number) => {
-    const audio = audioRef.current;
-    if (activeIndex === index && audio && !audio.paused) {
-      resetPreview();
-      return;
-    }
-    void playPreview(index);
+  const openTouchTrack = (index: number) => {
+    keepPlayingRef.current = false;
+    resetPreview();
+    setSelectedIndex(index);
   };
 
   const clearLongPressTimer = () => {
@@ -770,13 +767,13 @@ function ListeningCoverWheel() {
       startX: event.clientX,
       startY: event.clientY,
       cancelled: false,
-      expanded: false,
+      previewing: false,
     };
     longPressTimerRef.current = window.setTimeout(() => {
       const press = touchPressRef.current;
       if (!press || press.cancelled || press.pointerId !== event.pointerId) return;
-      press.expanded = true;
-      openTrack(index);
+      press.previewing = true;
+      void playPreview(index);
     }, 500);
   };
 
@@ -799,10 +796,10 @@ function ListeningCoverWheel() {
     const press = touchPressRef.current;
     clearLongPressTimer();
     if (press && press.pointerId === event.pointerId) {
-      if (press.expanded) {
-        closeTrack();
+      if (press.previewing) {
+        resetPreview();
       } else if (!press.cancelled) {
-        togglePreview(index);
+        openTouchTrack(index);
       }
     }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -820,7 +817,7 @@ function ListeningCoverWheel() {
 
     const press = touchPressRef.current;
     if (press && press.pointerId === event.pointerId) {
-      if (press.expanded) closeTrack();
+      if (press.previewing) resetPreview();
       press.cancelled = true;
       clearLongPressTimer();
       touchPressRef.current = null;
@@ -888,7 +885,7 @@ function ListeningCoverWheel() {
               ) : (
                 <>
                   <span className="cover-instruction-hover">Hover a cover</span>
-                  <span className="cover-instruction-tap">Tap a cover, hold to expand</span>
+                  <span className="cover-instruction-tap">Hold to preview, tap to expand</span>
                 </>
               )}
             </strong>

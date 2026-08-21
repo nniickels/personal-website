@@ -138,7 +138,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /And here are my lifetime listening statistics by time \(in hours\) via stats\.fm!/);
   assert.match(source, /Now playing preview of\.\.\./);
   assert.match(source, /className="cover-instruction-hover">Hover a cover<\/span>/);
-  assert.match(source, /className="cover-instruction-tap">Tap a cover, hold to expand<\/span>/);
+  assert.match(source, /className="cover-instruction-tap">Hold to preview, tap to expand<\/span>/);
   assert.match(source, /className="listening-cover-wheel"[\s\S]*?aria-haspopup="dialog"/);
   assert.match(source, /className="listening-cover-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /aria-label="Track preview volume"/);
@@ -152,11 +152,11 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /navigation\?\.type === "navigate"[\s\S]*?setItem\(storedModeKey, "serious"\)/);
   assert.match(source, /getItem\(storedModeKey\)/);
   assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
-  assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?openTrack\(index\)[\s\S]*?, 500\)/);
+  assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 500\)/);
   assert.match(source, /Math\.hypot[\s\S]*?> 10/);
-  assert.match(source, /handleCoverPointerUp[\s\S]*?togglePreview\(index\)/);
+  assert.match(source, /handleCoverPointerUp[\s\S]*?openTouchTrack\(index\)/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
-  assert.match(source, /if \(press\.expanded\)[\s\S]*?closeTrack\(\)/);
+  assert.match(source, /if \(press\.previewing\)[\s\S]*?resetPreview\(\)/);
   assert.match(source, /onFocus[\s\S]*?Date\.now\(\) - lastTouchAtRef\.current >= 1_000/);
   assert.match(source, /onContextMenu[\s\S]*?event\.preventDefault\(\)/);
   assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
@@ -245,11 +245,12 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /Photo placeholder/);
   assert.doesNotMatch(source, /Photo scroll wheel placeholder/);
   assert.equal((source.match(/https:\/\/www\.tcgcollector\.com\/cards\//g) ?? []).length, 15);
-  for (const cardId of ["49478", "41668", "41665", "39747"]) {
+  for (const cardId of ["49478", "41668", "41665", "39747", "7819", "8501", "8544"]) {
     assert.match(source, new RegExp(`https://www\\.tcgcollector\\.com/cards/${cardId}/`));
   }
   const requestedCardOrder = [
-    "M Scizor-EX (Rage of the Broken Heavens 058/080)",
+    "M Scizor-EX (BREAKpoint 77/122)",
+    "M Scizor-EX (BREAKpoint 120/122)",
     "Team Rocket's Houndoom (The Glory of Team Rocket 100/098)",
     "Garchomp & Giratina-GX (Tag Team Collection 128/205)",
     "Lilligant (Black Bolt 092/086)",
