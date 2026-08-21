@@ -237,6 +237,48 @@ const listeningTracks = [
     artist: "betcover!!",
     preview: "https://p.scdn.co/mp3-preview/0215996adb85ab029c77d08b6ab550c3c217fc53",
   },
+  {
+    id: "6n9AvpTLSNunpIr2Gr2AXa",
+    name: "potage",
+    artist: "tricot",
+    preview: "https://p.scdn.co/mp3-preview/cb73787fbe1b30ac6bfa4937978ccbbecbe55e4f",
+  },
+  {
+    id: "0cVaG276BeCnxIxf42puZ1",
+    name: "回転・天使",
+    artist: "betcover!!",
+    preview: "https://p.scdn.co/mp3-preview/a17fe745e4fc533cceb54bc751ee7e92cdd1c370",
+  },
+  {
+    id: "1XowbeLc27U22ao4MgJKO0",
+    name: "Are You Satisfied?",
+    artist: "The Rah Band",
+    preview: "https://p.scdn.co/mp3-preview/de49165b32b4f499b6b5c68a70b0e4388531b8be",
+  },
+  {
+    id: "4qTlJH6ZM4sUX39EB9VMFy",
+    name: "Witches",
+    artist: "Elephant Gym",
+    preview: "https://p.scdn.co/mp3-preview/fd0e53aef66c70b74ba9c97dea2b843c7508016e",
+  },
+  {
+    id: "6DUKQUhWqUySYngLXLNwP2",
+    name: "Automatic Stop",
+    artist: "The Strokes",
+    preview: "https://p.scdn.co/mp3-preview/20ec986627faca625d9bd12a55d76a427411be9b",
+  },
+  {
+    id: "7DmtizlT6hVi5Uf1WL6TT3",
+    name: "像风一样自由",
+    artist: "Xu Wei",
+    preview: "https://p.scdn.co/mp3-preview/19c1db35cf670f708deb88f759065a5e942ca01a",
+  },
+  {
+    id: "6JkRuPFjvHLOpMeubjra1Q",
+    name: "想把我唱給你聽",
+    artist: "Lao Lang",
+    preview: "https://p.scdn.co/mp3-preview/cd8456c367a5a1e9aa7ba12f94a9d30145dd601e",
+  },
 ].map((track) => ({
   ...track,
   href: `https://open.spotify.com/track/${track.id}`,
@@ -618,19 +660,24 @@ function ListeningCoverWheel() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [volume, setVolume] = useState(0);
+  const [previewProgress, setPreviewProgress] = useState(0);
   const [previewError, setPreviewError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const keepPlayingRef = useRef(false);
   const activeTrack = activeIndex === null ? null : listeningTracks[activeIndex];
   const selectedTrack = selectedIndex === null ? null : listeningTracks[selectedIndex];
 
   const stopPreview = () => {
+    if (keepPlayingRef.current) return;
+
     const audio = audioRef.current;
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
     }
     setActiveIndex(null);
+    setPreviewProgress(0);
     setPreviewError(false);
   };
 
@@ -645,6 +692,7 @@ function ListeningCoverWheel() {
     if (audio.src !== track.preview) {
       audio.src = track.preview;
       audio.currentTime = 0;
+      setPreviewProgress(0);
     }
 
     audio.volume = volume;
@@ -662,6 +710,25 @@ function ListeningCoverWheel() {
         setPreviewError(true);
       }
     }
+  };
+
+  const openTrack = (index: number) => {
+    keepPlayingRef.current = true;
+    setSelectedIndex(index);
+    void playPreview(index);
+  };
+
+  const closeTrack = () => {
+    keepPlayingRef.current = false;
+    setSelectedIndex(null);
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setActiveIndex(null);
+    setPreviewProgress(0);
+    setPreviewError(false);
   };
 
   const updateVolume = (nextVolume: number) => {
@@ -682,15 +749,12 @@ function ListeningCoverWheel() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setSelectedIndex(null);
+        closeTrack();
       } else if (event.key === "ArrowLeft") {
-        setSelectedIndex((current) =>
-          current === null ? null : (current - 1 + listeningTracks.length) % listeningTracks.length,
-        );
+        const previousIndex = (selectedIndex - 1 + listeningTracks.length) % listeningTracks.length;
+        openTrack(previousIndex);
       } else if (event.key === "ArrowRight") {
-        setSelectedIndex((current) =>
-          current === null ? null : (current + 1) % listeningTracks.length,
-        );
+        openTrack((selectedIndex + 1) % listeningTracks.length);
       }
     };
 
@@ -708,9 +772,24 @@ function ListeningCoverWheel() {
       <div className="listening-preview">
         <div className="listening-preview-heading" aria-live="polite">
           <span>Now playing preview of...</span>
-          <strong className={activeTrack ? "listening-preview-track" : "listening-preview-prompt"}>
-            {activeTrack ? `${activeTrack.name} — ${activeTrack.artist}` : "Hover a cover"}
-          </strong>
+          <span className="listening-preview-status">
+            <strong className={activeTrack ? "listening-preview-track" : "listening-preview-prompt"}>
+              {activeTrack ? `${activeTrack.name} — ${activeTrack.artist}` : "Hover a cover"}
+            </strong>
+            {activeTrack && (
+              <span
+                className="listening-preview-progress"
+                role="progressbar"
+                aria-label="Track preview progress"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(previewProgress * 100)}
+                style={{
+                  "--preview-progress": `${previewProgress * 360}deg`,
+                } as CSSProperties}
+              />
+            )}
+          </span>
         </div>
 
         <div className="listening-cover-wheel" role="list" aria-label="Track preview covers">
@@ -725,7 +804,7 @@ function ListeningCoverWheel() {
                 onMouseLeave={stopPreview}
                 onFocus={() => void playPreview(index)}
                 onBlur={stopPreview}
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => openTrack(index)}
               >
                 <img src={track.image} alt={`${track.name} by ${track.artist} cover`} loading="lazy" draggable="false" />
               </button>
@@ -751,13 +830,21 @@ function ListeningCoverWheel() {
           ref={audioRef}
           preload="none"
           muted={volume === 0}
+          loop
           onError={() => setPreviewError(true)}
-          onEnded={() => setActiveIndex(null)}
+          onTimeUpdate={(event) => {
+            const audio = event.currentTarget;
+            setPreviewProgress(
+              Number.isFinite(audio.duration) && audio.duration > 0
+                ? Math.min(audio.currentTime / audio.duration, 1)
+                : 0,
+            );
+          }}
         />
       </div>
 
       {selectedTrack && selectedIndex !== null && (
-        <div className="listening-cover-lightbox" onClick={() => setSelectedIndex(null)}>
+        <div className="listening-cover-lightbox" onClick={closeTrack}>
           <div
             className="listening-cover-dialog"
             role="dialog"
@@ -769,7 +856,7 @@ function ListeningCoverWheel() {
               className="listening-cover-close"
               type="button"
               aria-label="Close track cover viewer"
-              onClick={() => setSelectedIndex(null)}
+              onClick={closeTrack}
               ref={closeButtonRef}
             >
               ×
@@ -779,9 +866,7 @@ function ListeningCoverWheel() {
               type="button"
               aria-label="Previous track"
               onClick={() =>
-                setSelectedIndex(
-                  (selectedIndex - 1 + listeningTracks.length) % listeningTracks.length,
-                )
+                openTrack((selectedIndex - 1 + listeningTracks.length) % listeningTracks.length)
               }
             >
               ←
@@ -803,7 +888,7 @@ function ListeningCoverWheel() {
               className="listening-cover-nav listening-cover-nav--next"
               type="button"
               aria-label="Next track"
-              onClick={() => setSelectedIndex((selectedIndex + 1) % listeningTracks.length)}
+              onClick={() => openTrack((selectedIndex + 1) % listeningTracks.length)}
             >
               →
             </button>

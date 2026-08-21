@@ -149,8 +149,13 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /<ListeningCoverWheel \/>[\s\S]*?Text placeholder\.[\s\S]*?className="listening-rankings"/);
   assert.match(source, /useState\(0\)/);
   assert.match(source, /onMouseEnter=\{\(\) => void playPreview\(index\)\}/);
+  assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
+  assert.match(source, /<audio[\s\S]*?loop/);
+  assert.match(source, /aria-label="Track preview progress"/);
+  assert.match(source, /previewProgress \* 360/);
+  assert.match(source, /audio\.currentTime \/ audio\.duration/);
   assert.match(source, /audio\.muted = nextVolume === 0/);
-  assert.equal((source.match(/https:\/\/p\.scdn\.co\/mp3-preview\//g) ?? []).length, 10);
+  assert.equal((source.match(/https:\/\/p\.scdn\.co\/mp3-preview\//g) ?? []).length, 17);
   for (const trackId of [
     "24105EgaBPLzZp5kCeSh9g",
     "3YB9cvd668HXBEq8rbBW8P",
@@ -162,6 +167,13 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     "6ccWXgRMKsX3GjjiYdAlSd",
     "2LMloFiV7DHpBhITOaBSam",
     "0bOvjYU552KSscyA0af4aw",
+    "6n9AvpTLSNunpIr2Gr2AXa",
+    "0cVaG276BeCnxIxf42puZ1",
+    "1XowbeLc27U22ao4MgJKO0",
+    "4qTlJH6ZM4sUX39EB9VMFy",
+    "6DUKQUhWqUySYngLXLNwP2",
+    "7DmtizlT6hVi5Uf1WL6TT3",
+    "6JkRuPFjvHLOpMeubjra1Q",
   ]) {
     assert.match(source, new RegExp(trackId));
   }
@@ -239,7 +251,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   }
 
   const coverAssets = await readdir(new URL("../public/music-covers/", import.meta.url));
-  assert.equal(coverAssets.length, 10);
+  assert.equal(coverAssets.length, 17);
   for (const asset of coverAssets) {
     const cover = await readFile(new URL(`../public/music-covers/${asset}`, import.meta.url));
     assert.ok(cover.length > 10_000);
@@ -253,6 +265,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   );
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
+  assert.match(css, /\.listening-preview-heading \.listening-preview-prompt\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
+  assert.match(css, /\.listening-preview-heading strong\s*\{[\s\S]*?color:\s*var\(--foreground\)/i);
+  assert.match(css, /\.listening-preview-progress\s*\{[\s\S]*?conic-gradient/i);
+  assert.doesNotMatch(css, /\.listening-preview-progress\s*\{[\s\S]*?transform:\s*scaleX\(-1\)/i);
   assert.match(css, /\.listening-volume\s*\{[\s\S]*?grid-template-columns:\s*auto 112px auto[\s\S]*?width:\s*max-content/i);
   assert.match(css, /\.listening-volume output\s*\{[\s\S]*?text-align:\s*left/i);
   assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
