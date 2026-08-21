@@ -229,11 +229,17 @@ button {
 }
 
 .text-btn.home-link {
-  font-family: "STKaiti", "Kaiti SC", "KaiTi", "DFKai-SB", serif;
-  font-size: 1.16rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.02rem;
+  line-height: 0;
+}
+
+.home-link img {
+  display: block;
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: contain;
 }
 
 .text-btn,
@@ -675,6 +681,15 @@ button {
   list-style: none;
   cursor: pointer;
   transition: color 180ms ease;
+}
+
+.collection-static-entry > h3 {
+  margin: 0;
+  padding: 0.48rem 0 0.48rem 0.93rem;
+  color: var(--foreground);
+  font-size: 0.96rem;
+  font-weight: 520;
+  line-height: inherit;
 }
 
 .dropdown-entry summary::-webkit-details-marker {

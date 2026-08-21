@@ -30,9 +30,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
-  assert.match(html, /rel="icon"[^>]*href="\/favicon\.svg\?v=2"[^>]*type="image\/svg\+xml"/i);
-  assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=2"[^>]*sizes="32x32"/i);
-  assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=2"/i);
+  assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
+  assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=3"/i);
+  assert.doesNotMatch(html, /favicon\.svg/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, /aria-label="LinkedIn"/i);
   assert.match(html, /aria-label="GitHub"/i);
@@ -40,7 +40,8 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, />Side Quests<\/button>/i);
-  assert.match(html, /aria-label="Nicole Jiang home"[^>]*>\s*同同\s*<\/a>/i);
+  assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?tong-calligraphy\.png[\s\S]*?tong-calligraphy\.png[\s\S]*?<\/a>/i);
+  assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
   assert.match(html, /href="\/resume\.pdf"[^>]*target="_blank"[\s\S]*?class="external-link-icon"/i);
   assert.match(html, /src="\/university-of-toronto\.png"/i);
@@ -104,12 +105,6 @@ test("publishes the résumé, education logos, and single-character favicon", as
   );
   assert.equal(scienceCentreLogo.readUInt32BE(16), 940);
   assert.equal(scienceCentreLogo.readUInt32BE(20), 360);
-
-  const favicon = await readFile(new URL("../public/favicon.svg", import.meta.url), "utf8");
-  assert.match(favicon, /<title>同<\/title>/);
-  assert.doesNotMatch(favicon, /<text|font-family/);
-  assert.match(favicon, /fill="#fff"/);
-  assert.match(favicon, /stroke="#000"/);
 
   for (const asset of ["favicon-32.png", "apple-touch-icon.png"]) {
     const icon = await readFile(new URL(`../public/${asset}`, import.meta.url));
@@ -185,9 +180,11 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.doesNotMatch(statsSource, /api\.spotify\.com\/v1\/me\/top/);
   assert.doesNotMatch(source, /\}\s*hr`/);
 
-  const collectionSubsections = ["Natural Things", "Scrapbook", "Pokémon Cards"].map((label) =>
-    source.indexOf(`<summary>${label}</summary>`),
-  );
+  const collectionSubsections = [
+    "<summary>Natural Things</summary>",
+    "<summary>Scrapbook</summary>",
+    "<h3>Pokémon Cards</h3>",
+  ].map((markup) => source.indexOf(markup));
   collectionSubsections.forEach((position) => assert.notEqual(position, -1));
   assert.deepEqual(collectionSubsections, [...collectionSubsections].sort((a, b) => a - b));
 
@@ -241,7 +238,9 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /className="pokemon-card-dialog"[\s\S]*?role="dialog"/);
   assert.match(source, /className="pokemon-card-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /event\.key === "Escape"/);
-  assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 3);
+  assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 2);
+  assert.match(source, /<div className="collection-static-entry">[\s\S]*?<h3>Pokémon Cards<\/h3>[\s\S]*?<PokemonCardWheel \/>/);
+  assert.doesNotMatch(source, /<summary>Pokémon Cards<\/summary>/);
 
   const cardAssets = await readdir(new URL("../public/pokemon-cards/", import.meta.url));
   assert.equal(cardAssets.length, 15);

@@ -1171,15 +1171,15 @@ function FunContent() {
               <div className="media-placeholder media-placeholder--photo">Photo placeholder</div>
             </div>
           </details>
-          <details className="dropdown-entry">
-            <summary>Pokémon Cards</summary>
+          <div className="collection-static-entry">
+            <h3>Pokémon Cards</h3>
             <div className="dropdown-content">
               <p className="placeholder-copy">
                 Here are some of my favourite Pokémon cards from my collection! You're just going to have to trust that I actually have them.
               </p>
               <PokemonCardWheel />
             </div>
-          </details>
+          </div>
         </div>
       </section>
 
@@ -1255,7 +1255,8 @@ export function Portfolio() {
             aria-label="Nicole Jiang home"
             onClick={() => selectMode("serious")}
           >
-            同同
+            <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
+            <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
           </a>
           <div className="topbar-actions">
             <button
