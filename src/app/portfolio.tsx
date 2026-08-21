@@ -23,7 +23,7 @@ const funProfiles = [
 const projects = [
   {
     title: "Mapping Black-Hole Growth Scenarios for Early Giants",
-    dates: "February 2026 - Present",
+    dates: "Feb 2026 - Present",
     details: [
       "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes at high redshift to evaluates objects against different growth scenarios (seed mass, formation redshift, Eddington ratio, Kerr spin, radiative efficiency, and merger contribution combinations). Supervised by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
     ],
@@ -37,7 +37,7 @@ const projects = [
   },
   {
     title: "Predicting APA Site Choice from mRNA Sequences",
-    dates: "September 2025",
+    dates: "Sep 2025",
     href: "https://devpost.com/software/predicting-apa-site-choice-from-mrna-sequences",
     details: [
       "APA site prediction pre-processing pipeline for the DNABERT-2 genome transformer model. Part of a five-member undergraduate team; 2nd place at the Toronto Bioinformatics Hackathon.",
@@ -45,7 +45,7 @@ const projects = [
   },
   {
     title: "Saturn and Moons Observation with HDR Imaging",
-    dates: "October 2024 - December 2024",
+    dates: "Oct 2024 - Dec 2024",
     details: [
       "Captured and compiled images of Saturn and its moons to evaluate Titan's orbital period.",
     ],
@@ -57,27 +57,28 @@ const projects = [
 const experience = [
   {
     organization: "Royal Astronomical Society of Canada (RASC)",
-    role: "Journal Contributor; Observatory Maintenance",
-    dates: "September 2025 - Present",
-    details: [
+    role: "Journal Contributor / Observatory Maintenance",
+    dates: "Sep 2025 - Present",
+    details: ["Curating planet ephemerides and observational astronomy events for the Journal centre-spread. Observatory maintenance at the E.C. Carr Astronomical Observatory."
      
     ],
   },
 
-  {
-    organization: "University of Toronto Aerospace Team (UTAT)",
-    role: "Researcher",
-    dates: "October 2025 - April 2026",
-    details: [
-    ],
-  },
 
   {
     organization: "Ontario Science Centre",
     role: "Student Host",
-    dates: "February 2024 - June 2024",
+    dates: "Feb 2024 - Jun 2024",
     details: [
       
+    ],
+  },
+
+   {
+    organization: "University of Toronto Aerospace Team (UTAT)",
+    role: "Researcher",
+    dates: "Oct 2025 - Apr 2026",
+    details: [
     ],
   },
 
@@ -133,7 +134,7 @@ function SeriousContent() {
       </section>
 
         <section className="section" id="experience">
-        <h2>Other Roles</h2>
+        <h2>Service & Leadership</h2>
         <div className="entries">
           {experience.map((item) => (
             <article className="resume-item subsection-item" key={`${item.organization}-${item.role}`}>
