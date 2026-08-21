@@ -1,24 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <style>
-    .background { fill: #f4f4f4; }
-    .border { fill: none; stroke: #d5d5d5; stroke-width: 2; }
-    .mark { fill: #161616; }
-
-    @media (prefers-color-scheme: dark) {
-      .background { fill: #161616; }
-      .border { stroke: #2a2a2a; }
-      .mark { fill: #f4f4f4; }
-    }
-  </style>
-  <rect class="background" x="2" y="2" width="60" height="60" rx="15"/>
-  <rect class="border" x="2" y="2" width="60" height="60" rx="15"/>
-  <text
-    class="mark"
-    x="32"
-    y="46"
-    font-family="STKaiti, Kaiti SC, KaiTi, DFKai-SB, serif"
-    font-size="40"
-    font-weight="600"
-    text-anchor="middle"
-  >同</text>
+  <title>同</title>
+  <g fill="#fff" stroke="#000" stroke-width="3" stroke-linejoin="round">
+    <path d="M9 7h46v50h-9V16H18v41H9Z" />
+    <path d="M21 23h22v8H21Z" />
+    <path fill-rule="evenodd" d="M20 35h24v18H20Zm8 7v4h8v-4Z" />
+  </g>
 </svg>

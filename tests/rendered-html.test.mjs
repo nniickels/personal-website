@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function render(pathname = "/") {
@@ -30,7 +30,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
-  assert.match(html, /rel="icon"[^>]*href="\/favicon\.svg"[^>]*type="image\/svg\+xml"/i);
+  assert.match(html, /rel="icon"[^>]*href="\/favicon\.svg\?v=2"[^>]*type="image\/svg\+xml"/i);
+  assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=2"[^>]*sizes="32x32"/i);
+  assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=2"/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, /aria-label="LinkedIn"/i);
   assert.match(html, /aria-label="GitHub"/i);
@@ -69,6 +71,18 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.shooting-star\s*\{[\s\S]*?display:\s*none/i);
 });
 
+test("follows live device color-scheme changes", async () => {
+  const toggle = await readFile(new URL("../src/app/theme-toggle.tsx", import.meta.url), "utf8");
+  const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+
+  assert.match(toggle, /matchMedia\("\(prefers-color-scheme: dark\)"\)/);
+  assert.match(toggle, /addEventListener\("change", handleSystemThemeChange\)/);
+  assert.match(toggle, /overrideTheme && overrideTheme !== nextSystemTheme/);
+  assert.match(toggle, /localStorage\.removeItem\(storedThemeKey\)/);
+  assert.match(toggle, /setTheme\(nextSystemTheme\)/);
+  assert.match(layout, /portfolio-theme-override/);
+});
+
 test("does not publish separate résumé or CV pages", async () => {
   for (const pathname of ["/resume", "/cv"]) {
     const response = await render(pathname);
@@ -92,15 +106,24 @@ test("publishes the résumé, education logos, and single-character favicon", as
   assert.equal(scienceCentreLogo.readUInt32BE(20), 360);
 
   const favicon = await readFile(new URL("../public/favicon.svg", import.meta.url), "utf8");
-  assert.match(favicon, />同<\/text>/);
-  assert.doesNotMatch(favicon, /同同/);
-  assert.match(favicon, /STKaiti/);
-  assert.match(favicon, /prefers-color-scheme:\s*dark/);
+  assert.match(favicon, /<title>同<\/title>/);
+  assert.doesNotMatch(favicon, /<text|font-family/);
+  assert.match(favicon, /fill="#fff"/);
+  assert.match(favicon, /stroke="#000"/);
+
+  for (const asset of ["favicon-32.png", "apple-touch-icon.png"]) {
+    const icon = await readFile(new URL(`../public/${asset}`, import.meta.url));
+    assert.deepEqual([...icon.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+  }
+
+  const ico = await readFile(new URL("../public/favicon.ico", import.meta.url));
+  assert.deepEqual([...ico.subarray(0, 4)], [0, 0, 1, 0]);
 });
 
 test("keeps the Side Quests interest sections and stats in the requested order", async () => {
   const source = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
   const headings = [
+    "<h2>Photo Gallery</h2>",
     "<h2>Listening</h2>",
     "<h2>Reading</h2>",
     "<h2>Watching</h2>",
@@ -126,6 +149,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
 
   assert.match(source, /The Book of Laughter and Forgetting/);
   assert.match(source, /Batman: Arkham Knight/);
+  assert.match(source, /className="text-link"[\s\S]*?href="https:\/\/store\.steampowered\.com\/app\/208650\/Batman_Arkham_Knight\/"/);
+  assert.match(source, /className="text-link"[\s\S]*?href="https:\/\/store\.steampowered\.com\/app\/2240620\/UNBEATABLE\/"/);
   assert.match(source, /<h3>Clash Royale<\/h3>/);
   assert.match(source, /<p className="gaming-widget-label">Trophies<\/p>/);
   assert.match(source, /<h3>Steam<\/h3>/);
@@ -134,16 +159,54 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /href="https:\/\/www\.youtube\.com\/@DarylTalksGames"/);
   assert.match(source, /A short description of my natural-history collections will go here\./);
   assert.match(source, /A short description of my scrapbook and process will go here\./);
-  assert.match(source, /A short description of my Pokémon card collection will go here\./);
+  assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
+  assert.match(
+    source,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?A short introduction to my photo gallery will go here\.[\s\S]*?Pinterest monthly viewers[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+  );
   assert.match(source, /Photo gallery placeholder/);
-  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 2);
+  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 3);
+  assert.match(
+    source,
+    /<section className="section" id="food">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+  );
   assert.match(source, /Photo placeholder/);
-  assert.match(source, /Photo scroll wheel placeholder/);
+  assert.doesNotMatch(source, /Photo scroll wheel placeholder/);
+  assert.equal((source.match(/https:\/\/www\.tcgcollector\.com\/cards\//g) ?? []).length, 15);
+  for (const cardId of ["49478", "41668", "41665", "39747"]) {
+    assert.match(source, new RegExp(`https://www\\.tcgcollector\\.com/cards/${cardId}/`));
+  }
+  const requestedCardOrder = [
+    "M Scizor-EX (Rage of the Broken Heavens 058/080)",
+    "Team Rocket's Houndoom (The Glory of Team Rocket 100/098)",
+    "Garchomp & Giratina-GX (Tag Team Collection 128/205)",
+    "Lilligant (Black Bolt 092/086)",
+    "Lapras (VSTAR Universe 177/172)",
+    "Caterpie (Pokémon Card 151 172/165)",
+    "Psyduck (Pokémon Card 151 175/165)",
+    "Corviknight V (VMAX Climax 248/184)",
+  ].map((name) => source.indexOf(`name: "${name}"`));
+  requestedCardOrder.forEach((position) => assert.notEqual(position, -1));
+  assert.deepEqual(requestedCardOrder, [...requestedCardOrder].sort((a, b) => a - b));
+  assert.match(source, /className="pokemon-card-wheel"[\s\S]*?aria-haspopup="dialog"/);
+  assert.match(source, /className="pokemon-card-dialog"[\s\S]*?role="dialog"/);
+  assert.match(source, /className="pokemon-card-expanded-link"[\s\S]*?target="_blank"/);
+  assert.match(source, /event\.key === "Escape"/);
   assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 3);
+
+  const cardAssets = await readdir(new URL("../public/pokemon-cards/", import.meta.url));
+  assert.equal(cardAssets.length, 15);
+  for (const asset of cardAssets) {
+    const card = await readFile(new URL(`../public/pokemon-cards/${asset}`, import.meta.url));
+    assert.ok(card.length > 10_000);
+  }
 
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
+  assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
+  assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
+  assert.match(css, /\.pokemon-card-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });

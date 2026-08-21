@@ -1,78 +1,78 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { useEffect, useRef } from "react";
 
 type Theme = "light" | "dark";
 
 const storedThemeKey = "portfolio-theme-override";
 
-function systemTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme | null>(null);
-  const overrideTheme = useRef<Theme | null>(null);
-
-  function applyTheme(nextTheme: Theme) {
-    document.documentElement.dataset.theme = nextTheme;
-    setTheme(nextTheme);
-  }
-
-  function setThemeWithTransition(nextTheme: Theme) {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (reducedMotion || typeof document.startViewTransition !== "function") {
-      applyTheme(nextTheme);
-      return;
-    }
-
-    document.startViewTransition(() => {
-      flushSync(() => applyTheme(nextTheme));
-    });
-  }
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem(storedThemeKey);
-    overrideTheme.current = storedTheme === "light" || storedTheme === "dark" ? storedTheme : null;
-    applyTheme(overrideTheme.current ?? systemTheme());
-
+    const themeToggle = toggleRef.current;
     const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleSystemThemeChange = () => {
-      const nextSystemTheme = systemTheme();
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const storedTheme = localStorage.getItem(storedThemeKey);
+    let overrideTheme: Theme | null =
+      storedTheme === "light" || storedTheme === "dark" ? storedTheme : null;
 
-      if (overrideTheme.current && overrideTheme.current !== nextSystemTheme) {
-        overrideTheme.current = null;
+    const getSystemTheme = (): Theme => (systemThemeQuery.matches ? "dark" : "light");
+
+    const applyTheme = (nextTheme: Theme) => {
+      document.documentElement.dataset.theme = nextTheme;
+      themeToggle?.classList.toggle("is-dark", nextTheme === "dark");
+      const followingTheme = nextTheme === "dark" ? "light" : "dark";
+      themeToggle?.setAttribute("aria-label", `Switch to ${followingTheme} mode`);
+      themeToggle?.setAttribute("title", `Switch to ${followingTheme} mode`);
+    };
+
+    const setTheme = (nextTheme: Theme) => {
+      if (reducedMotionQuery.matches || typeof document.startViewTransition !== "function") {
+        applyTheme(nextTheme);
+        return;
+      }
+
+      document.startViewTransition(() => applyTheme(nextTheme));
+    };
+
+    const handleToggle = () => {
+      const currentTheme =
+        (document.documentElement.dataset.theme as Theme | undefined) ?? getSystemTheme();
+      overrideTheme = currentTheme === "dark" ? "light" : "dark";
+      localStorage.setItem(storedThemeKey, overrideTheme);
+      setTheme(overrideTheme);
+    };
+
+    const handleSystemThemeChange = () => {
+      const nextSystemTheme = getSystemTheme();
+
+      if (overrideTheme && overrideTheme !== nextSystemTheme) {
+        overrideTheme = null;
         localStorage.removeItem(storedThemeKey);
       }
 
-      if (!overrideTheme.current) {
-        setThemeWithTransition(nextSystemTheme);
+      if (!overrideTheme) {
+        setTheme(nextSystemTheme);
       }
     };
 
+    applyTheme(overrideTheme ?? getSystemTheme());
+    themeToggle?.addEventListener("click", handleToggle);
     systemThemeQuery.addEventListener("change", handleSystemThemeChange);
-    return () => systemThemeQuery.removeEventListener("change", handleSystemThemeChange);
+    return () => {
+      themeToggle?.removeEventListener("click", handleToggle);
+      systemThemeQuery.removeEventListener("change", handleSystemThemeChange);
+    };
   }, []);
-
-  function toggleTheme() {
-    const currentTheme = theme ?? systemTheme();
-    const nextTheme = currentTheme === "dark" ? "light" : "dark";
-    overrideTheme.current = nextTheme;
-    localStorage.setItem(storedThemeKey, nextTheme);
-    setThemeWithTransition(nextTheme);
-  }
-
-  const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
     <button
-      className={`text-btn theme-toggle${nextTheme === "dark" ? " is-dark" : ""}`}
+      ref={toggleRef}
+      className="text-btn theme-toggle"
       type="button"
-      onClick={toggleTheme}
-      aria-label={`Switch to ${nextTheme} mode`}
-      title={`Switch to ${nextTheme} mode`}
+      aria-label="Toggle color mode"
+      title="Toggle color mode"
     >
       <svg className="theme-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle className="theme-icon__sun" cx="12" cy="12" r="4.2" />

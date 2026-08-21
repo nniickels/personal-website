@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -95,6 +95,84 @@ const listeningRankings = [
   { title: "Top 5 Genres", count: 5 },
   { title: "Top 10 Artists", count: 10 },
   { title: "Top 10 Tracks", count: 10 },
+] as const;
+
+const pokemonCards = [
+  {
+    name: "Mega Absol ex (Mega Brave 089/063)",
+    image: "/pokemon-cards/mega-absol-ex-089.webp",
+    href: "https://www.tcgcollector.com/cards/50621/mega-absol-ex-mega-brave-089-063",
+  },
+  {
+    name: "Mega Absol ex (Mega Brave 079/063)",
+    image: "/pokemon-cards/mega-absol-ex-079.webp",
+    href: "https://www.tcgcollector.com/cards/50611/mega-absol-ex-mega-brave-079-063",
+  },
+  {
+    name: "M Absol-EX (XY Promos No. 343)",
+    image: "/pokemon-cards/m-absol-ex-343.webp",
+    href: "https://www.tcgcollector.com/cards/59315/m-absol-ex-xy-promos-no-343",
+  },
+  {
+    name: "Scizor (Ruler of the Black Flame 116/108)",
+    image: "/pokemon-cards/scizor-116.webp",
+    href: "https://www.tcgcollector.com/cards/42038/scizor-ruler-of-the-black-flame-116-108",
+  },
+  {
+    name: "M Scizor-EX (Rage of the Broken Heavens 087/080)",
+    image: "/pokemon-cards/m-scizor-ex-087.jpg",
+    href: "https://www.tcgcollector.com/cards/23245/m-scizor-ex-rage-of-the-broken-heavens-087-080",
+  },
+  {
+    name: "M Scizor-EX (Rage of the Broken Heavens 058/080)",
+    image: "/pokemon-cards/m-scizor-ex-058.jpg",
+    href: "https://www.tcgcollector.com/cards/23216/m-scizor-ex-rage-of-the-broken-heavens-058-080",
+  },
+  {
+    name: "Team Rocket's Houndoom (The Glory of Team Rocket 100/098)",
+    image: "/pokemon-cards/team-rockets-houndoom-100.webp",
+    href: "https://www.tcgcollector.com/cards/48210/team-rockets-houndoom-the-glory-of-team-rocket-100-098",
+  },
+  {
+    name: "Garchomp & Giratina-GX (Tag Team Collection 128/205)",
+    image: "/pokemon-cards/garchomp-giratina-gx-128.webp",
+    href: "https://www.tcgcollector.com/cards/79012/garchomp-and-giratina-gx-tag-team-collection-set-a-128-205",
+  },
+  {
+    name: "Darkrai VSTAR (VSTAR Universe 228/172)",
+    image: "/pokemon-cards/darkrai-vstar-228.jpg",
+    href: "https://www.tcgcollector.com/cards/39798/darkrai-vstar-vstar-universe-228-172",
+  },
+  {
+    name: "N's Reshiram (Battle Partners 109/100)",
+    image: "/pokemon-cards/ns-reshiram-109.webp",
+    href: "https://www.tcgcollector.com/cards/47345/ns-reshiram-battle-partners-109-100",
+  },
+  {
+    name: "Lilligant (Black Bolt 092/086)",
+    image: "/pokemon-cards/lilligant-092.webp",
+    href: "https://www.tcgcollector.com/cards/49478/lilligant-black-bolt-092-086",
+  },
+  {
+    name: "Lapras (VSTAR Universe 177/172)",
+    image: "/pokemon-cards/lapras-177.jpg",
+    href: "https://www.tcgcollector.com/cards/39747/lapras-vstar-universe-177-172",
+  },
+  {
+    name: "Caterpie (Pokémon Card 151 172/165)",
+    image: "/pokemon-cards/caterpie-172.webp",
+    href: "https://www.tcgcollector.com/cards/41665/caterpie-pokemon-card-151-172-165",
+  },
+  {
+    name: "Psyduck (Pokémon Card 151 175/165)",
+    image: "/pokemon-cards/psyduck-175.webp",
+    href: "https://www.tcgcollector.com/cards/41668/psyduck-pokemon-card-151-175-165",
+  },
+  {
+    name: "Corviknight V (VMAX Climax 248/184)",
+    image: "/pokemon-cards/corviknight-v-248.jpg",
+    href: "https://www.tcgcollector.com/cards/36804/corviknight-v-vmax-climax-248-184",
+  },
 ] as const;
 
 function createNightStars(count: number) {
@@ -355,9 +433,143 @@ function SeriousContent() {
   );
 }
 
+function PokemonCardWheel() {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const selectedCard = selectedIndex === null ? null : pokemonCards[selectedIndex];
+
+  useEffect(() => {
+    if (selectedIndex === null) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedIndex(null);
+      } else if (event.key === "ArrowLeft") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current - 1 + pokemonCards.length) % pokemonCards.length,
+        );
+      } else if (event.key === "ArrowRight") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current + 1) % pokemonCards.length,
+        );
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedIndex]);
+
+  return (
+    <>
+      <div className="pokemon-card-wheel" role="list" aria-label="Pokémon card collection">
+        {pokemonCards.map((card, index) => (
+          <div className="pokemon-card-wheel-item" role="listitem" key={card.href}>
+            <button
+              className="pokemon-card-thumbnail"
+              type="button"
+              aria-haspopup="dialog"
+              aria-label={`Enlarge ${card.name}`}
+              onClick={() => setSelectedIndex(index)}
+            >
+              <img src={card.image} alt={card.name} loading="lazy" draggable="false" />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {selectedCard && selectedIndex !== null && (
+        <div className="pokemon-card-lightbox" onClick={() => setSelectedIndex(null)}>
+          <div
+            className="pokemon-card-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pokemon-card-dialog-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="pokemon-card-close"
+              type="button"
+              aria-label="Close card viewer"
+              onClick={() => setSelectedIndex(null)}
+              ref={closeButtonRef}
+            >
+              ×
+            </button>
+            <button
+              className="pokemon-card-nav pokemon-card-nav--previous"
+              type="button"
+              aria-label="Previous card"
+              onClick={() =>
+                setSelectedIndex(
+                  (selectedIndex - 1 + pokemonCards.length) % pokemonCards.length,
+                )
+              }
+            >
+              ←
+            </button>
+            <a
+              className="pokemon-card-expanded-link"
+              href={selectedCard.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${selectedCard.name} on TCG Collector`}
+            >
+              <img src={selectedCard.image} alt={selectedCard.name} draggable="false" />
+            </a>
+            <button
+              className="pokemon-card-nav pokemon-card-nav--next"
+              type="button"
+              aria-label="Next card"
+              onClick={() => setSelectedIndex((selectedIndex + 1) % pokemonCards.length)}
+            >
+              →
+            </button>
+            <div className="pokemon-card-caption">
+              <h3 id="pokemon-card-dialog-title">{selectedCard.name}</h3>
+              <p>
+                {selectedIndex + 1} / {pokemonCards.length} · click the card to open TCG Collector
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function FunContent() {
   return (
     <div className="mode-content fun-content" aria-label="Side Quests content">
+      <section className="section" id="photo-gallery">
+        <details className="dropdown-entry photo-gallery-dropdown">
+          <summary>
+            <h2>Photo Gallery</h2>
+          </summary>
+          <div className="dropdown-content">
+            <p className="placeholder-copy">
+              A short introduction to my photo gallery will go here.
+            </p>
+            <div className="api-placeholder" aria-label="Pinterest API placeholder">
+              <span>Pinterest monthly viewers</span>
+              <strong>—</strong>
+              <small>API connection required.</small>
+            </div>
+            <div className="media-placeholder media-placeholder--gallery">
+              Photo gallery placeholder
+            </div>
+          </div>
+        </details>
+      </section>
+
       <section className="section" id="listening">
         <h2>Listening</h2>
         <p className="data-note">Listening data connection required.</p>
@@ -418,8 +630,24 @@ function FunContent() {
       <section className="section" id="gaming">
         <h2>Gaming</h2>
         <p className="placeholder-copy">
-          My favourite games include <strong><cite>Batman: Arkham Knight</cite></strong> and{" "}
-          <strong><cite>UNBEATABLE</cite></strong>. I also enjoy the occasional two-week{" "}
+          My favourite games include{" "}
+          <a
+            className="text-link"
+            href="https://store.steampowered.com/app/208650/Batman_Arkham_Knight/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <strong><cite>Batman: Arkham Knight</cite></strong>
+          </a>{" "}
+          and{" "}
+          <a
+            className="text-link"
+            href="https://store.steampowered.com/app/2240620/UNBEATABLE/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <strong><cite>UNBEATABLE</cite></strong>
+          </a>. I also enjoy the occasional two-week{" "}
           <strong><cite>Minecraft</cite></strong> phase, and unfortunately have been finding myself
           going back to <strong><cite>League of Legends</cite></strong> more often than I would like
           to admit (though mostly Aram)...
@@ -473,11 +701,9 @@ function FunContent() {
             <summary>Pokémon Cards</summary>
             <div className="dropdown-content">
               <p className="placeholder-copy">
-                A short description of my Pokémon card collection will go here.
+                Here are some of my favourite Pokémon cards from my collection! You're just going to have to trust that I actually have them.
               </p>
-              <div className="media-placeholder media-placeholder--scroll">
-                Photo scroll wheel placeholder
-              </div>
+              <PokemonCardWheel />
             </div>
           </details>
         </div>
@@ -490,9 +716,14 @@ function FunContent() {
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, italian sandwiches, and french-style beef tartare. 
         </p>
-        <div className="media-placeholder media-placeholder--gallery">
-          Photo gallery placeholder
-        </div>
+        <details className="dropdown-entry food-photo-dropdown">
+          <summary>Photos</summary>
+          <div className="dropdown-content">
+            <div className="media-placeholder media-placeholder--gallery">
+              Photo gallery placeholder
+            </div>
+          </div>
+        </details>
       </section>
     </div>
   );
