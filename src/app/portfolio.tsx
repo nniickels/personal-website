@@ -556,7 +556,7 @@ function FunContent() {
           </summary>
           <div className="dropdown-content">
             <p className="placeholder-copy">
-              A short introduction to my photo gallery will go here.
+              I like taking photos! 
             </p>
             <div className="api-placeholder" aria-label="Pinterest API placeholder">
               <span>Pinterest monthly viewers</span>
@@ -681,7 +681,7 @@ function FunContent() {
             <summary>Natural Things</summary>
             <div className="dropdown-content">
               <p className="placeholder-copy">
-                A short description of my natural-history collections will go here.
+                I like gardening and plant-keeping, so I collect dried flowers and press them sometimes also. I also like collecting rocks and fossils. Catch me at the beach with a hammer just throwing shale around. 
               </p>
               <div className="media-placeholder media-placeholder--gallery">
                 Photo gallery placeholder
@@ -692,7 +692,7 @@ function FunContent() {
             <summary>Scrapbook</summary>
             <div className="dropdown-content">
               <p className="placeholder-copy">
-                A short description of my scrapbook and process will go here.
+                I hoard (and organize) a bunch of junk and like making scrapbooks with it. Everything has sentimental value! Here are some pages I like in particular.
               </p>
               <div className="media-placeholder media-placeholder--photo">Photo placeholder</div>
             </div>
