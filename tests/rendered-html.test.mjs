@@ -130,16 +130,20 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /<p className="gaming-widget-label">Trophies<\/p>/);
   assert.match(source, /<h3>Steam<\/h3>/);
   assert.match(source, /<p className="gaming-widget-label">Recently Played<\/p>/);
+  assert.match(source, /href="https:\/\/www\.youtube\.com\/@JacobGeller"/);
+  assert.match(source, /href="https:\/\/www\.youtube\.com\/@DarylTalksGames"/);
   assert.match(source, /A short description of my natural-history collections will go here\./);
   assert.match(source, /A short description of my scrapbook and process will go here\./);
   assert.match(source, /A short description of my Pokémon card collection will go here\./);
   assert.match(source, /Photo gallery placeholder/);
+  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 2);
   assert.match(source, /Photo placeholder/);
   assert.match(source, /Photo scroll wheel placeholder/);
   assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 3);
 
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
+  assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });

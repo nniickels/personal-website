@@ -393,7 +393,22 @@ function FunContent() {
       <section className="section" id="watching">
         <h2>Watching</h2>
         <p className="placeholder-copy">
-          My favourite YouTube channels are <strong><cite>Jacob Geller</cite></strong> and <strong><cite>Daryl Talks Games</cite></strong>.  
+          My favourite YouTube channels are{" "}
+          <strong>
+            <cite>
+              <a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer">
+                Jacob Geller
+              </a>
+            </cite>
+          </strong>{" "}
+          and{" "}
+          <strong>
+            <cite>
+              <a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer">
+                Daryl Talks Games
+              </a>
+            </cite>
+          </strong>.{" "}
           If you like video essays about video-games and/or philosophy and psychology, I highly reccomend! I also really like the 2007 anime  
           <strong><cite> Mononoke</cite></strong>, and am currently watching <strong><cite>Steins;Gate</cite></strong>. Regarding Western media, I like <strong><cite>Superbad</cite></strong>, <strong><cite>BoJack Horseman </cite></strong> 
           and <strong><cite> Dead Poets Society</cite></strong>. 
@@ -472,9 +487,12 @@ function FunContent() {
         <h2>Food</h2>
         <p className="placeholder-copy">
           I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
-          My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles. 
+          My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, italian sandwiches, and french-style beef tartare. 
         </p>
+        <div className="media-placeholder media-placeholder--gallery">
+          Photo gallery placeholder
+        </div>
       </section>
     </div>
   );

@@ -746,6 +746,7 @@ button {
 }
 
 .gaming-widget h3 {
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
