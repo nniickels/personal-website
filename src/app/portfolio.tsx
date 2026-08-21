@@ -93,9 +93,9 @@ const experience = [
 ] as const;
 
 const listeningRankings = [
-  { title: "Top 5 Genres", count: 5 },
-  { title: "Top 10 Artists", count: 10 },
-  { title: "Top 10 Tracks", count: 10 },
+  { kind: "genres", title: "Top 5 Genres", count: 5 },
+  { kind: "artists", title: "Top 10 Artists", count: 10 },
+  { kind: "tracks", title: "Top 10 Tracks", count: 10 },
 ] as const;
 
 const pokemonCards = [
@@ -175,6 +175,73 @@ const pokemonCards = [
     href: "https://www.tcgcollector.com/cards/36804/corviknight-v-vmax-climax-248-184",
   },
 ] as const;
+
+const listeningTracks = [
+  {
+    id: "24105EgaBPLzZp5kCeSh9g",
+    name: "あげない",
+    artist: "tricot",
+    preview: "https://p.scdn.co/mp3-preview/cd9c0adff1debaf7374ef1662ed38e9a145709a9",
+  },
+  {
+    id: "3YB9cvd668HXBEq8rbBW8P",
+    name: "Human Sadness",
+    artist: "The Voidz",
+    preview: "https://p.scdn.co/mp3-preview/f0449a1dc0bc01502fb812c9c96f172b6b633950",
+  },
+  {
+    id: "4aLulnl3GrOQRDtXdoYejP",
+    name: "Schizo Flare",
+    artist: "SEAPOOL",
+    preview: "https://p.scdn.co/mp3-preview/58534962755d8f2ddca6fb0ca5b23a028c02cb1b",
+  },
+  {
+    id: "4bZnIdaGBf162pZEkxXSgQ",
+    name: "It's Not up to You",
+    artist: "Björk",
+    preview: "https://p.scdn.co/mp3-preview/0f0c15c0c4c08e55c1b026c449cd8ed01836aef8",
+  },
+  {
+    id: "0mc51xomEC6CZUZdB8xgQU",
+    name: "Pagan Poetry",
+    artist: "Björk",
+    preview: "https://p.scdn.co/mp3-preview/b7cf6489f9b485906cca96781cca46a250f26a87",
+  },
+  {
+    id: "20ZvzoDSefcZo6bj10jgGC",
+    name: "Jóga",
+    artist: "Björk",
+    preview: "https://p.scdn.co/mp3-preview/02a96b077e1f6dccb10d6e1506975f0642423d70",
+  },
+  {
+    id: "4Vie7AYSqfGHEP2uBh0ua5",
+    name: "Egg",
+    artist: "The Garden",
+    preview: "https://p.scdn.co/mp3-preview/9c1bed1b04f839acb0b1d0f24f5bd9fbb3ec1ef1",
+  },
+  {
+    id: "6ccWXgRMKsX3GjjiYdAlSd",
+    name: "Drift",
+    artist: "Enjoy",
+    preview: "https://p.scdn.co/mp3-preview/fdd7cfc0c9fbab8ee5f28165acf23a05dd6afb58",
+  },
+  {
+    id: "2LMloFiV7DHpBhITOaBSam",
+    name: "Hard to Explain",
+    artist: "The Strokes",
+    preview: "https://p.scdn.co/mp3-preview/6388ca163a66361835b0bad85327961faa4f4bcf",
+  },
+  {
+    id: "0bOvjYU552KSscyA0af4aw",
+    name: "piano",
+    artist: "betcover!!",
+    preview: "https://p.scdn.co/mp3-preview/0215996adb85ab029c77d08b6ab550c3c217fc53",
+  },
+].map((track) => ({
+  ...track,
+  href: `https://open.spotify.com/track/${track.id}`,
+  image: `/music-covers/${track.id}.jpg`,
+}));
 
 function createNightStars(count: number) {
   let seed = 9474;
@@ -547,6 +614,213 @@ function PokemonCardWheel() {
   );
 }
 
+function ListeningCoverWheel() {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [volume, setVolume] = useState(0);
+  const [previewError, setPreviewError] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const activeTrack = activeIndex === null ? null : listeningTracks[activeIndex];
+  const selectedTrack = selectedIndex === null ? null : listeningTracks[selectedIndex];
+
+  const stopPreview = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setActiveIndex(null);
+    setPreviewError(false);
+  };
+
+  const playPreview = async (index: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const track = listeningTracks[index];
+    setActiveIndex(index);
+    setPreviewError(false);
+
+    if (audio.src !== track.preview) {
+      audio.src = track.preview;
+      audio.currentTime = 0;
+    }
+
+    audio.volume = volume;
+    audio.muted = volume === 0;
+
+    try {
+      await audio.play();
+    } catch (error) {
+      if (
+        !(
+          error instanceof DOMException &&
+          (error.name === "AbortError" || error.name === "NotAllowedError")
+        )
+      ) {
+        setPreviewError(true);
+      }
+    }
+  };
+
+  const updateVolume = (nextVolume: number) => {
+    setVolume(nextVolume);
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = nextVolume;
+    audio.muted = nextVolume === 0;
+    if (activeIndex !== null) void audio.play();
+  };
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedIndex(null);
+      } else if (event.key === "ArrowLeft") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current - 1 + listeningTracks.length) % listeningTracks.length,
+        );
+      } else if (event.key === "ArrowRight") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current + 1) % listeningTracks.length,
+        );
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedIndex]);
+
+  useEffect(() => () => audioRef.current?.pause(), []);
+
+  return (
+    <>
+      <div className="listening-preview">
+        <div className="listening-preview-heading" aria-live="polite">
+          <span>Now playing preview of...</span>
+          <strong className={activeTrack ? "listening-preview-track" : "listening-preview-prompt"}>
+            {activeTrack ? `${activeTrack.name} — ${activeTrack.artist}` : "Hover a cover"}
+          </strong>
+        </div>
+
+        <div className="listening-cover-wheel" role="list" aria-label="Track preview covers">
+          {listeningTracks.map((track, index) => (
+            <div className="listening-cover-wheel-item" role="listitem" key={track.id}>
+              <button
+                className="listening-cover-thumbnail"
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`Preview and enlarge ${track.name} by ${track.artist}`}
+                onMouseEnter={() => void playPreview(index)}
+                onMouseLeave={stopPreview}
+                onFocus={() => void playPreview(index)}
+                onBlur={stopPreview}
+                onClick={() => setSelectedIndex(index)}
+              >
+                <img src={track.image} alt={`${track.name} by ${track.artist} cover`} loading="lazy" draggable="false" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <label className="listening-volume">
+          <span>Volume</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(event) => updateVolume(Number(event.currentTarget.value))}
+            aria-label="Track preview volume"
+          />
+          <output>{Math.round(volume * 100)}%</output>
+        </label>
+        {previewError && <p className="data-note">Preview unavailable in this browser.</p>}
+        <audio
+          ref={audioRef}
+          preload="none"
+          muted={volume === 0}
+          onError={() => setPreviewError(true)}
+          onEnded={() => setActiveIndex(null)}
+        />
+      </div>
+
+      {selectedTrack && selectedIndex !== null && (
+        <div className="listening-cover-lightbox" onClick={() => setSelectedIndex(null)}>
+          <div
+            className="listening-cover-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="listening-cover-dialog-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="listening-cover-close"
+              type="button"
+              aria-label="Close track cover viewer"
+              onClick={() => setSelectedIndex(null)}
+              ref={closeButtonRef}
+            >
+              ×
+            </button>
+            <button
+              className="listening-cover-nav listening-cover-nav--previous"
+              type="button"
+              aria-label="Previous track"
+              onClick={() =>
+                setSelectedIndex(
+                  (selectedIndex - 1 + listeningTracks.length) % listeningTracks.length,
+                )
+              }
+            >
+              ←
+            </button>
+            <a
+              className="listening-cover-expanded-link"
+              href={selectedTrack.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${selectedTrack.name} by ${selectedTrack.artist} on Spotify`}
+            >
+              <img
+                src={selectedTrack.image}
+                alt={`${selectedTrack.name} by ${selectedTrack.artist} cover`}
+                draggable="false"
+              />
+            </a>
+            <button
+              className="listening-cover-nav listening-cover-nav--next"
+              type="button"
+              aria-label="Next track"
+              onClick={() => setSelectedIndex((selectedIndex + 1) % listeningTracks.length)}
+            >
+              →
+            </button>
+            <div className="listening-cover-caption">
+              <h3 id="listening-cover-dialog-title">{selectedTrack.name}</h3>
+              <p>
+                {selectedTrack.artist} · {selectedIndex + 1} / {listeningTracks.length} · click the
+                cover to open Spotify
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function FunContent() {
   const [stats, setStats] = useState<PublicStatsResponse | null>(null);
 
@@ -575,12 +849,13 @@ function FunContent() {
 
   const formatListeningTime = (playedMs: number) => {
     const hours = playedMs / 3_600_000;
-    return `${hours >= 100 ? Math.round(hours).toLocaleString() : hours.toFixed(1)} hr`;
+    return hours >= 100 ? Math.round(hours).toLocaleString() : hours.toFixed(1);
   };
 
   const rankingData = spotify?.status === "ok"
     ? [
         {
+          kind: "genres",
           title: "Top 5 Genres",
           count: 5,
           items: spotify.data.genres.map((genre) => ({
@@ -589,8 +864,9 @@ function FunContent() {
             playedMs: genre.playedMs,
           })),
         },
-        { title: "Top 10 Artists", count: 10, items: spotify.data.artists },
+        { kind: "artists", title: "Top 10 Artists", count: 10, items: spotify.data.artists },
         {
+          kind: "tracks",
           title: "Top 10 Tracks",
           count: 10,
           items: spotify.data.tracks.map((track) => ({
@@ -600,7 +876,7 @@ function FunContent() {
           })),
         },
       ]
-    : listeningRankings.map(({ title, count }) => ({ title, count, items: [] }));
+    : listeningRankings.map(({ kind, title, count }) => ({ kind, title, count, items: [] }));
 
   return (
     <div className="mode-content fun-content" aria-label="Side Quests content">
@@ -638,9 +914,11 @@ function FunContent() {
             ? "Lifetime rankings by listening time, via stats.fm."
             : spotify?.message ?? "Loading live data…"}
         </p>
+        <ListeningCoverWheel />
+        <p className="placeholder-copy listening-text-placeholder">Text placeholder.</p>
         <div className="listening-rankings">
-          {rankingData.map(({ title, count, items }) => (
-            <article className="ranking-card" key={title}>
+          {rankingData.map(({ kind, title, count, items }) => (
+            <article className={`ranking-card ranking-card--${kind}`} key={title}>
               <h3>{title}</h3>
               <ol>
                 {Array.from({ length: count }, (_, index) => index).map((index) => (
@@ -749,9 +1027,14 @@ function FunContent() {
           <article className="gaming-widget">
             <h3>Steam</h3>
             <p className="gaming-widget-label">Recently Played</p>
-            <ol className="recently-played-placeholder" aria-label="Steam recently played">
-              {steam?.status === "ok" && steam.data.recentlyPlayed.length > 0
-                ? steam.data.recentlyPlayed.map((game) => (
+            {steam?.status === "ok" && steam.data.recentlyPlayed.length === 0 ? (
+              <p className="steam-empty-state">
+                No games played in the last {steam.data.windowDays} days.
+              </p>
+            ) : (
+              <ol className="recently-played-placeholder" aria-label="Steam recently played">
+                {steam?.status === "ok"
+                  ? steam.data.recentlyPlayed.map((game) => (
                     <li key={game.storeHref}>
                       <a
                         className="text-link"
@@ -762,17 +1045,18 @@ function FunContent() {
                         {game.name}
                       </a>
                       {game.playtimeMinutes !== null && (
-                        <small>{(game.playtimeMinutes / 60).toFixed(1)} h in the last 2 weeks</small>
+                        <small>
+                          {(game.playtimeMinutes / 60).toFixed(1)} h in the last {steam.data.windowDays} days
+                        </small>
                       )}
                     </li>
                   ))
-                : Array.from({ length: 3 }, (_, index) => <li key={index}>—</li>)}
-            </ol>
+                  : Array.from({ length: 3 }, (_, index) => <li key={index}>—</li>)}
+              </ol>
+            )}
             <p className="data-note">
               {steam?.status === "ok"
-                ? steam.data.recentlyPlayed.length > 0
-                  ? "Live from Steam."
-                  : "No recently played games."
+                ? "Live from Steam."
                 : steam?.message ?? "Loading live data…"}
             </p>
           </article>
@@ -952,6 +1236,9 @@ export function Portfolio() {
       <footer className="bar bottombar">
         <div className="container footer-content">
           <p>© {new Date().getFullYear()} Nicole Jiang</p>
+          <a className="text-link" href="/privacy">
+            Privacy Policy
+          </a>
         </div>
       </footer>
     </>

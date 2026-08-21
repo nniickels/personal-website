@@ -141,11 +141,37 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     assert.match(source, new RegExp(label));
   }
   assert.match(source, /Lifetime rankings by listening time, via stats\.fm\./);
+  assert.match(source, /Now playing preview of\.\.\./);
+  assert.match(source, /className="listening-cover-wheel"[\s\S]*?aria-haspopup="dialog"/);
+  assert.match(source, /className="listening-cover-expanded-link"[\s\S]*?target="_blank"/);
+  assert.match(source, /aria-label="Track preview volume"/);
+  assert.match(source, /<output>\{Math\.round\(volume \* 100\)\}%<\/output>/);
+  assert.match(source, /<ListeningCoverWheel \/>[\s\S]*?Text placeholder\.[\s\S]*?className="listening-rankings"/);
+  assert.match(source, /useState\(0\)/);
+  assert.match(source, /onMouseEnter=\{\(\) => void playPreview\(index\)\}/);
+  assert.match(source, /audio\.muted = nextVolume === 0/);
+  assert.equal((source.match(/https:\/\/p\.scdn\.co\/mp3-preview\//g) ?? []).length, 10);
+  for (const trackId of [
+    "24105EgaBPLzZp5kCeSh9g",
+    "3YB9cvd668HXBEq8rbBW8P",
+    "4aLulnl3GrOQRDtXdoYejP",
+    "4bZnIdaGBf162pZEkxXSgQ",
+    "0mc51xomEC6CZUZdB8xgQU",
+    "20ZvzoDSefcZo6bj10jgGC",
+    "4Vie7AYSqfGHEP2uBh0ua5",
+    "6ccWXgRMKsX3GjjiYdAlSd",
+    "2LMloFiV7DHpBhITOaBSam",
+    "0bOvjYU552KSscyA0af4aw",
+  ]) {
+    assert.match(source, new RegExp(trackId));
+  }
 
   const statsSource = await readFile(new URL("../src/api-stats.ts", import.meta.url), "utf8");
   assert.match(statsSource, /api\.stats\.fm\/api\/v1\/users\/nnickels\/top/);
   assert.match(statsSource, /range=lifetime&orderBy=TIME/);
+  assert.match(statsSource, /genres[\s\S]*?slice\(0, 5\)/);
   assert.doesNotMatch(statsSource, /api\.spotify\.com\/v1\/me\/top/);
+  assert.doesNotMatch(source, /\}\s*hr`/);
 
   const collectionSubsections = ["Natural Things", "Scrapbook", "Pokémon Cards"].map((label) =>
     source.indexOf(`<summary>${label}</summary>`),
@@ -159,8 +185,13 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /className="text-link"[\s\S]*?href="https:\/\/store\.steampowered\.com\/app\/2240620\/UNBEATABLE\/"/);
   assert.match(source, /<h3>Clash Royale<\/h3>/);
   assert.match(source, /<p className="gaming-widget-label">Trophies<\/p>/);
+  assert.match(source, /clashRoyale\.data\.trophies\.toLocaleString\(\)/);
+  assert.match(statsSource, /const playerTag = "#PP0U9GRVL"/);
+  assert.match(statsSource, /Boolean\(env\.CLASH_ROYALE_API_TOKEN\)/);
   assert.match(source, /<h3>Steam<\/h3>/);
   assert.match(source, /<p className="gaming-widget-label">Recently Played<\/p>/);
+  assert.match(source, /No games played in the last \{steam\.data\.windowDays\} days\./);
+  assert.match(statsSource, /windowDays: 14/);
   assert.match(source, /href="https:\/\/www\.youtube\.com\/@JacobGeller"/);
   assert.match(source, /href="https:\/\/www\.youtube\.com\/@DarylTalksGames"/);
   assert.match(source, /I like gardening and plant-keeping/);
@@ -207,12 +238,41 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     assert.ok(card.length > 10_000);
   }
 
+  const coverAssets = await readdir(new URL("../public/music-covers/", import.meta.url));
+  assert.equal(coverAssets.length, 10);
+  for (const asset of coverAssets) {
+    const cover = await readFile(new URL(`../public/music-covers/${asset}`, import.meta.url));
+    assert.ok(cover.length > 10_000);
+  }
+
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
+  assert.match(
+    css,
+    /\.listening-rankings\s*\{[\s\S]*?columns:\s*3 13rem[\s\S]*?column-fill:\s*balance/i,
+  );
+  assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
+  assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
+  assert.match(css, /\.listening-volume\s*\{[\s\S]*?grid-template-columns:\s*auto 112px auto[\s\S]*?width:\s*max-content/i);
+  assert.match(css, /\.listening-volume output\s*\{[\s\S]*?text-align:\s*left/i);
   assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
-  assert.match(css, /\.pokemon-card-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
+  assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
+});
+
+test("publishes a clearly labeled Pinterest privacy policy", async () => {
+  const portfolio = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
+  const privacy = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
+
+  assert.match(portfolio, /Privacy Policy/);
+  assert.match(privacy, /title: "Privacy Policy \| Nicole Jiang"/);
+  assert.match(privacy, /<h1>Privacy Policy<\/h1>/);
+  assert.match(privacy, /Pinterest data/);
+  assert.match(privacy, /monthly viewer count/);
+  assert.match(privacy, /encrypted Cloudflare Worker secrets/);
+  assert.match(privacy, /Access, deletion, and revocation/);
+  assert.match(privacy, /nicolejiang9474@gmail\.com/);
 });

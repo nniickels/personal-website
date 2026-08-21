@@ -1,7 +1,6 @@
 export interface StatsEnv {
   PINTEREST_ACCESS_TOKEN?: string;
   CLASH_ROYALE_API_TOKEN?: string;
-  CLASH_ROYALE_PLAYER_TAG?: string;
   STEAM_WEB_API_KEY?: string;
   STEAM_ID64?: string;
 }
@@ -45,7 +44,7 @@ export type PublicStatsResponse = {
     tracks: SpotifyTrack[];
   }>;
   clashRoyale: ProviderResult<{ trophies: number }>;
-  steam: ProviderResult<{ recentlyPlayed: SteamGame[] }>;
+  steam: ProviderResult<{ recentlyPlayed: SteamGame[]; windowDays: 14 }>;
 };
 
 class UpstreamError extends Error {
@@ -188,10 +187,10 @@ async function getSpotifyStats() {
 }
 
 async function getClashRoyaleStats(env: StatsEnv): Promise<{ trophies: number }> {
-  const playerTag = (env.CLASH_ROYALE_PLAYER_TAG ?? "").trim().replace(/^#/, "").toUpperCase();
+  const playerTag = "#PP0U9GRVL";
   const payload = await fetchJson(
     "clash-royale",
-    `https://proxy.royaleapi.dev/v1/players/${encodeURIComponent(`#${playerTag}`)}`,
+    `https://proxy.royaleapi.dev/v1/players/${encodeURIComponent(playerTag)}`,
     { headers: { Authorization: `Bearer ${env.CLASH_ROYALE_API_TOKEN}` } },
   );
   const trophies = isRecord(payload) ? getNumber(payload.trophies) : null;
@@ -201,7 +200,9 @@ async function getClashRoyaleStats(env: StatsEnv): Promise<{ trophies: number }>
   return { trophies };
 }
 
-async function getSteamStats(env: StatsEnv): Promise<{ recentlyPlayed: SteamGame[] }> {
+async function getSteamStats(
+  env: StatsEnv,
+): Promise<{ recentlyPlayed: SteamGame[]; windowDays: 14 }> {
   const url = new URL(
     "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/",
   );
@@ -216,6 +217,7 @@ async function getSteamStats(env: StatsEnv): Promise<{ recentlyPlayed: SteamGame
   const response = isRecord(payload) && isRecord(payload.response) ? payload.response : null;
   const games = response ? getArray(response.games) : [];
   return {
+    windowDays: 14,
     recentlyPlayed: games.flatMap((game): SteamGame[] => {
       if (!isRecord(game)) return [];
       const appId = getNumber(game.appid);
@@ -240,7 +242,7 @@ export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse
     providerResult("stats.fm", true, getSpotifyStats),
     providerResult(
       "clash-royale",
-      Boolean(env.CLASH_ROYALE_API_TOKEN && env.CLASH_ROYALE_PLAYER_TAG),
+      Boolean(env.CLASH_ROYALE_API_TOKEN),
       () => getClashRoyaleStats(env),
     ),
     providerResult("steam", Boolean(env.STEAM_WEB_API_KEY && env.STEAM_ID64), () =>

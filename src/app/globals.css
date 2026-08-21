@@ -648,9 +648,9 @@ button {
 }
 
 .listening-rankings {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
+  columns: 3 13rem;
+  column-gap: var(--space-3);
+  column-fill: balance;
 }
 
 .dropdown-list {
@@ -756,6 +756,106 @@ button {
   font-size: 0.78rem;
 }
 
+.listening-preview {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.listening-preview-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.listening-preview-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--foreground);
+  font-weight: 520;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listening-preview-heading .listening-preview-prompt {
+  color: var(--foreground);
+}
+
+.listening-cover-wheel {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.7rem 0.2rem 0.9rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--line) transparent;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+}
+
+.listening-cover-wheel-item {
+  flex: 0 0 112px;
+  scroll-snap-align: start;
+}
+
+.listening-cover-thumbnail {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, filter 180ms ease,
+    transform 180ms ease;
+}
+
+.listening-cover-thumbnail img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: inherit;
+  object-fit: contain;
+}
+
+.listening-cover-thumbnail:hover,
+.listening-cover-thumbnail:focus-visible {
+  color: var(--foreground);
+  border-color: currentColor;
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 1px currentColor,
+    0 0 20px color-mix(in srgb, currentColor 28%, transparent);
+  transform: translateY(-7px);
+}
+
+.listening-volume {
+  display: grid;
+  grid-template-columns: auto 112px auto;
+  align-items: center;
+  gap: 0.7rem;
+  width: max-content;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.listening-volume input {
+  width: 100%;
+  accent-color: var(--foreground);
+  cursor: pointer;
+}
+
+.listening-volume output {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.listening-text-placeholder {
+  margin-top: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
 .pokemon-card-wheel {
   display: flex;
   gap: 0.75rem;
@@ -797,12 +897,17 @@ button {
 .pokemon-card-thumbnail:focus-visible,
 .pokemon-card-close:focus-visible,
 .pokemon-card-nav:focus-visible,
-.pokemon-card-expanded-link:focus-visible {
+.pokemon-card-expanded-link:focus-visible,
+.listening-cover-thumbnail:focus-visible,
+.listening-cover-close:focus-visible,
+.listening-cover-nav:focus-visible,
+.listening-cover-expanded-link:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
-.pokemon-card-lightbox {
+.pokemon-card-lightbox,
+.listening-cover-lightbox {
   position: fixed;
   z-index: 80;
   inset: 0;
@@ -814,7 +919,8 @@ button {
   animation: pokemon-lightbox-in 180ms ease-out;
 }
 
-.pokemon-card-dialog {
+.pokemon-card-dialog,
+.listening-cover-dialog {
   position: relative;
   width: min(620px, 100%);
   display: grid;
@@ -824,7 +930,8 @@ button {
   color: #f4f4f4;
 }
 
-.pokemon-card-expanded-link {
+.pokemon-card-expanded-link,
+.listening-cover-expanded-link {
   grid-column: 2;
   display: grid;
   justify-items: center;
@@ -832,7 +939,8 @@ button {
   cursor: pointer;
 }
 
-.pokemon-card-expanded-link img {
+.pokemon-card-expanded-link img,
+.listening-cover-expanded-link img {
   display: block;
   width: auto;
   max-width: 100%;
@@ -842,7 +950,8 @@ button {
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.48);
 }
 
-.pokemon-card-close {
+.pokemon-card-close,
+.listening-cover-close {
   position: absolute;
   right: 2.75rem;
   top: 0;
@@ -856,7 +965,8 @@ button {
   transform: translateY(-50%);
 }
 
-.pokemon-card-nav {
+.pokemon-card-nav,
+.listening-cover-nav {
   width: 2.25rem;
   height: 2.25rem;
   color: #f4f4f4;
@@ -866,32 +976,38 @@ button {
   transition: border-color 180ms ease, transform 180ms ease;
 }
 
-.pokemon-card-nav:hover {
+.pokemon-card-nav:hover,
+.listening-cover-nav:hover {
   border-color: #f4f4f4;
   transform: scale(1.06);
 }
 
-.pokemon-card-nav--previous {
+.pokemon-card-nav--previous,
+.listening-cover-nav--previous {
   grid-column: 1;
 }
 
-.pokemon-card-nav--next {
+.pokemon-card-nav--next,
+.listening-cover-nav--next {
   grid-column: 3;
 }
 
-.pokemon-card-caption {
+.pokemon-card-caption,
+.listening-cover-caption {
   grid-column: 1 / -1;
   display: grid;
   gap: 0.2rem;
   text-align: center;
 }
 
-.pokemon-card-caption h3 {
+.pokemon-card-caption h3,
+.listening-cover-caption h3 {
   font-size: 0.92rem;
   font-weight: 520;
 }
 
-.pokemon-card-caption p {
+.pokemon-card-caption p,
+.listening-cover-caption p {
   color: rgba(244, 244, 244, 0.66);
   font-size: 0.78rem;
 }
@@ -906,8 +1022,23 @@ button {
   }
 }
 
+.listening-cover-dialog {
+  width: min(560px, 100%);
+}
+
+.listening-cover-expanded-link img {
+  width: min(68vh, 100%);
+  aspect-ratio: 1;
+}
+
 .ranking-card {
   min-width: 0;
+  margin: 0 0 var(--space-2);
+  break-inside: auto;
+}
+
+.ranking-card h3 {
+  break-after: avoid;
 }
 
 .ranking-card ol {
@@ -922,6 +1053,7 @@ button {
   gap: 0.35rem;
   font-size: 0.84rem;
   line-height: 1.65;
+  break-inside: avoid;
 }
 
 .ranking-card .ranking-time {
@@ -946,6 +1078,13 @@ button {
 .gaming-widget p,
 .recently-played-placeholder {
   margin: 0;
+}
+
+.steam-empty-state {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
 }
 
 .gaming-widget h3 {
@@ -1029,23 +1168,29 @@ button {
     align-items: flex-start;
   }
 
-  .listening-rankings,
   .dropdown-list {
     grid-template-columns: 1fr;
+  }
+
+  .listening-rankings {
+    columns: 1;
   }
 }
 
 @media (max-width: 520px) {
-  .pokemon-card-lightbox {
+  .pokemon-card-lightbox,
+  .listening-cover-lightbox {
     padding-inline: 0.75rem;
   }
 
-  .pokemon-card-dialog {
+  .pokemon-card-dialog,
+  .listening-cover-dialog {
     grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
     gap: 0.45rem;
   }
 
-  .pokemon-card-close {
+  .pokemon-card-close,
+  .listening-cover-close {
     right: 2.25rem;
   }
 
@@ -1088,11 +1233,14 @@ button {
   .dropdown-entry summary,
   .dropdown-entry summary::before,
   .pokemon-card-thumbnail,
-  .pokemon-card-nav {
+  .pokemon-card-nav,
+  .listening-cover-thumbnail,
+  .listening-cover-nav {
     transition: none;
   }
 
-  .pokemon-card-lightbox {
+  .pokemon-card-lightbox,
+  .listening-cover-lightbox {
     animation: none;
   }
 
