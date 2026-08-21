@@ -470,7 +470,7 @@ export function Portfolio() {
                   with me on LinkedIn :))
                 </p>
                 <p className="hero-postscript">
-                  P.S. I also have a fun mode for my more casual side and personal interests!
+                  P.S. The site also has a fun mode for my more casual side and personal interests!
                 </p>
               </>
             ) : (
