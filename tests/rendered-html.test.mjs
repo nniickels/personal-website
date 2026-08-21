@@ -135,13 +135,16 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   for (const label of ["Top 5 Genres", "Top 10 Artists", "Top 10 Tracks"]) {
     assert.match(source, new RegExp(label));
   }
-  assert.match(source, /Lifetime rankings by listening time, via stats\.fm\./);
+  assert.match(source, /And here are my lifetime listening statistics by time \(in hours\) via stats\.fm!/);
   assert.match(source, /Now playing preview of\.\.\./);
   assert.match(source, /className="listening-cover-wheel"[\s\S]*?aria-haspopup="dialog"/);
   assert.match(source, /className="listening-cover-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /aria-label="Track preview volume"/);
   assert.match(source, /<output>\{Math\.round\(volume \* 100\)\}%<\/output>/);
-  assert.match(source, /<ListeningCoverWheel \/>[\s\S]*?Text placeholder\.[\s\S]*?className="listening-rankings"/);
+  assert.match(
+    source,
+    /Here is some music that I enjoy listening to right now![\s\S]*?<ListeningCoverWheel \/>[\s\S]*?And here are my lifetime listening statistics by time \(in hours\) via stats\.fm![\s\S]*?className="listening-rankings"/,
+  );
   assert.match(source, /useState\(0\)/);
   assert.match(source, /onMouseEnter=\{\(\) => void playPreview\(index\)\}/);
   assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
@@ -208,7 +211,16 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
   assert.match(
     source,
-    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Pinterest monthly viewers[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+  );
+  assert.doesNotMatch(source, /Pinterest monthly viewers|stats\?\.pinterest/);
+  assert.match(
+    source,
+    /I like taking photos! Find me on[\s\S]*?className="text-link photo-pinterest-link"[\s\S]*?href="https:\/\/ca\.pinterest\.com\/nnickelsj\/"[\s\S]*?<strong>Pinterest<\/strong>[\s\S]*?<ExternalLinkIcon \/>/,
+  );
+  assert.match(
+    source,
+    /const funLinks[\s\S]*?name: "Pinterest"[\s\S]*?name: "Spotify"[\s\S]*?name: "Instagram"[\s\S]*?name: "Google Maps"/,
   );
   assert.match(source, /Photo gallery placeholder/);
   assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 3);
@@ -260,7 +272,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
   assert.match(
     css,
-    /\.listening-rankings\s*\{[\s\S]*?columns:\s*3 13rem[\s\S]*?column-fill:\s*balance/i,
+    /\.listening-rankings\s*\{[\s\S]*?columns:\s*3 13rem[\s\S]*?column-fill:\s*balance[\s\S]*?margin-top:\s*0\.85rem/i,
   );
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
@@ -278,16 +290,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });
 
-test("publishes a clearly labeled Pinterest privacy policy", async () => {
+test("does not publish a privacy-policy page", async () => {
   const portfolio = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
-  const privacy = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(portfolio, /Privacy Policy|href="\/privacy"/);
 
-  assert.match(portfolio, /Privacy Policy/);
-  assert.match(privacy, /title: "Privacy Policy \| Nicole Jiang"/);
-  assert.match(privacy, /<h1>Privacy Policy<\/h1>/);
-  assert.match(privacy, /Pinterest data/);
-  assert.match(privacy, /monthly viewer count/);
-  assert.match(privacy, /encrypted Cloudflare Worker secrets/);
-  assert.match(privacy, /Access, deletion, and revocation/);
-  assert.match(privacy, /nicolejiang9474@gmail\.com/);
+  const response = await render("/privacy");
+  assert.equal(response.status, 404);
 });

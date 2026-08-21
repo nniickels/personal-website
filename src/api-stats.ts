@@ -1,5 +1,4 @@
 export interface StatsEnv {
-  PINTEREST_ACCESS_TOKEN?: string;
   CLASH_ROYALE_API_TOKEN?: string;
   STEAM_WEB_API_KEY?: string;
   STEAM_ID64?: string;
@@ -34,7 +33,6 @@ type SteamGame = {
 };
 
 export type PublicStatsResponse = {
-  pinterest: ProviderResult<{ monthlyViews: number }>;
   spotify: ProviderResult<{
     source: "stats.fm";
     range: "lifetime";
@@ -101,18 +99,6 @@ async function providerResult<T>(
     );
     return { status: "unavailable", message: "Live data is temporarily unavailable." };
   }
-}
-
-async function getPinterestStats(env: StatsEnv): Promise<{ monthlyViews: number }> {
-  const payload = await fetchJson("pinterest", "https://api.pinterest.com/v5/user_account", {
-    headers: { Authorization: `Bearer ${env.PINTEREST_ACCESS_TOKEN}` },
-  });
-
-  const monthlyViews = isRecord(payload) ? getNumber(payload.monthly_views) : null;
-  if (monthlyViews === null) {
-    throw new Error("Pinterest response did not include monthly_views");
-  }
-  return { monthlyViews };
 }
 
 function statsFmSpotifyHref(item: Record<string, unknown>, type: "artist" | "track") {
@@ -235,10 +221,7 @@ async function getSteamStats(
 }
 
 export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse> {
-  const [pinterest, spotify, clashRoyale, steam] = await Promise.all([
-    providerResult("pinterest", Boolean(env.PINTEREST_ACCESS_TOKEN), () =>
-      getPinterestStats(env),
-    ),
+  const [spotify, clashRoyale, steam] = await Promise.all([
     providerResult("stats.fm", true, getSpotifyStats),
     providerResult(
       "clash-royale",
@@ -250,5 +233,5 @@ export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse
     ),
   ]);
 
-  return { pinterest, spotify, clashRoyale, steam };
+  return { spotify, clashRoyale, steam };
 }

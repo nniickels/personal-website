@@ -173,25 +173,6 @@ button {
   width: min(760px, calc(100% - 2rem));
 }
 
-.privacy-page {
-  display: grid;
-  gap: 2.2rem;
-  min-height: 100vh;
-  padding-top: calc(var(--header-height) + 4rem);
-  padding-bottom: calc(var(--footer-height) + 4rem);
-}
-
-.privacy-page > p,
-.privacy-page section p {
-  max-width: 68ch;
-  color: var(--muted);
-}
-
-.privacy-page section {
-  display: grid;
-  gap: 0.7rem;
-}
-
 .bar {
   position: fixed;
   right: 0;
@@ -643,6 +624,10 @@ button {
   transform: translate(2px, -2px);
 }
 
+.photo-pinterest-link .external-link-icon {
+  margin-left: 0.3rem;
+}
+
 .skills-list strong {
   color: var(--foreground);
   font-weight: 520;
@@ -661,6 +646,7 @@ button {
   columns: 3 13rem;
   column-gap: var(--space-3);
   column-fill: balance;
+  margin-top: 0.85rem;
 }
 
 .dropdown-list {
@@ -757,28 +743,10 @@ button {
   margin-top: 0.85rem;
 }
 
-.api-placeholder {
-  display: grid;
-  gap: 0.3rem;
-  padding: var(--space-2);
-  border: 1px dashed var(--border);
-  color: var(--muted);
-}
-
-.api-placeholder strong {
-  color: var(--foreground);
-  font-size: 1.2rem;
-  font-weight: 520;
-}
-
-.api-placeholder small {
-  font-size: 0.78rem;
-}
-
 .listening-preview {
   display: grid;
   gap: 0.6rem;
-  margin: 0.75rem 0 1.25rem;
+  margin: 0.1rem 0 1.25rem;
 }
 
 .listening-preview-heading {
@@ -890,8 +858,7 @@ button {
 }
 
 .listening-text-placeholder {
-  margin-top: 0.4rem;
-  margin-bottom: 1.25rem;
+  margin: 0;
 }
 
 .pokemon-card-wheel {

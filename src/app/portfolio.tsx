@@ -34,14 +34,14 @@ const seriousLinks: readonly SocialLink[] = [
 ] as const;
 
 const funLinks: readonly SocialLink[] = [
+  { name: "Pinterest", href: "https://ca.pinterest.com/nnickelsj/", icon: "pinterest" },
+  { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime", icon: "spotify" },
+  { name: "Instagram", href: "https://www.instagram.com/nicolejiang_/", icon: "instagram" },
   {
     name: "Google Maps",
     href: "https://www.google.com/maps/contrib/110017132181845047805/reviews/@24.3109578,143.3815865,3z/data=!3m1!4b1!4m3!8m2!3m1!1e1?authuser=1&entry=ttu&g_ep=EgoyMDI2MDgxMi4wIKXMDSoASAFQAw%3D%3D",
     icon: "maps",
   },
-  { name: "Pinterest", href: "https://ca.pinterest.com/nnickelsj/", icon: "pinterest" },
-  { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime", icon: "spotify" },
-  { name: "Instagram", href: "https://www.instagram.com/nicolejiang_/", icon: "instagram" },
 ] as const;
 
 const projects = [
@@ -927,7 +927,6 @@ function FunContent() {
     return () => controller.abort();
   }, []);
 
-  const pinterest = stats?.pinterest;
   const spotify = stats?.spotify;
   const clashRoyale = stats?.clashRoyale;
   const steam = stats?.steam;
@@ -969,22 +968,21 @@ function FunContent() {
         <details className="dropdown-entry photo-gallery-dropdown">
           <summary>
             <h2>Photo Gallery</h2>
-          </summary>
+            </summary>
           <div className="dropdown-content">
             <p className="placeholder-copy">
-              I like taking photos! 
+              I like taking photos! Find me on{" "}
+              <a
+                className="text-link photo-pinterest-link"
+                href="https://ca.pinterest.com/nnickelsj/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <strong>Pinterest</strong>
+                <ExternalLinkIcon />
+              </a>
+              
             </p>
-            <div className="api-placeholder" aria-label="Pinterest monthly viewers">
-              <span>Pinterest monthly viewers</span>
-              <strong>
-                {pinterest?.status === "ok" ? pinterest.data.monthlyViews.toLocaleString() : "—"}
-              </strong>
-              <small>
-                {pinterest?.status === "ok"
-                  ? "Live from Pinterest."
-                  : pinterest?.message ?? "Loading live data…"}
-              </small>
-            </div>
             <div className="media-placeholder media-placeholder--gallery">
               Photo gallery placeholder
             </div>
@@ -994,13 +992,15 @@ function FunContent() {
 
       <section className="section" id="listening">
         <h2>Listening</h2>
-        <p className="data-note">
-          {spotify?.status === "ok"
-            ? "Lifetime rankings by listening time, via stats.fm."
-            : spotify?.message ?? "Loading live data…"}
+        <p className="placeholder-copy listening-text-placeholder">
+          Here is some music that I enjoy listening to right now!
         </p>
         <ListeningCoverWheel />
-        <p className="placeholder-copy listening-text-placeholder">Text placeholder.</p>
+        <p className="data-note">
+          {spotify?.status === "ok"
+            ? "And here are my lifetime listening statistics by time (in hours) via stats.fm! They rarely budge..."
+            : spotify?.message ?? "Loading live data…"}
+        </p>
         <div className="listening-rankings">
           {rankingData.map(({ kind, title, count, items }) => (
             <article className={`ranking-card ranking-card--${kind}`} key={title}>
@@ -1105,7 +1105,7 @@ function FunContent() {
             </p>
             <p className="data-note">
               {clashRoyale?.status === "ok"
-                ? "Live player trophies."
+                ? "nickel #PP0U9GRVL"
                 : clashRoyale?.message ?? "Loading live data…"}
             </p>
           </article>
@@ -1141,7 +1141,7 @@ function FunContent() {
             )}
             <p className="data-note">
               {steam?.status === "ok"
-                ? "Live from Steam."
+                ? ""
                 : steam?.message ?? "Loading live data…"}
             </p>
           </article>
@@ -1322,9 +1322,6 @@ export function Portfolio() {
       <footer className="bar bottombar">
         <div className="container footer-content">
           <p>© {new Date().getFullYear()} Nicole Jiang</p>
-          <a className="text-link" href="/privacy">
-            Privacy Policy
-          </a>
         </div>
       </footer>
     </>
