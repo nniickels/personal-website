@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { ThemeToggle } from "./theme-toggle";
@@ -90,30 +91,78 @@ const experience = [
   },
 ] as const;
 
-const musicRankings = [
+const listeningRankings = [
   { title: "Top 5 Genres", count: 5 },
   { title: "Top 10 Artists", count: 10 },
   { title: "Top 10 Tracks", count: 10 },
 ] as const;
 
-const collections = [
-  {
-    title: "Plants & Dried Plants",
-    placeholder: "Favourite plants, pressed flowers, and dried specimens will go here.",
-  },
-  {
-    title: "Rocks & Fossils",
-    placeholder: "Highlights from my rocks and fossils collection will go here.",
-  },
-  {
-    title: "Scrapbook",
-    placeholder: "Selected scrapbook pages and notes will go here.",
-  },
-  {
-    title: "Pokémon Cards",
-    placeholder: "Favourite cards and collection highlights will go here.",
-  },
+function createNightStars(count: number) {
+  let seed = 9474;
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
+  return Array.from({ length: count }, () => ({
+    top: `${(random() * 100).toFixed(3)}%`,
+    left: `${(random() * 100).toFixed(3)}%`,
+    size: `${(1.1 + random() * 1.5).toFixed(2)}px`,
+    peak: (0.38 + random() * 0.5).toFixed(2),
+    duration: `${(2.8 + random() * 3.2).toFixed(2)}s`,
+    delay: `${(-random() * 6).toFixed(2)}s`,
+  }));
+}
+
+const nightStars = createNightStars(72);
+
+const shootingStars = [
+  { top: "7%", left: "92%", duration: "11s", delay: "2s" },
+  { top: "24%", left: "104%", duration: "16s", delay: "8s" },
+  { top: "3%", left: "68%", duration: "21s", delay: "14s" },
 ] as const;
+
+function NightSky() {
+  return (
+    <div className="night-sky" aria-hidden="true">
+      <div className="night-sky__stars">
+        {nightStars.map((star, index) => (
+          <span
+            className="night-star"
+            key={index}
+            style={
+              {
+                top: star.top,
+                left: star.left,
+                width: star.size,
+                height: star.size,
+                "--star-peak": star.peak,
+                "--twinkle-duration": star.duration,
+                "--twinkle-delay": star.delay,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+      <div className="night-sky__shooting-stars">
+        {shootingStars.map((star, index) => (
+          <span
+            className="shooting-star"
+            key={index}
+            style={
+              {
+                top: star.top,
+                left: star.left,
+                "--shoot-duration": star.duration,
+                "--shoot-delay": star.delay,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function SocialIcon({ name }: { name: IconName }) {
   if (name === "github") {
@@ -225,7 +274,7 @@ function SocialLinks({ links }: { links: readonly SocialLink[] }) {
 
 function SeriousContent() {
   return (
-    <div className="mode-content" aria-label="Serious mode content">
+    <div className="mode-content serious-content" aria-label="Main Quest content">
       <section className="section" id="education">
         <h2>Education</h2>
         <div className="education-entries">
@@ -308,41 +357,12 @@ function SeriousContent() {
 
 function FunContent() {
   return (
-    <div className="mode-content fun-content" aria-label="Fun mode content">
-      <section className="section" id="pinterest">
-        <h2>Pinterest</h2>
-        <article className="metric-entry">
-          <div>
-            <p className="metric-label">Monthly viewers</p>
-            <strong className="metric-value">—</strong>
-          </div>
-          <p className="data-note">Pinterest analytics connection required.</p>
-        </article>
-      </section>
-
-      <section className="section" id="reading">
-        <h2>Reading</h2>
-        <p className="placeholder-copy">
-          My current favourite book is <strong><cite>The Book of Laughter and Forgetting</cite></strong> by
-          Milan Kundera. 
-          
-          I've also recently read Derek Parfit's 1971 paper on Personal Identity in its entirety
-          (finally), which presents my favourite theory on the subject that I've encountered thus
-          far.
-          
-
-          More casually, I like to read comics and manga. A favourite is the <strong><cite>House of
-          Slaughter Vol.2</cite></strong> by James Tynion IV.
-        </p>
-      </section>
-
-      <section className="section" id="music">
-        <h2>Music</h2>
-        <p className="placeholder-copy">
-        </p>
+    <div className="mode-content fun-content" aria-label="Side Quests content">
+      <section className="section" id="listening">
+        <h2>Listening</h2>
         <p className="data-note">Listening data connection required.</p>
-        <div className="music-rankings">
-          {musicRankings.map(({ title, count }) => (
+        <div className="listening-rankings">
+          {listeningRankings.map(({ title, count }) => (
             <article className="ranking-card" key={title}>
               <h3>{title}</h3>
               <ol>
@@ -358,36 +378,102 @@ function FunContent() {
         </div>
       </section>
 
-      <section className="section" id="gaming">
-        <h2>Gaming</h2>
+      <section className="section" id="reading">
+        <h2>Reading</h2>
         <p className="placeholder-copy">
-          My favourite games include <strong><cite>Batman: Arkham Knight</cite></strong> and <strong><cite>UNBEATABLE</cite></strong>. I also enjoy the occasional two-week  <strong><cite>Minecraft</cite></strong> phase, and unfortunately have been finding myself going back to <strong><cite>League of Legends</cite></strong> more often than I would like to admit (though mostly Aram)... 
+          My current favourite book is{" "}
+          <strong><cite>The Book of Laughter and Forgetting</cite></strong> by Milan Kundera (Michael Henry Heim translation). 
+          I like his essayistic prose, and enjoy reading other books within the realm of literary fiction, philosophical fiction, 
+          and surrealism. As for papers, I recently read Derek Parfit's 1971 paper on personal identity and took a liking to his theory. 
+          More casually, I like to read comics and manga also. Some favourites include the{" "}
+          <strong><cite>House of Slaughter Vol.2</cite></strong>, and the <strong><cite>Heaven's Design Team</cite></strong> series.  
+        </p>
+        </section>
+
+      <section className="section" id="watching">
+        <h2>Watching</h2>
+        <p className="placeholder-copy">
+          My favourite YouTube channels are <strong><cite>Jacob Geller</cite></strong> and <strong><cite>Daryl Talks Games</cite></strong>.  
+          If you like video essays about video-games and/or philosophy and psychology, I highly reccomend! I also really like the 2007 anime  
+          <strong><cite> Mononoke</cite></strong>, and am currently watching <strong><cite>Steins;Gate</cite></strong>. Regarding Western media, I like <strong><cite>Superbad</cite></strong>, <strong><cite>BoJack Horseman </cite></strong> 
+          and <strong><cite> Dead Poets Society</cite></strong>. 
         </p>
       </section>
 
-      <section className="section" id="other-media">
-        <h2>Other Media</h2>
+      <section className="section" id="gaming">
+        <h2>Gaming</h2>
         <p className="placeholder-copy">
-          Films, shows, videos, and other things I’m enjoying will go here.
+          My favourite games include <strong><cite>Batman: Arkham Knight</cite></strong> and{" "}
+          <strong><cite>UNBEATABLE</cite></strong>. I also enjoy the occasional two-week{" "}
+          <strong><cite>Minecraft</cite></strong> phase, and unfortunately have been finding myself
+          going back to <strong><cite>League of Legends</cite></strong> more often than I would like
+          to admit (though mostly Aram)...
         </p>
+        <div className="gaming-widgets">
+          <article className="gaming-widget">
+            <h3>Clash Royale</h3>
+            <p className="gaming-widget-label">Trophies</p>
+            <p className="gaming-widget-value" aria-label="Clash Royale trophies pending">
+              —
+            </p>
+            <p className="data-note">API connection required.</p>
+          </article>
+          <article className="gaming-widget">
+            <h3>Steam</h3>
+            <p className="gaming-widget-label">Recently Played</p>
+            <ol className="recently-played-placeholder" aria-label="Steam recently played pending">
+              {Array.from({ length: 3 }, (_, index) => (
+                <li key={index}>—</li>
+              ))}
+            </ol>
+            <p className="data-note">API connection required.</p>
+          </article>
+        </div>
       </section>
 
       <section className="section" id="collections">
         <h2>Collections</h2>
-        <div className="collections-grid">
-          {collections.map((collection) => (
-            <article className="collection-entry" key={collection.title}>
-              <h3>{collection.title}</h3>
-              <p className="placeholder-copy">{collection.placeholder}</p>
-            </article>
-          ))}
+        <div className="dropdown-list">
+          <details className="dropdown-entry">
+            <summary>Natural Things</summary>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                A short description of my natural-history collections will go here.
+              </p>
+              <div className="media-placeholder media-placeholder--gallery">
+                Photo gallery placeholder
+              </div>
+            </div>
+          </details>
+          <details className="dropdown-entry">
+            <summary>Scrapbook</summary>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                A short description of my scrapbook and process will go here.
+              </p>
+              <div className="media-placeholder media-placeholder--photo">Photo placeholder</div>
+            </div>
+          </details>
+          <details className="dropdown-entry">
+            <summary>Pokémon Cards</summary>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                A short description of my Pokémon card collection will go here.
+              </p>
+              <div className="media-placeholder media-placeholder--scroll">
+                Photo scroll wheel placeholder
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
       <section className="section" id="food">
         <h2>Food</h2>
         <p className="placeholder-copy">
-          Recipes, restaurants, and favourite things to cook and eat will go here.
+          I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
+          My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles. 
+          However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, italian sandwiches, and french-style beef tartare. 
         </p>
       </section>
     </div>
@@ -404,7 +490,7 @@ export function Portfolio() {
         setMode(storedMode);
       }
     } catch {
-      // Keep Serious Mode as the default when browser storage is unavailable.
+      // Keep Main Quest as the default when browser storage is unavailable.
     }
   }, []);
 
@@ -453,16 +539,18 @@ export function Portfolio() {
               type="button"
               className="text-btn mode-switch"
               onClick={switchMode}
-              aria-label={`Switch to ${mode === "serious" ? "fun" : "serious"} mode`}
+              aria-label={`Switch to ${mode === "serious" ? "Side Quests" : "Main Quest"}`}
             >
-              {mode === "serious" ? "Serious Mode" : "Fun Mode!"}
+              {mode === "serious" ? "Side Quests" : "Main Quest"}
             </button>
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="container layout">
+      <NightSky />
+
+      <main className={`container layout mode-${mode}`}>
         <section className="hero">
           <div className="hero-heading">
             <h1>Nicole Jiang</h1>
@@ -490,18 +578,16 @@ export function Portfolio() {
                   of Toronto. My research interests include galaxy formation and evolution,
                   observational cosmology, early universe physics, and stellar remnants. Below is a
                   quick overview of my academic profile. Feel free to reach out via email or connect
-                  with me on LinkedIn :))
+                 on LinkedIn :))
                 </p>
-                <p className="hero-postscript">
-                  P.S. The site also has a fun mode for my more casual side and personal interests!
-                </p>
+
               </>
             ) : (
               <p>
                 Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
                 very interested in philosophy (namely metaphysics and epistemology, though
                 intersectional questions are my favourite). I have many interests, collections,
-                and hobbies I'd like to share with you in this mode...
+                and hobbies I'd like to share with you in this mode... Please enjoy!
               </p>
             )}
           </div>

@@ -37,7 +37,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /aria-label="Email"/i);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
-  assert.match(html, />Serious Mode<\/button>/i);
+  assert.match(html, />Side Quests<\/button>/i);
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
   assert.match(html, /href="\/resume\.pdf"[^>]*target="_blank"[\s\S]*?class="external-link-icon"/i);
@@ -53,10 +53,20 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /Royal Astronomical Society of Canada/i);
   assert.match(html, /Ontario Science Centre/i);
   assert.match(html, /class="service-description"/i);
-  assert.match(html, /class="hero-postscript"[^>]*>\s*P\.S\./i);
   assert.doesNotMatch(html, /<ul\b/i);
   assert.match(html, /theme-icon__sun/i);
+  assert.match(html, /class="night-sky" aria-hidden="true"/i);
+  assert.equal((html.match(/class="night-star"/g) ?? []).length, 72);
+  assert.equal((html.match(/class="shooting-star"/g) ?? []).length, 3);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
+});
+
+test("keeps the animated starfield dark-mode-only and motion-safe", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /:root\[data-theme="light"\] \.night-sky\s*\{[\s\S]*?visibility:\s*hidden/i);
+  assert.match(css, /@keyframes night-star-twinkle/i);
+  assert.match(css, /@keyframes shooting-star-flight/i);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.shooting-star\s*\{[\s\S]*?display:\s*none/i);
 });
 
 test("does not publish separate résumé or CV pages", async () => {
@@ -88,14 +98,13 @@ test("publishes the résumé, education logos, and single-character favicon", as
   assert.match(favicon, /prefers-color-scheme:\s*dark/);
 });
 
-test("keeps the Fun Mode interest sections and stats in the requested order", async () => {
+test("keeps the Side Quests interest sections and stats in the requested order", async () => {
   const source = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
   const headings = [
-    "<h2>Pinterest</h2>",
+    "<h2>Listening</h2>",
     "<h2>Reading</h2>",
-    "<h2>Music</h2>",
+    "<h2>Watching</h2>",
     "<h2>Gaming</h2>",
-    "<h2>Other Media</h2>",
     "<h2>Collections</h2>",
     "<h2>Food</h2>",
   ];
@@ -103,17 +112,34 @@ test("keeps the Fun Mode interest sections and stats in the requested order", as
 
   positions.forEach((position) => assert.notEqual(position, -1));
   assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+  assert.doesNotMatch(source, /<h2>Pinterest<\/h2>|<h2>Music<\/h2>|<h2>Other Media<\/h2>/);
 
   for (const label of ["Top 5 Genres", "Top 10 Artists", "Top 10 Tracks"]) {
     assert.match(source, new RegExp(label));
   }
 
-  for (const collection of [
-    "Plants & Dried Plants",
-    "Rocks & Fossils",
-    "Scrapbook",
-    "Pokémon Cards",
-  ]) {
-    assert.match(source, new RegExp(collection.replace("&", "&amp;|&")));
-  }
+  const collectionSubsections = ["Natural Things", "Scrapbook", "Pokémon Cards"].map((label) =>
+    source.indexOf(`<summary>${label}</summary>`),
+  );
+  collectionSubsections.forEach((position) => assert.notEqual(position, -1));
+  assert.deepEqual(collectionSubsections, [...collectionSubsections].sort((a, b) => a - b));
+
+  assert.match(source, /The Book of Laughter and Forgetting/);
+  assert.match(source, /Batman: Arkham Knight/);
+  assert.match(source, /<h3>Clash Royale<\/h3>/);
+  assert.match(source, /<p className="gaming-widget-label">Trophies<\/p>/);
+  assert.match(source, /<h3>Steam<\/h3>/);
+  assert.match(source, /<p className="gaming-widget-label">Recently Played<\/p>/);
+  assert.match(source, /A short description of my natural-history collections will go here\./);
+  assert.match(source, /A short description of my scrapbook and process will go here\./);
+  assert.match(source, /A short description of my Pokémon card collection will go here\./);
+  assert.match(source, /Photo gallery placeholder/);
+  assert.match(source, /Photo placeholder/);
+  assert.match(source, /Photo scroll wheel placeholder/);
+  assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 3);
+
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
+  assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
+  assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });
