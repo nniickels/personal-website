@@ -918,10 +918,16 @@ button {
 
 .ranking-card li {
   display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr);
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
   gap: 0.35rem;
   font-size: 0.84rem;
   line-height: 1.65;
+}
+
+.ranking-card .ranking-time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .ranking-card li span:first-child {

@@ -48,7 +48,9 @@ const worker = {
         );
       }
 
-      const stats = await getPublicStats(env);
+      // vinext's local production server does not inject a Worker env object.
+      // Public stats.fm data can still load; secret-backed providers report unavailable.
+      const stats = await getPublicStats(env ?? {});
       return Response.json(stats, {
         headers: {
           "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=3600",

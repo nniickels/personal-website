@@ -140,6 +140,12 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   for (const label of ["Top 5 Genres", "Top 10 Artists", "Top 10 Tracks"]) {
     assert.match(source, new RegExp(label));
   }
+  assert.match(source, /Lifetime rankings by listening time, via stats\.fm\./);
+
+  const statsSource = await readFile(new URL("../src/api-stats.ts", import.meta.url), "utf8");
+  assert.match(statsSource, /api\.stats\.fm\/api\/v1\/users\/nnickels\/top/);
+  assert.match(statsSource, /range=lifetime&orderBy=TIME/);
+  assert.doesNotMatch(statsSource, /api\.spotify\.com\/v1\/me\/top/);
 
   const collectionSubsections = ["Natural Things", "Scrapbook", "Pokémon Cards"].map((label) =>
     source.indexOf(`<summary>${label}</summary>`),

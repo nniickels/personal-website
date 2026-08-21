@@ -1,8 +1,5 @@
 export interface StatsEnv {
   PINTEREST_ACCESS_TOKEN?: string;
-  SPOTIFY_CLIENT_ID?: string;
-  SPOTIFY_CLIENT_SECRET?: string;
-  SPOTIFY_REFRESH_TOKEN?: string;
   CLASH_ROYALE_API_TOKEN?: string;
   CLASH_ROYALE_PLAYER_TAG?: string;
   STEAM_WEB_API_KEY?: string;
@@ -16,12 +13,19 @@ type ProviderResult<T> =
 type SpotifyArtist = {
   name: string;
   href: string | null;
+  playedMs: number;
 };
 
 type SpotifyTrack = {
   name: string;
   artists: string[];
   href: string | null;
+  playedMs: number;
+};
+
+type SpotifyGenre = {
+  name: string;
+  playedMs: number;
 };
 
 type SteamGame = {
@@ -33,8 +37,10 @@ type SteamGame = {
 export type PublicStatsResponse = {
   pinterest: ProviderResult<{ monthlyViews: number }>;
   spotify: ProviderResult<{
-    range: "long_term";
-    genres: string[];
+    source: "stats.fm";
+    range: "lifetime";
+    orderBy: "time";
+    genres: SpotifyGenre[];
     artists: SpotifyArtist[];
     tracks: SpotifyTrack[];
   }>;
@@ -110,79 +116,75 @@ async function getPinterestStats(env: StatsEnv): Promise<{ monthlyViews: number 
   return { monthlyViews };
 }
 
-async function getSpotifyAccessToken(env: StatsEnv): Promise<string> {
-  const credentials = btoa(`${env.SPOTIFY_CLIENT_ID}:${env.SPOTIFY_CLIENT_SECRET}`);
-  const payload = await fetchJson("spotify-token", "https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: env.SPOTIFY_REFRESH_TOKEN ?? "",
-    }),
-  });
-  const accessToken = isRecord(payload) ? getString(payload.access_token) : null;
-  if (!accessToken) {
-    throw new Error("Spotify token response did not include an access token");
-  }
-  return accessToken;
+function statsFmSpotifyHref(item: Record<string, unknown>, type: "artist" | "track") {
+  const externalIds = isRecord(item.externalIds) ? item.externalIds : null;
+  const spotifyId = externalIds
+    ? getArray(externalIds.spotify).find((value): value is string => typeof value === "string")
+    : null;
+  return spotifyId ? `https://open.spotify.com/${type}/${spotifyId}` : null;
 }
 
-function spotifyHref(item: Record<string, unknown>): string | null {
-  return isRecord(item.external_urls) ? getString(item.external_urls.spotify) : null;
-}
-
-async function getSpotifyStats(env: StatsEnv) {
-  const accessToken = await getSpotifyAccessToken(env);
-  const headers = { Authorization: `Bearer ${accessToken}` };
-  const [artistPayload, trackPayload] = await Promise.all([
+async function getSpotifyStats() {
+  const baseUrl = "https://api.stats.fm/api/v1/users/nnickels/top";
+  const query = "range=lifetime&orderBy=TIME&limit=10";
+  const [genrePayload, artistPayload, trackPayload] = await Promise.all([
     fetchJson(
-      "spotify-artists",
-      "https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=10",
-      { headers },
+      "stats.fm-genres",
+      `${baseUrl}/genres?${query}`,
     ),
     fetchJson(
-      "spotify-tracks",
-      "https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=10",
-      { headers },
+      "stats.fm-artists",
+      `${baseUrl}/artists?${query}`,
     ),
+    fetchJson("stats.fm-tracks", `${baseUrl}/tracks?${query}`),
   ]);
 
+  const genreItems = isRecord(genrePayload) ? getArray(genrePayload.items) : [];
   const artistItems = isRecord(artistPayload) ? getArray(artistPayload.items) : [];
   const trackItems = isRecord(trackPayload) ? getArray(trackPayload.items) : [];
-  const genreCounts = new Map<string, number>();
+
+  const genres = genreItems.flatMap((item): SpotifyGenre[] => {
+    if (!isRecord(item) || !isRecord(item.genre)) return [];
+    const name = getString(item.genre.tag);
+    const playedMs = getNumber(item.playedMs);
+    return name && playedMs !== null ? [{ name, playedMs }] : [];
+  }).slice(0, 5);
 
   const artists = artistItems.flatMap((item): SpotifyArtist[] => {
-    if (!isRecord(item)) return [];
-    for (const genre of getArray(item.genres)) {
-      if (typeof genre === "string") genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
-    }
-    const name = getString(item.name);
-    return name ? [{ name, href: spotifyHref(item) }] : [];
+    if (!isRecord(item) || !isRecord(item.artist)) return [];
+    const name = getString(item.artist.name);
+    const playedMs = getNumber(item.playedMs);
+    return name && playedMs !== null
+      ? [{ name, href: statsFmSpotifyHref(item.artist, "artist"), playedMs }]
+      : [];
   });
 
   const tracks = trackItems.flatMap((item): SpotifyTrack[] => {
-    if (!isRecord(item)) return [];
-    const name = getString(item.name);
-    if (!name) return [];
-    const artistNames = getArray(item.artists).flatMap((artist): string[] => {
+    if (!isRecord(item) || !isRecord(item.track)) return [];
+    const name = getString(item.track.name);
+    const playedMs = getNumber(item.playedMs);
+    if (!name || playedMs === null) return [];
+    const artistNames = getArray(item.track.artists).flatMap((artist): string[] => {
       if (!isRecord(artist)) return [];
       const artistName = getString(artist.name);
       return artistName ? [artistName] : [];
     });
-    return [{ name, artists: artistNames, href: spotifyHref(item) }];
+    return [{
+      name,
+      artists: artistNames,
+      href: statsFmSpotifyHref(item.track, "track"),
+      playedMs,
+    }];
   });
 
-  const genres = [...genreCounts.entries()]
-    .sort(([leftName, leftCount], [rightName, rightCount]) =>
-      rightCount - leftCount || leftName.localeCompare(rightName),
-    )
-    .slice(0, 5)
-    .map(([genre]) => genre);
-
-  return { range: "long_term" as const, genres, artists, tracks };
+  return {
+    source: "stats.fm" as const,
+    range: "lifetime" as const,
+    orderBy: "time" as const,
+    genres,
+    artists,
+    tracks,
+  };
 }
 
 async function getClashRoyaleStats(env: StatsEnv): Promise<{ trophies: number }> {
@@ -235,11 +237,7 @@ export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse
     providerResult("pinterest", Boolean(env.PINTEREST_ACCESS_TOKEN), () =>
       getPinterestStats(env),
     ),
-    providerResult(
-      "spotify",
-      Boolean(env.SPOTIFY_CLIENT_ID && env.SPOTIFY_CLIENT_SECRET && env.SPOTIFY_REFRESH_TOKEN),
-      () => getSpotifyStats(env),
-    ),
+    providerResult("stats.fm", true, getSpotifyStats),
     providerResult(
       "clash-royale",
       Boolean(env.CLASH_ROYALE_API_TOKEN && env.CLASH_ROYALE_PLAYER_TAG),
@@ -252,4 +250,3 @@ export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse
 
   return { pinterest, spotify, clashRoyale, steam };
 }
-

@@ -573,12 +573,21 @@ function FunContent() {
   const clashRoyale = stats?.clashRoyale;
   const steam = stats?.steam;
 
+  const formatListeningTime = (playedMs: number) => {
+    const hours = playedMs / 3_600_000;
+    return `${hours >= 100 ? Math.round(hours).toLocaleString() : hours.toFixed(1)} hr`;
+  };
+
   const rankingData = spotify?.status === "ok"
     ? [
         {
           title: "Top 5 Genres",
           count: 5,
-          items: spotify.data.genres.map((name) => ({ name, href: null })),
+          items: spotify.data.genres.map((genre) => ({
+            name: genre.name,
+            href: null,
+            playedMs: genre.playedMs,
+          })),
         },
         { title: "Top 10 Artists", count: 10, items: spotify.data.artists },
         {
@@ -587,6 +596,7 @@ function FunContent() {
           items: spotify.data.tracks.map((track) => ({
             name: `${track.name} — ${track.artists.join(", ")}`,
             href: track.href,
+            playedMs: track.playedMs,
           })),
         },
       ]
@@ -625,7 +635,7 @@ function FunContent() {
         <h2>Listening</h2>
         <p className="data-note">
           {spotify?.status === "ok"
-            ? "Spotify long-term listening data (approximately one year)."
+            ? "Lifetime rankings by listening time, via stats.fm."
             : spotify?.message ?? "Loading live data…"}
         </p>
         <div className="listening-rankings">
@@ -648,6 +658,11 @@ function FunContent() {
                     ) : (
                       <span>{items[index]?.name ?? "—"}</span>
                     )}
+                    {items[index] ? (
+                      <span className="ranking-time">
+                        {formatListeningTime(items[index].playedMs)}
+                      </span>
+                    ) : null}
                   </li>
                 ))}
               </ol>
