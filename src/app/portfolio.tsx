@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { PublicStatsResponse } from "../api-stats";
@@ -665,12 +665,21 @@ function ListeningCoverWheel() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const keepPlayingRef = useRef(false);
+  const longPressTimerRef = useRef<number | null>(null);
+  const touchPressRef = useRef<{
+    pointerId: number;
+    index: number;
+    startX: number;
+    startY: number;
+    cancelled: boolean;
+    expanded: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
+  const lastTouchAtRef = useRef(0);
   const activeTrack = activeIndex === null ? null : listeningTracks[activeIndex];
   const selectedTrack = selectedIndex === null ? null : listeningTracks[selectedIndex];
 
-  const stopPreview = () => {
-    if (keepPlayingRef.current) return;
-
+  const resetPreview = () => {
     const audio = audioRef.current;
     if (audio) {
       audio.pause();
@@ -679,6 +688,11 @@ function ListeningCoverWheel() {
     setActiveIndex(null);
     setPreviewProgress(0);
     setPreviewError(false);
+  };
+
+  const stopPreview = () => {
+    if (keepPlayingRef.current) return;
+    resetPreview();
   };
 
   const playPreview = async (index: number) => {
@@ -718,17 +732,106 @@ function ListeningCoverWheel() {
     void playPreview(index);
   };
 
+  const togglePreview = (index: number) => {
+    const audio = audioRef.current;
+    if (activeIndex === index && audio && !audio.paused) {
+      resetPreview();
+      return;
+    }
+    void playPreview(index);
+  };
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const releaseTouchClickSuppression = () => {
+    window.setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 0);
+  };
+
+  const handleCoverPointerDown = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    if (event.pointerType === "mouse") return;
+
+    clearLongPressTimer();
+    lastTouchAtRef.current = Date.now();
+    suppressClickRef.current = true;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    touchPressRef.current = {
+      pointerId: event.pointerId,
+      index,
+      startX: event.clientX,
+      startY: event.clientY,
+      cancelled: false,
+      expanded: false,
+    };
+    longPressTimerRef.current = window.setTimeout(() => {
+      const press = touchPressRef.current;
+      if (!press || press.cancelled || press.pointerId !== event.pointerId) return;
+      press.expanded = true;
+      openTrack(index);
+    }, 500);
+  };
+
+  const handleCoverPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const press = touchPressRef.current;
+    if (!press || press.pointerId !== event.pointerId || press.cancelled) return;
+
+    if (Math.hypot(event.clientX - press.startX, event.clientY - press.startY) > 10) {
+      press.cancelled = true;
+      clearLongPressTimer();
+    }
+  };
+
+  const handleCoverPointerUp = (
+    event: ReactPointerEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    if (event.pointerType === "mouse") return;
+
+    const press = touchPressRef.current;
+    clearLongPressTimer();
+    if (press && press.pointerId === event.pointerId) {
+      if (press.expanded) {
+        closeTrack();
+      } else if (!press.cancelled) {
+        togglePreview(index);
+      }
+    }
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    touchPressRef.current = null;
+    releaseTouchClickSuppression();
+  };
+
+  const cancelCoverPress = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === "mouse") {
+      stopPreview();
+      return;
+    }
+
+    const press = touchPressRef.current;
+    if (press && press.pointerId === event.pointerId) {
+      if (press.expanded) closeTrack();
+      press.cancelled = true;
+      clearLongPressTimer();
+      touchPressRef.current = null;
+      releaseTouchClickSuppression();
+    }
+  };
+
   const closeTrack = () => {
     keepPlayingRef.current = false;
     setSelectedIndex(null);
-    const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-    setActiveIndex(null);
-    setPreviewProgress(0);
-    setPreviewError(false);
+    resetPreview();
   };
 
   const updateVolume = (nextVolume: number) => {
@@ -765,7 +868,13 @@ function ListeningCoverWheel() {
     };
   }, [selectedIndex]);
 
-  useEffect(() => () => audioRef.current?.pause(), []);
+  useEffect(
+    () => () => {
+      clearLongPressTimer();
+      audioRef.current?.pause();
+    },
+    [],
+  );
 
   return (
     <>
@@ -774,7 +883,14 @@ function ListeningCoverWheel() {
           <span>Now playing preview of...</span>
           <span className="listening-preview-status">
             <strong className={activeTrack ? "listening-preview-track" : "listening-preview-prompt"}>
-              {activeTrack ? `${activeTrack.name} — ${activeTrack.artist}` : "Hover a cover"}
+              {activeTrack ? (
+                `${activeTrack.name} — ${activeTrack.artist}`
+              ) : (
+                <>
+                  <span className="cover-instruction-hover">Hover a cover</span>
+                  <span className="cover-instruction-tap">Tap a cover, hold to expand</span>
+                </>
+              )}
             </strong>
             {activeTrack && (
               <span
@@ -800,11 +916,28 @@ function ListeningCoverWheel() {
                 type="button"
                 aria-haspopup="dialog"
                 aria-label={`Preview and enlarge ${track.name} by ${track.artist}`}
-                onMouseEnter={() => void playPreview(index)}
-                onMouseLeave={stopPreview}
-                onFocus={() => void playPreview(index)}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse") void playPreview(index);
+                }}
+                onPointerDown={(event) => handleCoverPointerDown(event, index)}
+                onPointerMove={handleCoverPointerMove}
+                onPointerUp={(event) => handleCoverPointerUp(event, index)}
+                onPointerLeave={cancelCoverPress}
+                onPointerCancel={cancelCoverPress}
+                onFocus={() => {
+                  if (Date.now() - lastTouchAtRef.current >= 1_000) void playPreview(index);
+                }}
                 onBlur={stopPreview}
-                onClick={() => openTrack(index)}
+                onContextMenu={(event) => {
+                  if (Date.now() - lastTouchAtRef.current < 1_000) event.preventDefault();
+                }}
+                onClick={(event) => {
+                  if (suppressClickRef.current) {
+                    event.preventDefault();
+                    return;
+                  }
+                  openTrack(index);
+                }}
               >
                 <img src={track.image} alt={`${track.name} by ${track.artist} cover`} loading="lazy" draggable="false" />
               </button>
@@ -1105,7 +1238,10 @@ function FunContent() {
             </p>
             <p className="data-note">
               {clashRoyale?.status === "ok"
-                ? "nickel #PP0U9GRVL"
+                ? <>
+                    <span className="clash-player-name">nickel</span>{" "}
+                    <span className="clash-player-tag">#PP0U9GRVL</span>
+                  </>
                 : clashRoyale?.message ?? "Loading live data…"}
             </p>
           </article>
@@ -1208,6 +1344,15 @@ export function Portfolio() {
 
   useEffect(() => {
     try {
+      const navigation = window.performance.getEntriesByType("navigation")[0] as
+        | PerformanceNavigationTiming
+        | undefined;
+
+      if (navigation?.type === "navigate") {
+        window.localStorage.setItem(storedModeKey, "serious");
+        return;
+      }
+
       const storedMode = window.localStorage.getItem(storedModeKey);
       if (storedMode === "serious" || storedMode === "fun") {
         setMode(storedMode);

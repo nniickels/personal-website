@@ -137,6 +137,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   }
   assert.match(source, /And here are my lifetime listening statistics by time \(in hours\) via stats\.fm!/);
   assert.match(source, /Now playing preview of\.\.\./);
+  assert.match(source, /className="cover-instruction-hover">Hover a cover<\/span>/);
+  assert.match(source, /className="cover-instruction-tap">Tap a cover, hold to expand<\/span>/);
   assert.match(source, /className="listening-cover-wheel"[\s\S]*?aria-haspopup="dialog"/);
   assert.match(source, /className="listening-cover-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /aria-label="Track preview volume"/);
@@ -146,7 +148,17 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     /Here is some music that I enjoy listening to right now![\s\S]*?<ListeningCoverWheel \/>[\s\S]*?And here are my lifetime listening statistics by time \(in hours\) via stats\.fm![\s\S]*?className="listening-rankings"/,
   );
   assert.match(source, /useState\(0\)/);
-  assert.match(source, /onMouseEnter=\{\(\) => void playPreview\(index\)\}/);
+  assert.match(source, /getEntriesByType\("navigation"\)/);
+  assert.match(source, /navigation\?\.type === "navigate"[\s\S]*?setItem\(storedModeKey, "serious"\)/);
+  assert.match(source, /getItem\(storedModeKey\)/);
+  assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
+  assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?openTrack\(index\)[\s\S]*?, 500\)/);
+  assert.match(source, /Math\.hypot[\s\S]*?> 10/);
+  assert.match(source, /handleCoverPointerUp[\s\S]*?togglePreview\(index\)/);
+  assert.match(source, /setPointerCapture\(event\.pointerId\)/);
+  assert.match(source, /if \(press\.expanded\)[\s\S]*?closeTrack\(\)/);
+  assert.match(source, /onFocus[\s\S]*?Date\.now\(\) - lastTouchAtRef\.current >= 1_000/);
+  assert.match(source, /onContextMenu[\s\S]*?event\.preventDefault\(\)/);
   assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
   assert.match(source, /<audio[\s\S]*?loop/);
   assert.match(source, /aria-label="Track preview progress"/);
@@ -198,6 +210,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /<h3>Clash Royale<\/h3>/);
   assert.match(source, /<p className="gaming-widget-label">Trophies<\/p>/);
   assert.match(source, /clashRoyale\.data\.trophies\.toLocaleString\(\)/);
+  assert.match(source, /className="clash-player-name">nickel<\/span>/);
+  assert.match(source, /className="clash-player-tag">#PP0U9GRVL<\/span>/);
   assert.match(statsSource, /const playerTag = "#PP0U9GRVL"/);
   assert.match(statsSource, /Boolean\(env\.CLASH_ROYALE_API_TOKEN\)/);
   assert.match(source, /<h3>Steam<\/h3>/);
@@ -276,7 +290,9 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   );
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
+  assert.match(css, /\.listening-cover-thumbnail\s*\{[\s\S]*?touch-action:\s*pan-x pan-y[\s\S]*?user-select:\s*none/i);
   assert.match(css, /\.listening-preview-heading \.listening-preview-prompt\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.cover-instruction-hover[\s\S]*?display:\s*none[\s\S]*?\.cover-instruction-tap[\s\S]*?display:\s*inline/i);
   assert.match(css, /\.listening-preview-heading strong\s*\{[\s\S]*?color:\s*var\(--foreground\)/i);
   assert.match(css, /\.listening-preview-progress\s*\{[\s\S]*?conic-gradient/i);
   assert.doesNotMatch(css, /\.listening-preview-progress\s*\{[\s\S]*?transform:\s*scaleX\(-1\)/i);
