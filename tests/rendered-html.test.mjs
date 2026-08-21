@@ -31,7 +31,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=1"/i);
+  assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=7"/i);
   assert.match(html, /property="og:image:width"[^>]*content="1200"/i);
   assert.match(html, /property="og:image:height"[^>]*content="630"/i);
   assert.match(html, /name="twitter:card"[^>]*content="summary_large_image"/i);

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "/og.png?v=1",
+        url: "/og.png?v=7",
         width: 1200,
         height: 630,
         alt: "Nicole Jiang — astronomy and physics undergraduate at U of T",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nicole Jiang",
     description,
-    images: ["/og.png?v=1"],
+    images: ["/og.png?v=7"],
   },
 };
 
