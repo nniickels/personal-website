@@ -738,10 +738,6 @@ button {
   min-height: 11rem;
 }
 
-.photo-gallery-dropdown .media-placeholder--gallery {
-  margin-top: 0.85rem;
-}
-
 #collections .dropdown-content > .media-placeholder,
 #collections .dropdown-content > .pokemon-card-wheel {
   margin-top: 0.85rem;
@@ -925,6 +921,10 @@ button {
 }
 
 .pokemon-card-thumbnail:focus-visible,
+.photo-gallery-thumbnail:focus-visible,
+.photo-gallery-close:focus-visible,
+.photo-gallery-nav:focus-visible,
+.photo-gallery-expanded:focus-visible,
 .pokemon-card-close:focus-visible,
 .pokemon-card-nav:focus-visible,
 .pokemon-card-expanded-link:focus-visible,
@@ -937,7 +937,8 @@ button {
 }
 
 .pokemon-card-lightbox,
-.listening-cover-lightbox {
+.listening-cover-lightbox,
+.photo-gallery-lightbox {
   position: fixed;
   z-index: 80;
   inset: 0;
@@ -950,7 +951,8 @@ button {
 }
 
 .pokemon-card-dialog,
-.listening-cover-dialog {
+.listening-cover-dialog,
+.photo-gallery-dialog {
   position: relative;
   width: min(620px, 100%);
   display: grid;
@@ -961,7 +963,8 @@ button {
 }
 
 .pokemon-card-expanded-link,
-.listening-cover-expanded-link {
+.listening-cover-expanded-link,
+.photo-gallery-expanded {
   grid-column: 2;
   display: grid;
   justify-items: center;
@@ -970,7 +973,8 @@ button {
 }
 
 .pokemon-card-expanded-link img,
-.listening-cover-expanded-link img {
+.listening-cover-expanded-link img,
+.photo-gallery-expanded img {
   display: block;
   width: auto;
   max-width: 100%;
@@ -981,7 +985,8 @@ button {
 }
 
 .pokemon-card-close,
-.listening-cover-close {
+.listening-cover-close,
+.photo-gallery-close {
   position: absolute;
   right: 2.75rem;
   top: 0;
@@ -996,7 +1001,8 @@ button {
 }
 
 .pokemon-card-nav,
-.listening-cover-nav {
+.listening-cover-nav,
+.photo-gallery-nav {
   width: 2.25rem;
   height: 2.25rem;
   color: #f4f4f4;
@@ -1007,23 +1013,27 @@ button {
 }
 
 .pokemon-card-nav:hover,
-.listening-cover-nav:hover {
+.listening-cover-nav:hover,
+.photo-gallery-nav:hover {
   border-color: #f4f4f4;
   transform: scale(1.06);
 }
 
 .pokemon-card-nav--previous,
-.listening-cover-nav--previous {
+.listening-cover-nav--previous,
+.photo-gallery-nav--previous {
   grid-column: 1;
 }
 
 .pokemon-card-nav--next,
-.listening-cover-nav--next {
+.listening-cover-nav--next,
+.photo-gallery-nav--next {
   grid-column: 3;
 }
 
 .pokemon-card-caption,
-.listening-cover-caption {
+.listening-cover-caption,
+.photo-gallery-caption {
   grid-column: 1 / -1;
   display: grid;
   gap: 0.2rem;
@@ -1037,7 +1047,8 @@ button {
 }
 
 .pokemon-card-caption p,
-.listening-cover-caption p {
+.listening-cover-caption p,
+.photo-gallery-caption p {
   color: rgba(244, 244, 244, 0.66);
   font-size: 0.78rem;
 }
@@ -1059,6 +1070,51 @@ button {
 .listening-cover-expanded-link img {
   width: min(68vh, 100%);
   aspect-ratio: 1;
+}
+
+.photo-gallery-grid {
+  columns: 4 100px;
+  column-gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.photo-gallery-thumbnail {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.5rem;
+  break-inside: avoid;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: zoom-in;
+  transition: filter 180ms ease, transform 180ms ease;
+}
+
+.photo-gallery-thumbnail img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+
+.photo-gallery-thumbnail:hover,
+.photo-gallery-thumbnail:focus-visible {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+
+.photo-gallery-dialog {
+  width: min(820px, 100%);
+}
+
+.photo-gallery-expanded {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  cursor: zoom-out;
+}
+
+.photo-gallery-expanded img {
+  max-height: 78vh;
 }
 
 .ranking-card {
@@ -1234,18 +1290,21 @@ button {
   }
 
   .pokemon-card-lightbox,
-  .listening-cover-lightbox {
+  .listening-cover-lightbox,
+  .photo-gallery-lightbox {
     padding-inline: 0.75rem;
   }
 
   .pokemon-card-dialog,
-  .listening-cover-dialog {
+  .listening-cover-dialog,
+  .photo-gallery-dialog {
     grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
     gap: 0.45rem;
   }
 
   .pokemon-card-close,
-  .listening-cover-close {
+  .listening-cover-close,
+  .photo-gallery-close {
     right: 2.25rem;
   }
 
@@ -1290,13 +1349,16 @@ button {
   .dropdown-entry summary::before,
   .pokemon-card-thumbnail,
   .pokemon-card-nav,
+  .photo-gallery-thumbnail,
+  .photo-gallery-nav,
   .listening-cover-thumbnail,
   .listening-cover-nav {
     transition: none;
   }
 
   .pokemon-card-lightbox,
-  .listening-cover-lightbox {
+  .listening-cover-lightbox,
+  .photo-gallery-lightbox {
     animation: none;
   }
 

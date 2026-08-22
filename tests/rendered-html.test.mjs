@@ -234,7 +234,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
   assert.match(
     source,
-    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?<PhotoGallery \/>[\s\S]*?<\/details>/,
   );
   assert.doesNotMatch(source, /monthly views on Pinterest|Pinterest monthly views/i);
   assert.match(
@@ -245,8 +245,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     source,
     /const funLinks[\s\S]*?name: "Pinterest"[\s\S]*?name: "Spotify"[\s\S]*?name: "Instagram"[\s\S]*?name: "Google Maps"/,
   );
-  assert.match(source, /Photo gallery placeholder/);
-  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 3);
+  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 2);
   assert.match(
     source,
     /<section className="section" id="food">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
@@ -292,6 +291,19 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     assert.ok(cover.length > 10_000);
   }
 
+  const photoAssets = await readdir(new URL("../public/photos/", import.meta.url));
+  assert.equal(photoAssets.length, 41);
+  for (const asset of photoAssets) {
+    const photo = await readFile(new URL(`../public/photos/${asset}`, import.meta.url));
+    assert.ok(photo.length > 10_000);
+  }
+
+  assert.match(source, /const galleryPhotos = Array\.from\(\{ length: 41 \}/);
+  assert.match(source, /className="photo-gallery-grid"/);
+  assert.match(source, /className="photo-gallery-lightbox"/);
+  assert.match(source, /aria-label="Previous photo"/);
+  assert.match(source, /aria-label="Next photo"/);
+
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.fun-content\s*\{[\s\S]*?gap:\s*2rem/i);
   assert.match(
@@ -314,7 +326,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.72rem\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
-  assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
+  assert.match(css, /\.photo-gallery-grid\s*\{[\s\S]*?columns:\s*4 100px[\s\S]*?column-gap:\s*0\.5rem/i);
+  assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox,\s*\.photo-gallery-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });

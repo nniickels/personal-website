@@ -286,6 +286,11 @@ const listeningTracks = [
   image: `/music-covers/${track.id}.jpg`,
 }));
 
+const galleryPhotos = Array.from({ length: 41 }, (_, index) => ({
+  src: `/photos/photo-${String(index + 1).padStart(2, "0")}.jpg`,
+  alt: `Photo ${index + 1} of 41 from Nicole's gallery`,
+}));
+
 function createNightStars(count: number) {
   let seed = 9474;
   const random = () => {
@@ -1101,6 +1106,115 @@ function ListeningCoverWheel() {
   );
 }
 
+function PhotoGallery() {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const selectedPhoto = selectedIndex === null ? null : galleryPhotos[selectedIndex];
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedIndex(null);
+      } else if (event.key === "ArrowLeft") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current - 1 + galleryPhotos.length) % galleryPhotos.length,
+        );
+      } else if (event.key === "ArrowRight") {
+        setSelectedIndex((current) =>
+          current === null ? null : (current + 1) % galleryPhotos.length,
+        );
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedIndex]);
+
+  return (
+    <>
+      <div className="photo-gallery-grid" role="list" aria-label="Photo gallery">
+        {galleryPhotos.map((photo, index) => (
+          <button
+            className="photo-gallery-thumbnail"
+            type="button"
+            role="listitem"
+            aria-haspopup="dialog"
+            aria-label={`Enlarge photo ${index + 1}`}
+            onClick={() => setSelectedIndex(index)}
+            key={photo.src}
+          >
+            <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+          </button>
+        ))}
+      </div>
+
+      {selectedPhoto && selectedIndex !== null && (
+        <div className="photo-gallery-lightbox" onClick={() => setSelectedIndex(null)}>
+          <div
+            className="photo-gallery-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Photo ${selectedIndex + 1} of ${galleryPhotos.length}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="photo-gallery-close"
+              type="button"
+              aria-label="Close photo viewer"
+              onClick={() => setSelectedIndex(null)}
+              ref={closeButtonRef}
+            >
+              ×
+            </button>
+            <button
+              className="photo-gallery-nav photo-gallery-nav--previous"
+              type="button"
+              aria-label="Previous photo"
+              onClick={() =>
+                setSelectedIndex(
+                  (selectedIndex - 1 + galleryPhotos.length) % galleryPhotos.length,
+                )
+              }
+            >
+              ←
+            </button>
+            <button
+              className="photo-gallery-expanded"
+              type="button"
+              aria-label="Close expanded photo"
+              onClick={() => setSelectedIndex(null)}
+            >
+              <img src={selectedPhoto.src} alt={selectedPhoto.alt} />
+            </button>
+            <button
+              className="photo-gallery-nav photo-gallery-nav--next"
+              type="button"
+              aria-label="Next photo"
+              onClick={() => setSelectedIndex((selectedIndex + 1) % galleryPhotos.length)}
+            >
+              →
+            </button>
+            <div className="photo-gallery-caption">
+              <p>
+                {selectedIndex + 1} / {galleryPhotos.length}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function FunContent() {
   const [stats, setStats] = useState<PublicStatsResponse | null>(null);
 
@@ -1178,9 +1292,7 @@ function FunContent() {
               </a>
               
             </p>
-            <div className="media-placeholder media-placeholder--gallery">
-              Photo gallery placeholder
-            </div>
+            <PhotoGallery />
           </div>
         </details>
       </section>
