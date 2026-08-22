@@ -81,6 +81,7 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
 test("follows live device color-scheme changes", async () => {
   const toggle = await readFile(new URL("../src/app/theme-toggle.tsx", import.meta.url), "utf8");
   const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
 
   assert.match(toggle, /matchMedia\("\(prefers-color-scheme: dark\)"\)/);
   assert.match(toggle, /addEventListener\("change", handleSystemThemeChange\)/);
@@ -88,6 +89,8 @@ test("follows live device color-scheme changes", async () => {
   assert.match(toggle, /localStorage\.removeItem\(storedThemeKey\)/);
   assert.match(toggle, /setTheme\(nextSystemTheme\)/);
   assert.match(layout, /portfolio-theme-override/);
+  assert.match(css, /:root\[data-theme="light"\][\s\S]*?--home-logo-filter:\s*invert\(1\)/i);
+  assert.match(css, /\.home-link img\s*\{[\s\S]*?filter:\s*var\(--home-logo-filter\)/i);
 });
 
 test("does not publish separate résumé or CV pages", async () => {
@@ -196,6 +199,9 @@ test("keeps the Side Quests interest sections and stats in the requested order",
 
   const statsSource = await readFile(new URL("../src/api-stats.ts", import.meta.url), "utf8");
   assert.match(statsSource, /api\.stats\.fm\/api\/v1\/users\/nnickels\/top/);
+  assert.match(statsSource, /fetch_cat~pinterest-profile-scraper\/run-sync-get-dataset-items/);
+  assert.match(statsSource, /Boolean\(env\.APIFY_TOKEN\)/);
+  assert.match(statsSource, /max-age=21600/);
   assert.match(statsSource, /range=lifetime&orderBy=TIME/);
   assert.match(statsSource, /genres[\s\S]*?slice\(0, 5\)/);
   assert.doesNotMatch(statsSource, /api\.spotify\.com\/v1\/me\/top/);
@@ -233,7 +239,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     source,
     /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
   );
-  assert.doesNotMatch(source, /Pinterest monthly viewers|stats\?\.pinterest/);
+  assert.match(source, /pinterest\.data\.monthlyViews\.toLocaleString\(\)/);
+  assert.match(source, /monthly views on Pinterest/);
   assert.match(
     source,
     /I like taking photos! Find me on[\s\S]*?className="text-link photo-pinterest-link"[\s\S]*?href="https:\/\/ca\.pinterest\.com\/nnickelsj\/"[\s\S]*?<strong>Pinterest<\/strong>[\s\S]*?<ExternalLinkIcon \/>/,

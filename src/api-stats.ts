@@ -1,4 +1,5 @@
 export interface StatsEnv {
+  APIFY_TOKEN?: string;
   CLASH_ROYALE_API_TOKEN?: string;
   STEAM_WEB_API_KEY?: string;
   STEAM_ID64?: string;
@@ -33,6 +34,7 @@ type SteamGame = {
 };
 
 export type PublicStatsResponse = {
+  pinterest: ProviderResult<{ monthlyViews: number }>;
   spotify: ProviderResult<{
     source: "stats.fm";
     range: "lifetime";
@@ -172,6 +174,55 @@ async function getSpotifyStats() {
   };
 }
 
+type CloudflareCacheStorage = CacheStorage & { default: Cache };
+
+async function getPinterestStats(env: StatsEnv): Promise<{ monthlyViews: number }> {
+  const cache = (globalThis.caches as CloudflareCacheStorage | undefined)?.default;
+  const cacheKey = new Request("https://nicolejiang.com/__cache/pinterest-monthly-views");
+  const cached = await cache?.match(cacheKey);
+
+  if (cached) {
+    const cachedPayload: unknown = await cached.json();
+    const cachedMonthlyViews = isRecord(cachedPayload)
+      ? getNumber(cachedPayload.monthlyViews)
+      : null;
+    if (cachedMonthlyViews !== null) return { monthlyViews: cachedMonthlyViews };
+  }
+
+  const payload = await fetchJson(
+    "pinterest",
+    "https://api.apify.com/v2/actors/fetch_cat~pinterest-profile-scraper/run-sync-get-dataset-items?timeout=45&clean=true",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.APIFY_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usernames: ["nnickelsj"],
+        includeBoards: false,
+        includePins: false,
+      }),
+      signal: AbortSignal.timeout(50_000),
+    },
+  );
+
+  const profile = getArray(payload).find(isRecord);
+  const monthlyViews = profile ? getNumber(profile.monthlyViews) : null;
+  if (monthlyViews === null) {
+    throw new Error("Pinterest profile response did not include monthlyViews");
+  }
+
+  const result = { monthlyViews };
+  if (cache) {
+    await cache.put(
+      cacheKey,
+      Response.json(result, { headers: { "Cache-Control": "public, max-age=21600" } }),
+    );
+  }
+  return result;
+}
+
 async function getClashRoyaleStats(env: StatsEnv): Promise<{ trophies: number }> {
   const playerTag = "#PP0U9GRVL";
   const payload = await fetchJson(
@@ -221,7 +272,8 @@ async function getSteamStats(
 }
 
 export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse> {
-  const [spotify, clashRoyale, steam] = await Promise.all([
+  const [pinterest, spotify, clashRoyale, steam] = await Promise.all([
+    providerResult("pinterest", Boolean(env.APIFY_TOKEN), () => getPinterestStats(env)),
     providerResult("stats.fm", true, getSpotifyStats),
     providerResult(
       "clash-royale",
@@ -233,5 +285,5 @@ export async function getPublicStats(env: StatsEnv): Promise<PublicStatsResponse
     ),
   ]);
 
-  return { spotify, clashRoyale, steam };
+  return { pinterest, spotify, clashRoyale, steam };
 }

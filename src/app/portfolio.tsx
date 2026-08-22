@@ -1122,6 +1122,7 @@ function FunContent() {
   }, []);
 
   const spotify = stats?.spotify;
+  const pinterest = stats?.pinterest;
   const clashRoyale = stats?.clashRoyale;
   const steam = stats?.steam;
 
@@ -1176,6 +1177,13 @@ function FunContent() {
                 <ExternalLinkIcon />
               </a>
               
+            </p>
+            <p className="data-note pinterest-monthly-views">
+              {pinterest?.status === "ok"
+                ? `${pinterest.data.monthlyViews.toLocaleString()} monthly views on Pinterest`
+                : pinterest
+                  ? "Pinterest monthly views are temporarily unavailable."
+                  : "Loading Pinterest monthly views…"}
             </p>
             <div className="media-placeholder media-placeholder--gallery">
               Photo gallery placeholder

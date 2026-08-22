@@ -11,6 +11,7 @@
   --line: #2a2a2a;
   --preview-progress-base: #777;
   --preview-progress-overlay: #2e2e2e;
+  --home-logo-filter: none;
   --osc-logo-filter: grayscale(1) brightness(0) invert(1);
 }
 
@@ -22,6 +23,7 @@
   --line: #d5d5d5;
   --preview-progress-base: #bdbdbd;
   --preview-progress-overlay: #555;
+  --home-logo-filter: invert(1);
   --osc-logo-filter: grayscale(1) brightness(0);
 }
 
@@ -221,6 +223,8 @@ button {
   width: 1.35rem;
   height: 1.35rem;
   object-fit: contain;
+  filter: var(--home-logo-filter);
+  transition: filter 280ms ease;
 }
 
 .text-btn,
@@ -494,7 +498,7 @@ button {
 }
 
 .serious-content {
-  gap: 5rem;
+  gap: 3.5rem;
 }
 
 .fun-content {
@@ -1273,6 +1277,7 @@ button {
   .text-btn,
   .text-link,
   .external-link-icon,
+  .home-link img,
   .theme-icon,
   .theme-icon__sun,
   .theme-icon__moon,
