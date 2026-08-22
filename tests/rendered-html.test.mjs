@@ -45,7 +45,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /aria-label="Email"/i);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
-  assert.match(html, />Side Quests<\/button>/i);
+  assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?tong-calligraphy\.png[\s\S]*?tong-calligraphy\.png[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
@@ -157,9 +157,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     /Here is some music that I enjoy listening to right now![\s\S]*?<ListeningCoverWheel \/>[\s\S]*?And here are my lifetime listening statistics by time \(in hours\) via stats\.fm![\s\S]*?className="listening-rankings"/,
   );
   assert.match(source, /useState\(0\)/);
-  assert.match(source, /getEntriesByType\("navigation"\)/);
-  assert.match(source, /navigation\?\.type === "navigate"[\s\S]*?setItem\(storedModeKey, "serious"\)/);
-  assert.match(source, /getItem\(storedModeKey\)/);
+  assert.doesNotMatch(source, /portfolio-mode|pushState|getEntriesByType\("navigation"\)/);
   assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
   assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 500\)/);
   assert.match(source, /Math\.hypot[\s\S]*?> 10/);
@@ -199,9 +197,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
 
   const statsSource = await readFile(new URL("../src/api-stats.ts", import.meta.url), "utf8");
   assert.match(statsSource, /api\.stats\.fm\/api\/v1\/users\/nnickels\/top/);
-  assert.match(statsSource, /fetch_cat~pinterest-profile-scraper\/run-sync-get-dataset-items/);
-  assert.match(statsSource, /Boolean\(env\.APIFY_TOKEN\)/);
-  assert.match(statsSource, /max-age=21600/);
+  assert.doesNotMatch(statsSource, /pinterest|monthlyViews/i);
+  assert.doesNotMatch(statsSource, /api\.apify\.com/);
   assert.match(statsSource, /range=lifetime&orderBy=TIME/);
   assert.match(statsSource, /genres[\s\S]*?slice\(0, 5\)/);
   assert.doesNotMatch(statsSource, /api\.spotify\.com\/v1\/me\/top/);
@@ -239,8 +236,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     source,
     /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
   );
-  assert.match(source, /pinterest\.data\.monthlyViews\.toLocaleString\(\)/);
-  assert.match(source, /monthly views on Pinterest/);
+  assert.doesNotMatch(source, /monthly views on Pinterest|Pinterest monthly views/i);
   assert.match(
     source,
     /I like taking photos! Find me on[\s\S]*?className="text-link photo-pinterest-link"[\s\S]*?href="https:\/\/ca\.pinterest\.com\/nnickelsj\/"[\s\S]*?<strong>Pinterest<\/strong>[\s\S]*?<ExternalLinkIcon \/>/,
@@ -313,6 +309,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /\.listening-volume\s*\{[\s\S]*?grid-template-columns:\s*auto 112px auto[\s\S]*?width:\s*max-content/i);
   assert.match(css, /\.listening-volume output\s*\{[\s\S]*?text-align:\s*left/i);
   assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
+  assert.match(css, /@view-transition\s*\{[\s\S]*?navigation:\s*auto/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.72rem\)/i);
@@ -320,6 +317,23 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
+});
+
+test("publishes Side Quests as its own shareable page", async () => {
+  const response = await render("/side-quests");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /<title>Side Quests — Nicole Jiang<\/title>/i);
+  assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side-quests"/i);
+  assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
+  assert.match(html, /aria-label="Pinterest"/i);
+  assert.match(html, /aria-label="Spotify"/i);
+  assert.match(html, /aria-label="Instagram"/i);
+  assert.match(html, /aria-label="Google Maps"/i);
+  assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
+  assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
+  assert.match(html, /aria-label="Side Quests content"/i);
 });
 
 test("does not publish a privacy-policy page", async () => {

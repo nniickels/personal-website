@@ -1,13 +1,14 @@
 "use client";
 
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
+import type {
+  CSSProperties,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import type { PublicStatsResponse } from "../api-stats";
 import { ThemeToggle } from "./theme-toggle";
 
 type Mode = "serious" | "fun";
-const storedModeKey = "portfolio-mode";
 type IconName =
   | "email"
   | "github"
@@ -1122,7 +1123,6 @@ function FunContent() {
   }, []);
 
   const spotify = stats?.spotify;
-  const pinterest = stats?.pinterest;
   const clashRoyale = stats?.clashRoyale;
   const steam = stats?.steam;
 
@@ -1177,13 +1177,6 @@ function FunContent() {
                 <ExternalLinkIcon />
               </a>
               
-            </p>
-            <p className="data-note pinterest-monthly-views">
-              {pinterest?.status === "ok"
-                ? `${pinterest.data.monthlyViews.toLocaleString()} monthly views on Pinterest`
-                : pinterest
-                  ? "Pinterest monthly views are temporarily unavailable."
-                  : "Loading Pinterest monthly views…"}
             </p>
             <div className="media-placeholder media-placeholder--gallery">
               Photo gallery placeholder
@@ -1393,7 +1386,7 @@ function FunContent() {
         <p className="placeholder-copy">
           I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
-          However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, italian sandwiches, and french-style beef tartare. 
+          However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare. 
         </p>
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
@@ -1408,55 +1401,7 @@ function FunContent() {
   );
 }
 
-export function Portfolio() {
-  const [mode, setMode] = useState<Mode>("serious");
-
-  useEffect(() => {
-    try {
-      const navigation = window.performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
-
-      if (navigation?.type === "navigate") {
-        window.localStorage.setItem(storedModeKey, "serious");
-        return;
-      }
-
-      const storedMode = window.localStorage.getItem(storedModeKey);
-      if (storedMode === "serious" || storedMode === "fun") {
-        setMode(storedMode);
-      }
-    } catch {
-      // Keep Main Quest as the default when browser storage is unavailable.
-    }
-  }, []);
-
-  function selectMode(nextMode: Mode) {
-    setMode(nextMode);
-    try {
-      window.localStorage.setItem(storedModeKey, nextMode);
-    } catch {
-      // Mode switching still works for the current page without browser storage.
-    }
-  }
-
-  function switchMode() {
-    const nextMode: Mode = mode === "serious" ? "fun" : "serious";
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const applyMode = () => {
-      selectMode(nextMode);
-    };
-
-    if (reducedMotion || typeof document.startViewTransition !== "function") {
-      applyMode();
-      return;
-    }
-
-    document.startViewTransition(() => {
-      flushSync(applyMode);
-    });
-  }
-
+export function Portfolio({ mode }: { mode: Mode }) {
   const socialLinks = mode === "serious" ? seriousLinks : funLinks;
 
   return (
@@ -1467,20 +1412,18 @@ export function Portfolio() {
             className="text-btn home-link"
             href="/"
             aria-label="Nicole Jiang home"
-            onClick={() => selectMode("serious")}
           >
             <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
             <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
           </a>
           <div className="topbar-actions">
-            <button
-              type="button"
+            <a
               className="text-btn mode-switch"
-              onClick={switchMode}
+              href={mode === "serious" ? "/side-quests" : "/"}
               aria-label={`Switch to ${mode === "serious" ? "Side Quests" : "Main Quest"}`}
             >
               {mode === "serious" ? "Side Quests" : "Main Quest"}
-            </button>
+            </a>
             <ThemeToggle />
           </div>
         </div>
@@ -1525,7 +1468,7 @@ export function Portfolio() {
                 Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
                 very interested in philosophy (namely metaphysics and epistemology, though
                 intersectional questions are my favourite). I have many interests, collections,
-                and hobbies I'd like to share with you in this mode... Please enjoy!
+                and hobbies I'd like to share with you on this page... Please enjoy!
               </p>
             )}
           </div>
