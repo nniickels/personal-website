@@ -1349,7 +1349,9 @@ function FunContent() {
           I like his essayistic prose, and enjoy reading other books within the realm of literary fiction, philosophical fiction, 
           and surrealism. As for papers, I recently read Derek Parfit's 1971 paper on personal identity and took a liking to his theory. 
           More casually, I like to read comics and manga also. Some favourites include the{" "}
-          <strong><cite>House of Slaughter Vol.2</cite></strong>, and the <strong><cite>Heaven's Design Team</cite></strong> series.  
+          <strong><cite>House of Slaughter Vol.2</cite></strong>, and the <strong><cite>Heaven's Design Team</cite></strong> series. I'm also a big fan of all of{""} <strong><cite><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer">
+                Joshua Barkman
+              </a></cite></strong>{""}'s works!
         </p>
         </section>
 
