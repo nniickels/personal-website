@@ -1313,7 +1313,7 @@ function FunContent() {
             </summary>
           <div className="dropdown-content">
             <p className="placeholder-copy">
-              I like taking photos! Find me on{" "}
+              Find me on{" "}
               <a
                 className="text-link photo-pinterest-link"
                 href="https://ca.pinterest.com/nnickelsj/"
