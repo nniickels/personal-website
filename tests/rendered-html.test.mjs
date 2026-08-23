@@ -176,6 +176,9 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /Now playing preview of\.\.\./);
   assert.match(source, /className="cover-instruction-hover">Hover a cover<\/span>/);
   assert.match(source, /className="cover-instruction-tap">Hold to preview, tap to expand<\/span>/);
+  assert.match(source, /interdisciplinary questions are my favourite/);
+  assert.match(source, /I highly recommend!/);
+  assert.doesNotMatch(source, /intersectional questions|reccomend/i);
   assert.match(source, /className="listening-cover-wheel"[\s\S]*?aria-haspopup="dialog"/);
   assert.match(source, /className="listening-cover-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /aria-label="Track preview volume"/);
@@ -188,9 +191,11 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.doesNotMatch(source, /portfolio-mode|pushState|getEntriesByType\("navigation"\)/);
   assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
   assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 300\)/);
-  assert.match(source, /getBoundingClientRect\(\)[\s\S]*?isOutsideCover/);
-  assert.doesNotMatch(source, /Math\.hypot\(event\.clientX - press\.startX/);
-  assert.match(source, /else if \(press\.previewing\)[\s\S]*?event\.preventDefault\(\)/);
+  assert.match(source, /if \(press\.previewing\) return/);
+  assert.match(source, /gesture: "pending" \| "horizontal" \| "vertical"/);
+  assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
+  assert.match(source, /window\.scrollTo\(\{ top: press\.startPageScrollY - deltaY \}\)/);
+  assert.doesNotMatch(source, /getBoundingClientRect\(\)[\s\S]*?isOutsideCover/);
   assert.match(source, /handleCoverPointerUp[\s\S]*?openTouchTrack\(index\)/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /if \(press\.previewing\)[\s\S]*?resetPreview\(\)/);
@@ -396,7 +401,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   );
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
-  assert.match(css, /\.listening-cover-thumbnail\s*\{[\s\S]*?touch-action:\s*pan-x pan-y[\s\S]*?user-select:\s*none/i);
+  assert.match(css, /\.listening-cover-thumbnail\s*\{[\s\S]*?touch-action:\s*none[\s\S]*?user-select:\s*none/i);
   assert.match(css, /\.listening-preview-heading \.listening-preview-prompt\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.cover-instruction-hover[\s\S]*?display:\s*none[\s\S]*?\.cover-instruction-tap[\s\S]*?display:\s*inline/i);
   assert.match(css, /\.listening-preview-heading strong\s*\{[\s\S]*?color:\s*var\(--foreground\)/i);

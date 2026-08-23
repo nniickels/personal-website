@@ -823,7 +823,11 @@ function ListeningCoverWheel() {
   const longPressTimerRef = useRef<number | null>(null);
   const touchPressRef = useRef<{
     pointerId: number;
-    index: number;
+    startX: number;
+    startY: number;
+    startWheelScrollLeft: number;
+    startPageScrollY: number;
+    gesture: "pending" | "horizontal" | "vertical";
     cancelled: boolean;
     previewing: boolean;
   } | null>(null);
@@ -931,10 +935,15 @@ function ListeningCoverWheel() {
     clearLongPressTimer();
     lastTouchAtRef.current = Date.now();
     suppressClickRef.current = true;
+    event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     touchPressRef.current = {
       pointerId: event.pointerId,
-      index,
+      startX: event.clientX,
+      startY: event.clientY,
+      startWheelScrollLeft: wheelRef.current?.scrollLeft ?? 0,
+      startPageScrollY: window.scrollY,
+      gesture: "pending",
       cancelled: false,
       previewing: false,
     };
@@ -948,20 +957,24 @@ function ListeningCoverWheel() {
 
   const handleCoverPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
     const press = touchPressRef.current;
-    if (!press || press.pointerId !== event.pointerId || press.cancelled) return;
+    if (!press || press.pointerId !== event.pointerId) return;
 
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const isOutsideCover =
-      event.clientX < bounds.left ||
-      event.clientX > bounds.right ||
-      event.clientY < bounds.top ||
-      event.clientY > bounds.bottom;
+    event.preventDefault();
+    if (press.previewing) return;
 
-    if (isOutsideCover) {
+    const deltaX = event.clientX - press.startX;
+    const deltaY = event.clientY - press.startY;
+
+    if (press.gesture === "pending" && Math.max(Math.abs(deltaX), Math.abs(deltaY)) > 8) {
+      press.gesture = Math.abs(deltaX) >= Math.abs(deltaY) ? "horizontal" : "vertical";
       press.cancelled = true;
       clearLongPressTimer();
-    } else if (press.previewing) {
-      event.preventDefault();
+    }
+
+    if (press.gesture === "horizontal" && wheelRef.current) {
+      wheelRef.current.scrollLeft = press.startWheelScrollLeft - deltaX;
+    } else if (press.gesture === "vertical") {
+      window.scrollTo({ top: press.startPageScrollY - deltaY });
     }
   };
 
@@ -1109,7 +1122,9 @@ function ListeningCoverWheel() {
                 onPointerDown={(event) => handleCoverPointerDown(event, index)}
                 onPointerMove={handleCoverPointerMove}
                 onPointerUp={(event) => handleCoverPointerUp(event, index)}
-                onPointerLeave={cancelCoverPress}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === "mouse") stopPreview();
+                }}
                 onPointerCancel={cancelCoverPress}
                 onFocus={() => {
                   if (Date.now() - lastTouchAtRef.current >= 1_000) void playPreview(index);
@@ -1576,7 +1591,7 @@ function FunContent() {
               </a>
             </cite>
           </strong>.{" "}
-          If you like video essays about video-games and/or philosophy and psychology, I highly reccomend! I also really like the 2007 anime  
+          If you like video essays about video-games and/or philosophy and psychology, I highly recommend! I also really like the 2007 anime
           <strong><cite> Mononoke</cite></strong>, and am currently watching <strong><cite>Steins;Gate</cite></strong>. Regarding Western media, I like <strong><cite>Superbad</cite></strong>, <strong><cite>BoJack Horseman </cite></strong> 
           and <strong><cite> Dead Poets Society</cite></strong>. 
         </p>
@@ -1848,7 +1863,7 @@ export function Portfolio({ mode }: { mode: Mode }) {
               <p>
                 Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
                 very interested in philosophy (namely metaphysics and epistemology, though
-                intersectional questions are my favourite). I have many interests, collections,
+                interdisciplinary questions are my favourite). I have many interests, collections,
                 and hobbies I'd like to share with you on this page... Please enjoy!
               </p>
             )}
