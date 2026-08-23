@@ -74,6 +74,20 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.shooting-star\s*\{[\s\S]*?display:\s*none/i);
 });
 
+test("keeps the phone layout compact without changing wider breakpoints", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const source = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
+
+  assert.match(
+    css,
+    /@media \(max-width: 520px\) \{[\s\S]*?\.layout\.container\s*\{[\s\S]*?width:\s*calc\(100% - 1\.25rem\)/,
+  );
+  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(2rem, 10vw, 2\.25rem\)/);
+  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.listening-cover-wheel-item\s*\{[\s\S]*?flex-basis:\s*88px/);
+  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.pokemon-card-wheel-item\s*\{[\s\S]*?flex-basis:\s*78px/);
+  assert.match(source, /\{"\\u2060"\}[\s\S]*?className="external-link-icon"/);
+});
+
 test("follows live device color-scheme changes", async () => {
   const toggle = await readFile(new URL("../src/app/theme-toggle.tsx", import.meta.url), "utf8");
   const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
@@ -374,7 +388,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /@view-transition\s*\{[\s\S]*?navigation:\s*auto/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
-  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.72rem\)/i);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.42rem\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.photo-gallery-grid\s*\{[\s\S]*?display:\s*grid[\s\S]*?grid-template-columns:\s*repeat\(5, minmax\(0, 1fr\)\)[\s\S]*?gap:\s*0\.5rem/i);
   assert.match(css, /\.photo-gallery-grid--3\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/i);

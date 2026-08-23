@@ -546,15 +546,18 @@ function SocialIcon({ name }: { name: IconName }) {
 
 function ExternalLinkIcon() {
   return (
-    <svg
-      className="external-link-icon"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M7 17 17 7" />
-      <path d="M9 7h8v8" />
-    </svg>
+    <>
+      {"\u2060"}
+      <svg
+        className="external-link-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M7 17 17 7" />
+        <path d="M9 7h8v8" />
+      </svg>
+    </>
   );
 }
 

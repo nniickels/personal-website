@@ -7,7 +7,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 
 - `src/app` contains the pages and styles.
 - `src/worker.ts` connects the app to Cloudflare.
-- `public` contains static images and icons.
+- `public` contains static images, icons, gallery media, and the résumé PDF.
 - `tests` contains rendered-page checks.
 
 
@@ -40,13 +40,11 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 ## Runtime variables
 
 Copy `.env.example` to `.env` for local development. Store production values as
-Worker variables in Cloudflare, with API keys encrypted as secrets.
+Worker variables in Cloudflare. Encrypt API credentials as secrets; identifiers
+and non-sensitive configuration can remain ordinary variables.
 
-- `CLASH_ROYALE_API_TOKEN`
-- `CLASH_ROYALE_PLAYER_TAG`
-- `STEAM_WEB_API_KEY`
-- `STEAM_ID64`
-- `GOATCOUNTER_CODE`
+- Secrets: `CLASH_ROYALE_API_TOKEN`, `STEAM_WEB_API_KEY`
+- Configuration: `STEAM_ID64`, `GOATCOUNTER_CODE`
 
 ## Local development
 
@@ -54,4 +52,12 @@ Worker variables in Cloudflare, with API keys encrypted as secrets.
 npm install
 npm run dev
 npm run build
+npm test
 ```
+
+## Design references and inspiration
+
+- [Boris Kafidov](https://kafidov.dev/) — general portfolio design template
+- [Kevin Thottumkal](https://www.kevinthottumkal.com/) — dark-mode background effects
+- [Stanley Pang](https://stanleyp.dev/) — photo galleries and visual details
+- [Ryan Alumkal](https://ryanalumkal.github.io/) — horizontal media shelf

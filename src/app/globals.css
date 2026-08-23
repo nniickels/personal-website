@@ -1370,21 +1370,230 @@ button {
 }
 
 @media (max-width: 520px) {
-  .hero-heading {
+  :root {
+    --header-height: 44px;
+    --footer-height: 38px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    width: calc(100% - 1rem);
+  }
+
+  .layout.container {
+    width: calc(100% - 1.25rem);
+  }
+
+  .topbar-content,
+  .footer-content {
     gap: 0.55rem;
+    font-size: 0.75rem;
+  }
+
+  .topbar-actions {
+    gap: 0.5rem;
+  }
+
+  .home-link img {
+    width: 1.12rem;
+    height: 1.12rem;
+  }
+
+  .theme-toggle {
+    width: 1.55rem;
+    height: 1.55rem;
+  }
+
+  .theme-icon {
+    width: 0.96rem;
+    height: 0.96rem;
+  }
+
+  .footer-eye {
+    width: 0.82rem;
+    height: 0.6rem;
+  }
+
+  .layout {
+    gap: 1.2rem;
+    padding-block: calc(var(--header-height) + 2rem) calc(var(--footer-height) + 1rem);
+    font-size: 0.86rem;
+  }
+
+  .hero {
+    gap: 0.65rem;
+  }
+
+  .hero-heading {
+    gap: 0.4rem;
   }
 
   .hero h1 {
     flex: 0 1 auto;
-    font-size: clamp(2.35rem, 11.25vw, 2.75rem);
+    font-size: clamp(2rem, 10vw, 2.25rem);
     white-space: nowrap;
   }
 
   .social-links {
     display: grid;
-    grid-template-columns: repeat(2, 1.72rem);
-    gap: 0.12rem 0.5rem;
+    grid-template-columns: repeat(2, 1.42rem);
+    gap: 0.08rem 0.35rem;
     justify-content: end;
+  }
+
+  .social-link {
+    width: 1.42rem;
+    height: 1.42rem;
+  }
+
+  .social-link svg {
+    width: 1.08rem;
+    height: 1.08rem;
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .subtitle-separator {
+    margin-inline: 0.35rem;
+  }
+
+  .external-link-icon {
+    width: 0.75em;
+    height: 0.75em;
+    margin-left: 0.3rem;
+  }
+
+  .hero-description,
+  .mode-serious .hero-description {
+    padding-block: 1.05rem 0.75rem;
+    line-height: 1.68;
+  }
+
+  .hero-postscript {
+    margin-top: 1rem;
+  }
+
+  .mode-content {
+    padding-bottom: 3rem;
+  }
+
+  .serious-content {
+    gap: 2.35rem;
+  }
+
+  .fun-content {
+    gap: 1.45rem;
+  }
+
+  .section,
+  .fun-content .section {
+    gap: 0.48rem;
+  }
+
+  .serious-content .section {
+    gap: 0.9rem;
+    padding-block: 0.45rem;
+  }
+
+  .section h2 {
+    font-size: 1.04rem;
+  }
+
+  .resume-item h3,
+  .skills-list h3,
+  .ranking-card h3,
+  .dropdown-entry summary,
+  .collection-static-entry > h3 {
+    font-size: 0.88rem;
+  }
+
+  .entries,
+  .serious-content .entries,
+  .serious-content .education-entries {
+    gap: 1.2rem;
+  }
+
+  .serious-content .resume-item > p {
+    line-height: 1.68;
+  }
+
+  .item-detail,
+  .data-note,
+  .steam-empty-state,
+  .recently-played-placeholder,
+  .ranking-card li {
+    font-size: 0.76rem;
+  }
+
+  .side-quest-index {
+    gap: 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .side-quest-index-row {
+    column-gap: 0.45rem;
+  }
+
+  .side-quest-index-divider {
+    left: -0.225rem;
+  }
+
+  .dropdown-list {
+    padding-left: 0.55rem;
+  }
+
+  .dropdown-content {
+    gap: 0.5rem;
+    padding: 0.1rem 0 0.65rem 0.6rem;
+  }
+
+  .listening-preview-heading {
+    gap: 0.5rem;
+    font-size: 0.73rem;
+  }
+
+  .listening-cover-wheel {
+    gap: 0.55rem;
+    padding-block: 0.55rem 0.7rem;
+  }
+
+  .listening-cover-wheel-item {
+    flex-basis: 88px;
+  }
+
+  .listening-volume {
+    grid-template-columns: auto 88px auto;
+    gap: 0.45rem;
+    font-size: 0.7rem;
+  }
+
+  .pokemon-card-wheel {
+    gap: 0.5rem;
+  }
+
+  .pokemon-card-wheel-item {
+    flex-basis: 78px;
+  }
+
+  .photo-gallery-grid {
+    width: calc(100% - 0.5rem);
+    gap: 0.35rem;
+    margin: 0.65rem auto 0;
+  }
+
+  .photo-gallery-column {
+    gap: 0.35rem;
+  }
+
+  .gaming-widgets {
+    gap: 0.9rem;
+    margin-top: 1rem;
   }
 
   .pokemon-card-lightbox,
@@ -1407,18 +1616,18 @@ button {
   }
 
   .education-entry {
-    grid-template-columns: 60px minmax(0, 1fr);
+    grid-template-columns: 46px minmax(0, 1fr);
     align-items: start;
   }
 
   .education-logo--uoft {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
   }
 
   .education-logo--osc {
-    width: 34px;
-    height: 31px;
+    width: 28px;
+    height: 26px;
   }
 
   .entry-head {
