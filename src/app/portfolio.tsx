@@ -2,6 +2,7 @@
 
 import type {
   CSSProperties,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -287,15 +288,120 @@ const listeningTracks = [
 }));
 
 const galleryPhotoOrder = [
-  17, 5, 15, 23, 10, 34, 6, 13, 12, 24, 26, 9, 18, 33, 2, 40, 38, 8,
-  39, 35, 16, 1, 11, 31, 3, 36, 32, 28, 22, 4, 25, 20, 19, 21, 37, 30,
-  27, 41, 7, 14, 29,
+  17, 5, 15, 23, 10, 34, 6, 13, 12, 24, 26, 9, 18, 33, 2, 40, 45, 38,
+  49, 8, 50, 39, 35, 16, 1, 11, 31, 44, 3, 46, 47, 36, 32, 28, 22, 4,
+  42, 43, 25, 20, 19, 21, 37, 30, 27, 48, 41, 7, 14, 29,
 ] as const;
 
 const galleryPhotos = galleryPhotoOrder.map((photoNumber, index) => ({
   src: `/photos/photo-${String(photoNumber).padStart(2, "0")}.jpg`,
   alt: `Photo ${index + 1} of ${galleryPhotoOrder.length} from Nicole's gallery`,
 }));
+
+const naturalThingsPhotos = Array.from({ length: 18 }, (_, index) => ({
+  src: `/natural-things/natural-${String(index + 1).padStart(2, "0")}.jpg`,
+  alt: `Natural things collection photo ${index + 1} of 18`,
+}));
+
+const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 2, 5] as const;
+
+const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => ({
+  src: `/scrapbook/scrapbook-${String(photoNumber).padStart(2, "0")}.jpg`,
+  alt: `Scrapbook photo ${index + 1} of ${scrapbookPhotoOrder.length}`,
+}));
+
+const foodPhotoOrder = [
+  5, 20, 18, 15, 2, 34, 22, 35, 24, 26, 13, 28, 17, 11, 19, 1, 27, 6,
+  30, 7, 4, 9, 33, 31, 10, 23, 3, 8, 29, 14, 16, 12, 25, 21, 32,
+] as const;
+
+const foodPhotos = foodPhotoOrder.map((photoNumber, index) => ({
+  src: `/food-photos/food-${String(photoNumber).padStart(2, "0")}.jpg`,
+  alt: `Food gallery photo ${index + 1} of ${foodPhotoOrder.length}`,
+}));
+
+const sideQuestNavigationRows = [
+  [
+    { label: "Photo Gallery", href: "#photo-gallery" },
+    { label: "Listening", href: "#listening" },
+    { label: "Reading", href: "#reading" },
+    { label: "Watching", href: "#watching" },
+    { label: "Gaming", href: "#gaming" },
+  ],
+  [
+    { label: "Collections", href: "#collections" },
+    { label: "Natural Things", href: "#natural-things" },
+    { label: "Scrapbook", href: "#scrapbook" },
+    { label: "Pokémon Cards", href: "#pokemon-cards" },
+    { label: "Food", href: "#food" },
+  ],
+] as const;
+
+let sideQuestScrollAnimationFrame: number | null = null;
+
+function navigateToSideQuestDestination(
+  event: ReactMouseEvent<HTMLAnchorElement>,
+  href: string,
+) {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  event.preventDefault();
+  const target = document.querySelector(href);
+  if (!(target instanceof HTMLElement)) return;
+
+  let dropdown: HTMLDetailsElement | null = null;
+
+  if (target instanceof HTMLDetailsElement) {
+    dropdown = target;
+  } else if (
+    target instanceof HTMLElement
+    && target.dataset.expandOnNavigate === "true"
+  ) {
+    dropdown = target.querySelector<HTMLDetailsElement>(":scope > details");
+  }
+
+  if (dropdown instanceof HTMLDetailsElement) {
+    dropdown.open = true;
+  }
+
+  window.history.replaceState(null, "", href);
+
+  const headerHeight = Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
+  ) || 48;
+  const destination = Math.max(
+    0,
+    target.getBoundingClientRect().top + window.scrollY - headerHeight - 16,
+  );
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    window.scrollTo(0, destination);
+    return;
+  }
+
+  if (sideQuestScrollAnimationFrame !== null) {
+    window.cancelAnimationFrame(sideQuestScrollAnimationFrame);
+  }
+
+  const start = window.scrollY;
+  const distance = destination - start;
+  const duration = 260;
+  const startedAt = performance.now();
+
+  const animateScroll = (now: number) => {
+    const progress = Math.min((now - startedAt) / duration, 1);
+    const easedProgress = 1 - Math.pow(1 - progress, 3);
+    window.scrollTo(0, start + distance * easedProgress);
+
+    if (progress < 1) {
+      sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+    } else {
+      sideQuestScrollAnimationFrame = null;
+    }
+  };
+
+  sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+}
 
 function createNightStars(count: number) {
   let seed = 9474;
@@ -1112,20 +1218,28 @@ function ListeningCoverWheel() {
   );
 }
 
-function PhotoGallery() {
+function ImageGallery({
+  photos,
+  ariaLabel,
+  desktopColumns = 5,
+}: {
+  photos: readonly { src: string; alt: string }[];
+  ariaLabel: string;
+  desktopColumns?: number;
+}) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [columnCount, setColumnCount] = useState(5);
+  const [columnCount, setColumnCount] = useState(desktopColumns);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const selectedPhoto = selectedIndex === null ? null : galleryPhotos[selectedIndex];
+  const selectedPhoto = selectedIndex === null ? null : photos[selectedIndex];
 
   useEffect(() => {
     const mobileColumns = window.matchMedia("(max-width: 520px)");
-    const updateColumnCount = () => setColumnCount(mobileColumns.matches ? 3 : 5);
+    const updateColumnCount = () => setColumnCount(mobileColumns.matches ? 3 : desktopColumns);
 
     updateColumnCount();
     mobileColumns.addEventListener("change", updateColumnCount);
     return () => mobileColumns.removeEventListener("change", updateColumnCount);
-  }, []);
+  }, [desktopColumns]);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -1139,11 +1253,11 @@ function PhotoGallery() {
         setSelectedIndex(null);
       } else if (event.key === "ArrowLeft") {
         setSelectedIndex((current) =>
-          current === null ? null : (current - 1 + galleryPhotos.length) % galleryPhotos.length,
+          current === null ? null : (current - 1 + photos.length) % photos.length,
         );
       } else if (event.key === "ArrowRight") {
         setSelectedIndex((current) =>
-          current === null ? null : (current + 1) % galleryPhotos.length,
+          current === null ? null : (current + 1) % photos.length,
         );
       }
     };
@@ -1153,14 +1267,14 @@ function PhotoGallery() {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedIndex]);
+  }, [photos.length, selectedIndex]);
 
   const photoColumns = Array.from(
     { length: columnCount },
-    () => [] as Array<{ photo: (typeof galleryPhotos)[number]; index: number }>,
+    () => [] as Array<{ photo: (typeof photos)[number]; index: number }>,
   );
 
-  galleryPhotos.forEach((photo, index) => {
+  photos.forEach((photo, index) => {
     photoColumns[index % columnCount].push({ photo, index });
   });
 
@@ -1169,7 +1283,7 @@ function PhotoGallery() {
       <div
         className={`photo-gallery-grid photo-gallery-grid--${columnCount}`}
         role="list"
-        aria-label="Photo gallery"
+        aria-label={ariaLabel}
       >
         {photoColumns.map((column, columnIndex) => (
           <div className="photo-gallery-column" role="presentation" key={columnIndex}>
@@ -1196,7 +1310,7 @@ function PhotoGallery() {
             className="photo-gallery-dialog"
             role="dialog"
             aria-modal="true"
-            aria-label={`Photo ${selectedIndex + 1} of ${galleryPhotos.length}`}
+            aria-label={`Photo ${selectedIndex + 1} of ${photos.length}`}
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -1214,7 +1328,7 @@ function PhotoGallery() {
               aria-label="Previous photo"
               onClick={() =>
                 setSelectedIndex(
-                  (selectedIndex - 1 + galleryPhotos.length) % galleryPhotos.length,
+                  (selectedIndex - 1 + photos.length) % photos.length,
                 )
               }
             >
@@ -1232,13 +1346,13 @@ function PhotoGallery() {
               className="photo-gallery-nav photo-gallery-nav--next"
               type="button"
               aria-label="Next photo"
-              onClick={() => setSelectedIndex((selectedIndex + 1) % galleryPhotos.length)}
+              onClick={() => setSelectedIndex((selectedIndex + 1) % photos.length)}
             >
               →
             </button>
             <div className="photo-gallery-caption">
               <p>
-                {selectedIndex + 1} / {galleryPhotos.length}
+                {selectedIndex + 1} / {photos.length}
               </p>
             </div>
           </div>
@@ -1246,6 +1360,34 @@ function PhotoGallery() {
       )}
     </>
   );
+}
+
+function PhotoGallery() {
+  return <ImageGallery photos={galleryPhotos} ariaLabel="Photo gallery" />;
+}
+
+function NaturalThingsGallery() {
+  return (
+    <ImageGallery
+      photos={naturalThingsPhotos}
+      ariaLabel="Natural things collection gallery"
+      desktopColumns={6}
+    />
+  );
+}
+
+function ScrapbookGallery() {
+  return (
+    <ImageGallery
+      photos={scrapbookPhotos}
+      ariaLabel="Scrapbook gallery"
+      desktopColumns={3}
+    />
+  );
+}
+
+function FoodPhotoGallery() {
+  return <ImageGallery photos={foodPhotos} ariaLabel="Food photo gallery" />;
 }
 
 function FunContent() {
@@ -1306,7 +1448,26 @@ function FunContent() {
 
   return (
     <div className="mode-content fun-content" aria-label="Side Quests content">
-      <section className="section" id="photo-gallery">
+      <nav className="side-quest-index" aria-label="Side Quests sections">
+        {sideQuestNavigationRows.map((row, rowIndex) => (
+          <div className="side-quest-index-row" key={rowIndex}>
+            {row.map((item, itemIndex) => (
+              <span className="side-quest-index-item" key={item.href}>
+                {itemIndex > 0 && <span className="side-quest-index-divider">|</span>}
+                <a
+                  className="text-link side-quest-index-link"
+                  href={item.href}
+                  onClick={(event) => navigateToSideQuestDestination(event, item.href)}
+                >
+                  {item.label}
+                </a>
+              </span>
+            ))}
+          </div>
+        ))}
+      </nav>
+
+      <section className="section" id="photo-gallery" data-expand-on-navigate="true">
         <details className="dropdown-entry photo-gallery-dropdown">
           <summary>
             <h2>Photo Gallery</h2>
@@ -1496,27 +1657,25 @@ function FunContent() {
       <section className="section" id="collections">
         <h2>Collections</h2>
         <div className="dropdown-list">
-          <details className="dropdown-entry">
+          <details className="dropdown-entry" id="natural-things">
             <summary>Natural Things</summary>
             <div className="dropdown-content">
               <p className="placeholder-copy">
                 I like gardening and plant-keeping, so I collect dried flowers and press them sometimes also. I also like collecting rocks and fossils. Catch me at the beach with a hammer just throwing shale around. 
               </p>
-              <div className="media-placeholder media-placeholder--gallery">
-                Photo gallery placeholder
-              </div>
+              <NaturalThingsGallery />
             </div>
           </details>
-          <details className="dropdown-entry">
+          <details className="dropdown-entry" id="scrapbook">
             <summary>Scrapbook</summary>
             <div className="dropdown-content">
               <p className="placeholder-copy">
                 I hoard (and organize) a bunch of junk and like making scrapbooks with it. Everything has sentimental value! Here are some pages I like in particular.
               </p>
-              <div className="media-placeholder media-placeholder--photo">Photo placeholder</div>
+              <ScrapbookGallery />
             </div>
           </details>
-          <div className="collection-static-entry">
+          <div className="collection-static-entry" id="pokemon-cards">
             <h3>Pokémon Cards</h3>
             <div className="dropdown-content">
               <p className="placeholder-copy">
@@ -1528,7 +1687,7 @@ function FunContent() {
         </div>
       </section>
 
-      <section className="section" id="food">
+      <section className="section" id="food" data-expand-on-navigate="true">
         <h2>Food</h2>
         <p className="placeholder-copy">
           I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
@@ -1538,9 +1697,7 @@ function FunContent() {
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
           <div className="dropdown-content">
-            <div className="media-placeholder media-placeholder--gallery">
-              Photo gallery placeholder
-            </div>
+            <FoodPhotoGallery />
           </div>
         </details>
       </section>
@@ -1593,7 +1750,10 @@ function ViewCounter() {
 
   return (
     <span className="footer-views" aria-label={`${count} total site views`} aria-live="polite">
-      <span className="footer-eye" aria-hidden="true" />
+      <svg className="footer-eye" viewBox="0 0 20 14" aria-hidden="true">
+        <path d="M1.5 7C3.8 4 6.5 2.5 10 2.5S16.2 4 18.5 7C16.2 10 13.5 11.5 10 11.5S3.8 10 1.5 7Z" />
+        <circle cx="10" cy="7" r="2.25" />
+      </svg>
       <span>{count}</span>
     </span>
   );

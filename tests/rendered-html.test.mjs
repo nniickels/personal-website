@@ -212,6 +212,28 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   collectionSubsections.forEach((position) => assert.notEqual(position, -1));
   assert.deepEqual(collectionSubsections, [...collectionSubsections].sort((a, b) => a - b));
 
+  assert.match(
+    source,
+    /const sideQuestNavigationRows[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"[\s\S]*?href: "#gaming"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#food"/,
+  );
+  assert.match(source, /<nav className="side-quest-index" aria-label="Side Quests sections">/);
+  assert.match(source, /id="natural-things"/);
+  assert.match(source, /id="scrapbook"/);
+  assert.match(source, /id="pokemon-cards"/);
+  assert.match(
+    source,
+    /function navigateToSideQuestDestination[\s\S]*?target instanceof HTMLDetailsElement[\s\S]*?target\.dataset\.expandOnNavigate === "true"[\s\S]*?target\.querySelector<HTMLDetailsElement>\(":scope > details"\)[\s\S]*?dropdown\.open = true/,
+  );
+  assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href\)\}/);
+  assert.match(
+    source,
+    /const duration = 260[\s\S]*?requestAnimationFrame\(animateScroll\)/,
+  );
+  assert.match(source, /prefers-reduced-motion: reduce/);
+  assert.match(source, /id="photo-gallery" data-expand-on-navigate="true"/);
+  assert.match(source, /id="food" data-expand-on-navigate="true"/);
+  assert.doesNotMatch(source, /id="collections" data-expand-on-navigate/);
+
   assert.match(source, /The Book of Laughter and Forgetting/);
   assert.match(source, /Batman: Arkham Knight/);
   assert.match(source, /className="text-link"[\s\S]*?href="https:\/\/store\.steampowered\.com\/app\/208650\/Batman_Arkham_Knight\/"/);
@@ -234,23 +256,31 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
   assert.match(
     source,
-    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?I like taking photos![\s\S]*?<PhotoGallery \/>[\s\S]*?<\/details>/,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?<PhotoGallery \/>[\s\S]*?<\/details>/,
   );
   assert.doesNotMatch(source, /monthly views on Pinterest|Pinterest monthly views/i);
   assert.match(
     source,
-    /I like taking photos! Find me on[\s\S]*?className="text-link photo-pinterest-link"[\s\S]*?href="https:\/\/ca\.pinterest\.com\/nnickelsj\/"[\s\S]*?<strong>Pinterest<\/strong>[\s\S]*?<ExternalLinkIcon \/>/,
+    /Find me on[\s\S]*?className="text-link photo-pinterest-link"[\s\S]*?href="https:\/\/ca\.pinterest\.com\/nnickelsj\/"[\s\S]*?<strong>Pinterest<\/strong>[\s\S]*?<ExternalLinkIcon \/>/,
   );
   assert.match(
     source,
     /const funLinks[\s\S]*?name: "Pinterest"[\s\S]*?name: "Spotify"[\s\S]*?name: "Instagram"[\s\S]*?name: "Google Maps"/,
   );
-  assert.equal((source.match(/Photo gallery placeholder/g) ?? []).length, 2);
+  assert.doesNotMatch(source, /Photo gallery placeholder/);
   assert.match(
     source,
-    /<section className="section" id="food">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?Photo gallery placeholder[\s\S]*?<\/details>/,
+    /<summary>Natural Things<\/summary>[\s\S]*?I like gardening and plant-keeping[\s\S]*?<NaturalThingsGallery \/>/,
   );
-  assert.match(source, /Photo placeholder/);
+  assert.match(
+    source,
+    /<summary>Scrapbook<\/summary>[\s\S]*?I hoard \(and organize\)[\s\S]*?<ScrapbookGallery \/>/,
+  );
+  assert.match(
+    source,
+    /<section className="section" id="food" data-expand-on-navigate="true">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?<FoodPhotoGallery \/>[\s\S]*?<\/details>/,
+  );
+  assert.doesNotMatch(source, /Photo placeholder/);
   assert.doesNotMatch(source, /Photo scroll wheel placeholder/);
   assert.equal((source.match(/https:\/\/www\.tcgcollector\.com\/cards\//g) ?? []).length, 15);
   for (const cardId of ["49478", "41668", "41665", "39747", "7819", "8501", "8544"]) {
@@ -273,8 +303,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /className="pokemon-card-dialog"[\s\S]*?role="dialog"/);
   assert.match(source, /className="pokemon-card-expanded-link"[\s\S]*?target="_blank"/);
   assert.match(source, /event\.key === "Escape"/);
-  assert.equal((source.match(/<details className="dropdown-entry">/g) ?? []).length, 2);
-  assert.match(source, /<div className="collection-static-entry">[\s\S]*?<h3>Pokémon Cards<\/h3>[\s\S]*?<PokemonCardWheel \/>/);
+  assert.equal((source.match(/<details className="dropdown-entry" id="(?:natural-things|scrapbook)">/g) ?? []).length, 2);
+  assert.match(source, /<div className="collection-static-entry" id="pokemon-cards">[\s\S]*?<h3>Pokémon Cards<\/h3>[\s\S]*?<PokemonCardWheel \/>/);
   assert.doesNotMatch(source, /<summary>Pokémon Cards<\/summary>/);
 
   const cardAssets = await readdir(new URL("../public/pokemon-cards/", import.meta.url));
@@ -291,8 +321,24 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     assert.ok(cover.length > 10_000);
   }
 
+  const naturalThingsAssets = await readdir(
+    new URL("../public/natural-things/", import.meta.url),
+  );
+  assert.equal(naturalThingsAssets.length, 18);
+  for (const asset of naturalThingsAssets) {
+    const photo = await readFile(new URL(`../public/natural-things/${asset}`, import.meta.url));
+    assert.ok(photo.length > 20_000);
+  }
+
+  const foodAssets = await readdir(new URL("../public/food-photos/", import.meta.url));
+  assert.equal(foodAssets.length, 35);
+  for (const asset of foodAssets) {
+    const photo = await readFile(new URL(`../public/food-photos/${asset}`, import.meta.url));
+    assert.ok(photo.length > 20_000);
+  }
+
   const photoAssets = await readdir(new URL("../public/photos/", import.meta.url));
-  assert.equal(photoAssets.length, 41);
+  assert.equal(photoAssets.length, 50);
   for (const asset of photoAssets) {
     const photo = await readFile(new URL(`../public/photos/${asset}`, import.meta.url));
     assert.ok(photo.length > 10_000);
@@ -304,7 +350,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
       .split(",")
       .map((value) => value.trim())
       .filter(Boolean).length,
-    41,
+    50,
   );
   assert.match(source, /className=\{`photo-gallery-grid photo-gallery-grid--\$\{columnCount\}`\}/);
   assert.match(source, /className="photo-gallery-lightbox"/);
