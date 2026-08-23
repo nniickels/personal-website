@@ -1692,7 +1692,7 @@ function FunContent() {
         <p className="placeholder-copy">
           I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
-          However, I make an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare. 
+          However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare! 
         </p>
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
