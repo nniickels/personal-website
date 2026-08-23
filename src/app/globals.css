@@ -209,6 +209,34 @@ button {
   font-size: 0.86rem;
 }
 
+.footer-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.footer-eye {
+  position: relative;
+  display: inline-block;
+  width: 0.92rem;
+  height: 0.58rem;
+  border: 1px solid currentColor;
+  border-radius: 50% / 58%;
+}
+
+.footer-eye::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.22rem;
+  height: 0.22rem;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -1073,16 +1101,26 @@ button {
 }
 
 .photo-gallery-grid {
-  columns: 4 100px;
-  column-gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
   margin-top: 0.85rem;
+}
+
+.photo-gallery-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.photo-gallery-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .photo-gallery-thumbnail {
   display: block;
   width: 100%;
-  margin: 0 0 0.5rem;
-  break-inside: avoid;
   overflow: hidden;
   border-radius: 4px;
   cursor: zoom-in;

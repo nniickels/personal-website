@@ -298,8 +298,15 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     assert.ok(photo.length > 10_000);
   }
 
-  assert.match(source, /const galleryPhotos = Array\.from\(\{ length: 41 \}/);
-  assert.match(source, /className="photo-gallery-grid"/);
+  assert.match(source, /const galleryPhotoOrder = \[[\s\S]*?\] as const;/);
+  assert.equal(
+    [...source.matchAll(/const galleryPhotoOrder = \[([\s\S]*?)\] as const;/g)][0][1]
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean).length,
+    41,
+  );
+  assert.match(source, /className=\{`photo-gallery-grid photo-gallery-grid--\$\{columnCount\}`\}/);
   assert.match(source, /className="photo-gallery-lightbox"/);
   assert.match(source, /aria-label="Previous photo"/);
   assert.match(source, /aria-label="Next photo"/);
@@ -326,7 +333,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, 1\.72rem\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
-  assert.match(css, /\.photo-gallery-grid\s*\{[\s\S]*?columns:\s*4 100px[\s\S]*?column-gap:\s*0\.5rem/i);
+  assert.match(css, /\.photo-gallery-grid\s*\{[\s\S]*?display:\s*grid[\s\S]*?grid-template-columns:\s*repeat\(5, minmax\(0, 1fr\)\)[\s\S]*?gap:\s*0\.5rem/i);
+  assert.match(css, /\.photo-gallery-grid--3\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/i);
+  assert.match(css, /\.photo-gallery-column\s*\{[\s\S]*?display:\s*flex[\s\S]*?flex-direction:\s*column[\s\S]*?gap:\s*0\.5rem/i);
+  assert.match(css, /\.photo-gallery-thumbnail img\s*\{[\s\S]*?width:\s*100%[\s\S]*?height:\s*auto/i);
   assert.match(css, /\.pokemon-card-lightbox,\s*\.listening-cover-lightbox,\s*\.photo-gallery-lightbox\s*\{[\s\S]*?position:\s*fixed[\s\S]*?backdrop-filter:\s*blur/i);
   assert.match(css, /\.dropdown-entry summary::before\s*\{[\s\S]*?border-bottom/i);
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
@@ -347,6 +357,21 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
   assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
   assert.match(html, /aria-label="Side Quests content"/i);
+});
+
+test("publishes a combined, privacy-friendly site view counter", async () => {
+  const portfolio = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
+  const worker = await readFile(new URL("../src/worker.ts", import.meta.url), "utf8");
+  const envExample = await readFile(new URL("../.env.example", import.meta.url), "utf8");
+
+  assert.match(portfolio, /fetch\("\/gc\/counter\/TOTAL\.json"/);
+  assert.match(portfolio, /script\.dataset\.goatcounter = `\$\{window\.location\.origin\}\/gc\/count`/);
+  assert.match(portfolio, /<ViewCounter \/>/);
+  assert.match(worker, /GOATCOUNTER_CODE\?: string/);
+  assert.match(worker, /url\.pathname\.startsWith\("\/gc\/"\)/);
+  assert.match(worker, /https:\/\/gc\.zgo\.at\/count\.js/);
+  assert.match(worker, /url\.pathname\.slice\(3\)/);
+  assert.match(envExample, /^GOATCOUNTER_CODE=""$/m);
 });
 
 test("does not publish a privacy-policy page", async () => {
