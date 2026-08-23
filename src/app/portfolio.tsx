@@ -41,7 +41,7 @@ const funLinks: readonly SocialLink[] = [
   { name: "Instagram", href: "https://www.instagram.com/nicolejiang_/", icon: "instagram" },
   {
     name: "Google Maps",
-    href: "https://www.google.com/maps/contrib/110017132181845047805/reviews/@24.3109578,143.3815865,3z/data=!3m1!4b1!4m3!8m2!3m1!1e1?authuser=1&entry=ttu&g_ep=EgoyMDI2MDgxMi4wIKXMDSoASAFQAw%3D%3D",
+    href: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
     icon: "maps",
   },
 ] as const;
@@ -312,7 +312,7 @@ const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => ({
 
 const foodPhotoOrder = [
   5, 20, 18, 15, 2, 34, 22, 35, 24, 26, 13, 28, 17, 11, 19, 1, 27, 6,
-  30, 7, 4, 9, 33, 31, 10, 23, 3, 8, 29, 14, 16, 12, 25, 21, 32,
+  30, 7, 4, 9, 33, 31, 10, 23, 3, 8, 29, 14, 16, 12, 25, 21, 32, 36, 37,
 ] as const;
 
 const foodPhotos = foodPhotoOrder.map((photoNumber, index) => ({
@@ -1693,7 +1693,22 @@ function FunContent() {
           I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare! 
+        
         </p>
+        <p className="placeholder-copy">
+          I like contributing to Google Maps too! Find me{""}
+              <a
+                className="text-link"
+                href="https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <strong> here</strong>
+                <ExternalLinkIcon />
+                 
+              </a>
+        </p>
+
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
           <div className="dropdown-content">

@@ -30,11 +30,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
-  assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=7"/i);
-  assert.match(html, /property="og:image:width"[^>]*content="1200"/i);
-  assert.match(html, /property="og:image:height"[^>]*content="630"/i);
-  assert.match(html, /name="twitter:card"[^>]*content="summary_large_image"/i);
+  assert.doesNotMatch(html, /property="og:|name="twitter:/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
   assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=3"/i);
@@ -331,7 +327,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   }
 
   const foodAssets = await readdir(new URL("../public/food-photos/", import.meta.url));
-  assert.equal(foodAssets.length, 35);
+  assert.equal(foodAssets.length, 37);
+  assert.match(source, /const foodPhotoOrder = \[[\s\S]*?32, 36, 37,[\s\S]*?\] as const/);
   for (const asset of foodAssets) {
     const photo = await readFile(new URL(`../public/food-photos/${asset}`, import.meta.url));
     assert.ok(photo.length > 20_000);
@@ -400,6 +397,12 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.match(html, /aria-label="Spotify"/i);
   assert.match(html, /aria-label="Instagram"/i);
   assert.match(html, /aria-label="Google Maps"/i);
+  assert.equal(
+    (html.match(/href="https:\/\/maps\.app\.goo\.gl\/qet6vnym45NpTQ2XA\?g_st=ic"/g) ?? []).length,
+    2,
+  );
+  assert.doesNotMatch(html, /google\.com\/maps\/contrib/i);
+  assert.doesNotMatch(html, /property="og:|name="twitter:/i);
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
   assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
   assert.match(html, /aria-label="Side Quests content"/i);
