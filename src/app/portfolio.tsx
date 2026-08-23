@@ -78,6 +78,7 @@ const projects = [
 const experience = [
   {
     organization: "Royal Astronomical Society of Canada (RASC)",
+    href: "https://www.rasc.ca/node/47054",
     role: "Journal Contributor / Observatory Maintenance",
     dates: "Sep 2025 - Present",
     description:
@@ -650,7 +651,16 @@ function SeriousContent() {
           {experience.map((item) => (
             <article className="resume-item subsection-item" key={`${item.organization}-${item.role}`}>
               <div className="entry-head">
-                <h3>{item.organization}</h3>
+                <h3>
+                  {"href" in item ? (
+                    <a className="text-link" href={item.href} target="_blank" rel="noreferrer">
+                      {item.organization}
+                      <ExternalLinkIcon />
+                    </a>
+                  ) : (
+                    item.organization
+                  )}
+                </h3>
                 <p className="entry-dates">{item.dates}</p>
               </div>
               <p>{item.role}</p>

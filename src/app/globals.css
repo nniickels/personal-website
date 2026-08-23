@@ -1403,6 +1403,17 @@ button {
     font-size: 0.75rem;
   }
 
+  .footer-content {
+    position: relative;
+  }
+
+  .footer-webring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   .topbar-actions {
     gap: 0.5rem;
   }
