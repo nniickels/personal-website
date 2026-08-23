@@ -824,8 +824,6 @@ function ListeningCoverWheel() {
   const touchPressRef = useRef<{
     pointerId: number;
     index: number;
-    startX: number;
-    startY: number;
     cancelled: boolean;
     previewing: boolean;
   } | null>(null);
@@ -937,8 +935,6 @@ function ListeningCoverWheel() {
     touchPressRef.current = {
       pointerId: event.pointerId,
       index,
-      startX: event.clientX,
-      startY: event.clientY,
       cancelled: false,
       previewing: false,
     };
@@ -947,16 +943,25 @@ function ListeningCoverWheel() {
       if (!press || press.cancelled || press.pointerId !== event.pointerId) return;
       press.previewing = true;
       void playPreview(index);
-    }, 500);
+    }, 300);
   };
 
   const handleCoverPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
     const press = touchPressRef.current;
     if (!press || press.pointerId !== event.pointerId || press.cancelled) return;
 
-    if (Math.hypot(event.clientX - press.startX, event.clientY - press.startY) > 10) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const isOutsideCover =
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom;
+
+    if (isOutsideCover) {
       press.cancelled = true;
       clearLongPressTimer();
+    } else if (press.previewing) {
+      event.preventDefault();
     }
   };
 

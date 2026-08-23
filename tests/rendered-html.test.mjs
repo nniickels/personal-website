@@ -30,6 +30,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
+  assert.match(html, /name="robots"[^>]*content="index, follow"/i);
+  assert.match(html, /type="application\/ld\+json"[^>]*>[\s\S]*?"@type":"ProfilePage"/i);
+  assert.match(html, /"name":"Nicole Jiang"/i);
   assert.doesNotMatch(html, /property="og:|name="twitter:/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
@@ -64,6 +67,21 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.equal((html.match(/class="night-star"/g) ?? []).length, 72);
   assert.equal((html.match(/class="shooting-star"/g) ?? []).length, 3);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
+});
+
+test("publishes search-engine discovery files", async () => {
+  const robotsResponse = await render("/robots.txt");
+  assert.equal(robotsResponse.status, 200);
+  const robots = await robotsResponse.text();
+  assert.match(robots, /User-Agent:\s*\*/i);
+  assert.match(robots, /Allow:\s*\//i);
+  assert.match(robots, /Sitemap:\s*https:\/\/nicolejiang\.com\/sitemap\.xml/i);
+
+  const sitemapResponse = await render("/sitemap.xml");
+  assert.equal(sitemapResponse.status, 200);
+  const sitemap = await sitemapResponse.text();
+  assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/side-quests<\/loc>/i);
 });
 
 test("keeps the animated starfield dark-mode-only and motion-safe", async () => {
@@ -169,8 +187,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /useState\(0\)/);
   assert.doesNotMatch(source, /portfolio-mode|pushState|getEntriesByType\("navigation"\)/);
   assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
-  assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 500\)/);
-  assert.match(source, /Math\.hypot[\s\S]*?> 10/);
+  assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 300\)/);
+  assert.match(source, /getBoundingClientRect\(\)[\s\S]*?isOutsideCover/);
+  assert.doesNotMatch(source, /Math\.hypot\(event\.clientX - press\.startX/);
+  assert.match(source, /else if \(press\.previewing\)[\s\S]*?event\.preventDefault\(\)/);
   assert.match(source, /handleCoverPointerUp[\s\S]*?openTouchTrack\(index\)/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /if \(press\.previewing\)[\s\S]*?resetPreview\(\)/);
@@ -431,6 +451,7 @@ test("publishes a combined, privacy-friendly site view counter", async () => {
   assert.match(portfolio, /script\.dataset\.goatcounter = `\$\{window\.location\.origin\}\/gc\/count`/);
   assert.match(portfolio, /<ViewCounter \/>/);
   assert.match(worker, /GOATCOUNTER_CODE\?: string/);
+  assert.match(worker, /GOATCOUNTER_CODE\?\.trim\(\)\.toLowerCase\(\) \|\| "nickel"/);
   assert.match(worker, /url\.pathname\.startsWith\("\/gc\/"\)/);
   assert.match(worker, /https:\/\/gc\.zgo\.at\/count\.js/);
   assert.match(worker, /url\.pathname\.slice\(3\)/);

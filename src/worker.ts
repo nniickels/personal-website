@@ -16,7 +16,10 @@ interface Env extends StatsEnv {
 }
 
 function getGoatCounterCode(env: Env | undefined) {
-  const code = env?.GOATCOUNTER_CODE?.trim().toLowerCase();
+  // The GoatCounter site code is public. Keep a production-safe fallback so a
+  // Git deployment cannot silently disable counting when the optional Worker
+  // variable is missing from a newly activated version.
+  const code = env?.GOATCOUNTER_CODE?.trim().toLowerCase() || "nickel";
   return code && /^[a-z0-9-]+$/.test(code) ? code : null;
 }
 
