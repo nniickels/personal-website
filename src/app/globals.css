@@ -209,6 +209,16 @@ button {
   font-size: 0.86rem;
 }
 
+.footer-webring {
+  --webring-size: 0.86rem;
+  --webring-color: currentColor;
+  --webring-accent: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
 .footer-views {
   display: inline-flex;
   align-items: center;
