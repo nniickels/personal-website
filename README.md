@@ -6,6 +6,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 ## Structure
 
 - `src/app` contains the pages and styles.
+- `src/app/robots.ts` and `src/app/sitemap.ts` provide search-engine discovery files.
 - `src/worker.ts` connects the app to Cloudflare.
 - `public` contains static images, icons, gallery media, and the résumé PDF.
 - `tests` contains rendered-page checks.
@@ -27,6 +28,13 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
 | `/side-quests` | Side Quests — photos, listening, reading, watching, gaming, collections, and food |
+
+## Search discovery
+
+- `GET /robots.txt` allows crawling and points search engines to the sitemap.
+- `GET /sitemap.xml` lists the Main Quest and Side Quests pages using their canonical URLs.
+- The homepage publishes `ProfilePage` and `Person` structured data connecting Nicole Jiang with the University of Toronto, LinkedIn, and GitHub.
+- Canonical URLs, page titles, descriptions, and explicit `index, follow` directives are included in page metadata.
 
 ## API Routes
 
@@ -52,6 +60,7 @@ and non-sensitive configuration can remain ordinary variables.
 npm install
 npm run dev
 npm run build
+npm run start
 npm test
 ```
 
