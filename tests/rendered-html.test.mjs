@@ -198,8 +198,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /press\.hasDragged[\s\S]*?document\.elementFromPoint\(press\.currentX, press\.currentY\)/);
   assert.match(source, /Math\.hypot\(event\.clientX - press\.startX, event\.clientY - press\.startY\) > 6/);
   assert.match(source, /data-listening-index=\{index\}/);
-  assert.match(source, /void playPreview\(nextIndex\)[\s\S]*?scrollWheelToIndex\(nextIndex\)/);
-  assert.match(source, /wheel\.scrollLeft \+= \(rightStrength - leftStrength\) \* 9/);
+  assert.match(source, /const coverRect = cover\?\.getBoundingClientRect\(\)/);
+  assert.match(source, /wantsLeftScroll[\s\S]*?wantsRightScroll[\s\S]*?autoScrollStrength/);
+  assert.match(source, /wheel\.scrollLeft \+= autoScrollStrength \* 9/);
+  assert.doesNotMatch(source, /void playPreview\(nextIndex\);\s*scrollWheelToIndex\(nextIndex\)/);
   assert.match(source, /gesture: "pending" \| "horizontal" \| "vertical"/);
   assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
   assert.match(source, /window\.scrollTo\(\{ top: press\.startPageScrollY - deltaY \}\)/);
@@ -367,7 +369,8 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   const naturalThingsAssets = await readdir(
     new URL("../public/natural-things/", import.meta.url),
   );
-  assert.equal(naturalThingsAssets.length, 18);
+  assert.equal(naturalThingsAssets.length, 19);
+  assert.ok(!naturalThingsAssets.includes("natural-06.jpg"));
   for (const asset of naturalThingsAssets) {
     const photo = await readFile(new URL(`../public/natural-things/${asset}`, import.meta.url));
     assert.ok(photo.length > 20_000);
@@ -463,7 +466,20 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /<title>Playground — Nicole Jiang<\/title>/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/playground"/i);
   assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
-  assert.match(html, /This page is a work in progress\./i);
+  assert.doesNotMatch(html, /work in progress/i);
+  assert.equal((html.match(/Explanation/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /Experiment guide|What to do|What to expect/i);
+  assert.match(html, /logarithmic mass vertically/i);
+  assert.match(html, /comparison benchmark, not a limit/i);
+  assert.match(html, /Einstein radius/i);
+  assert.match(html, /Pattern repeats after/i);
+  const explanationBodies = [
+    ...html.matchAll(/<div class="experiment-guide-content">([\s\S]*?)<\/div><\/div><\/details>/g),
+  ];
+  assert.equal(explanationBodies.length, 2);
+  for (const [, explanation] of explanationBodies) {
+    assert.equal((explanation.match(/<p>/g) ?? []).length, 2);
+  }
   assert.match(html, /Black-Hole Growth Simulator/i);
   assert.match(html, /Gravitational Lensing Sandbox/i);
   assert.match(html, /Orbital Resonance Toy/i);
@@ -481,6 +497,16 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /Spin/i);
   assert.match(html, /derived from spin/i);
   assert.match(html, /Advanced settings/i);
+  assert.match(html, /Variables guide/i);
+  assert.match(html, /Projected mass growth/i);
+  assert.match(html, /Cosmic time \(seed → observation\)/i);
+  assert.match(html, /Black-hole mass \(M☉, log₁₀ scale\)/i);
+  assert.match(html, /Time runs from the seed epoch to observation/i);
+  assert.match(html, /Variable presets:/i);
+  assert.match(html, /ordinary stellar remnants/i);
+  assert.match(html, /direct-collapse seeds/i);
+  assert.match(html, /near-Eddington quasar/i);
+  assert.match(html, /first billion years and early quasars/i);
   assert.match(html, /aria-expanded="false"/i);
   assert.match(html, /Duty cycle/i);
   assert.match(html, /Radiative efficiency/i);
@@ -495,6 +521,25 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /cosmicAgeAtRedshift/);
   assert.match(source, /effectiveEfoldingTime/);
   assert.match(source, /requestAnimationFrame\(animate\)/);
+  assert.match(source, /8_500 \* \(1 - initialProgress\)/);
+  assert.match(source, /progress >= 1 \? 0\.02 : progress/);
+  assert.match(source, /if \(progress >= 1\) setProgress\(0\.02\)/);
+  assert.match(source, /1 - \(1 - elapsed\) \*\* 1\.7/);
+  assert.match(source, /VISUAL_LOG_MASS_MIN = 1/);
+  assert.match(source, /VISUAL_LOG_MASS_MAX = 14/);
+  assert.match(source, /const visualMassScale = clamp/);
+  assert.match(source, /--mass-scale/);
+  assert.doesNotMatch(source, /visualGrowthRange|visualGrowthExtent/);
+  assert.match(source, /Visual diameter uses one fixed logarithmic scale: 10¹–10¹⁴ M☉/);
+  assert.match(source, /--disk-luminosity/);
+  assert.match(source, /--disk-inner-edge/);
+  assert.match(source, /const activePresetName = presets\.find/);
+  assert.match(source, /aria-pressed=\{isActive\}/);
+  assert.match(source, /id="black-hole-advanced-settings"[\s\S]*?label="Spin"/);
+  assert.match(source, /accretion-flow--outer/);
+  assert.match(source, /accretion-flow--middle/);
+  assert.match(source, /accretion-flow--inner/);
+  assert.match(source, /black-hole-orbit-plane--foreground/);
   assert.match(source, /finite fuel supplies, mergers, feedback/);
   assert.match(source, /const discriminant = Math\.sqrt/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
@@ -504,6 +549,9 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /setViewPitch/);
   assert.match(source, /setSourceRotation/);
   assert.match(source, /resonancePresets/);
+  assert.match(source, /label="Animation speed"[\s\S]*?min=\{1\}[\s\S]*?max=\{10\}/);
+  assert.match(source, /type ResonanceBodyCount = 1 \| 2 \| 3 \| 4 \| 5/);
+  assert.match(source, /\(\[1, 2, 3, 4, 5\] as const\)/);
   assert.match(source, /setBodyCount/);
   assert.match(source, /circular, coplanar Keplerian orbits/);
   assert.match(source, /beginOrbitDrag/);
@@ -513,7 +561,26 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.simulator-workspace\s*\{[\s\S]*?grid-template-columns:/i);
   assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?touch-action:\s*none/i);
+  assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?--simulation-background:\s*#121212/i);
+  assert.match(css, /\.lensing-canvas\s*\{[\s\S]*?--simulation-background:\s*#121212/i);
+  assert.match(css, /\.resonance-canvas\s*\{[\s\S]*?--simulation-background:\s*#121212/i);
+  assert.doesNotMatch(css, /:root\[data-theme="light"\] \.black-hole-stage/);
+  assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?height:\s*260px/i);
+  assert.match(css, /\.black-hole-core\s*\{[\s\S]*?width:\s*calc\(22px \+ 104px \* var\(--mass-scale\)\)/i);
+  assert.doesNotMatch(css, /--growth-scale/);
+  assert.doesNotMatch(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transition:\s*[\s\S]*?width 460ms/i);
+  assert.match(css, /\.variable-guide-content dl\s*\{[\s\S]*?gap:\s*0\.8rem/i);
+  assert.match(css, /\.experiment-guide-content\s*\{[\s\S]*?max-width:\s*46rem/i);
   assert.match(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transform:\s*rotateX\(var\(--view-pitch\)\) rotateZ\(var\(--view-yaw\)\)/i);
+  assert.match(css, /\.accretion-disk\s*\{[\s\S]*?repeating-conic-gradient[\s\S]*?conic-gradient[\s\S]*?radial-gradient/i);
+  assert.match(css, /\.black-hole-core::before/);
+  assert.match(css, /\.simulator-presets button\.is-active\s*\{[\s\S]*?box-shadow:/i);
+  assert.match(css, /\.black-hole-orbit-plane--foreground\s*\{[\s\S]*?z-index:\s*3/i);
+  assert.match(css, /\.accretion-disk--foreground\s*\{[\s\S]*?clip-path:\s*inset\(49% 0 0 0\)/i);
+  assert.match(css, /\.growth-chart-figure\s*\{[\s\S]*?grid-template-columns/i);
+  assert.match(css, /\.growth-chart-figure\s*\{[\s\S]*?grid-column:\s*1 \/ -1/i);
+  assert.match(css, /\.growth-chart-axis-title\s*\{[\s\S]*?fill:\s*var\(--foreground\)/i);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.accretion-texture[\s\S]*?animation:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.simulator-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
   assert.match(css, /\.lensing-canvas\s*\{[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.lensing-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);

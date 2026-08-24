@@ -1709,21 +1709,12 @@ button {
 .page-links {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1.25rem;
 }
 
 .playground-layout {
   gap: 3.4rem;
   padding-bottom: calc(var(--footer-height) + 4rem);
-}
-
-.playground-status {
-  padding-block: 1.15rem;
-  border-block: 1px solid var(--line);
-  font-size: clamp(1.35rem, 3.2vw, 2.35rem);
-  font-weight: 560;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
 }
 
 .playground-intro {
@@ -1773,11 +1764,77 @@ button {
   text-transform: uppercase;
 }
 
+.experiment-guide {
+  border-block: 1px solid var(--line);
+}
+
+.experiment-guide summary {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-block: 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  list-style: none;
+  transition: color 220ms ease;
+}
+
+.experiment-guide summary::-webkit-details-marker {
+  display: none;
+}
+
+.experiment-guide summary:hover,
+.experiment-guide summary:focus-visible {
+  color: var(--foreground);
+}
+
+.experiment-guide-caret {
+  width: 0.48rem;
+  height: 0.48rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(-45deg);
+  transform-origin: 62% 62%;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.experiment-guide[open] .experiment-guide-caret {
+  transform: rotate(45deg);
+}
+
+.experiment-guide-reveal {
+  overflow: hidden;
+}
+
+.experiment-guide-content {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 46rem;
+  padding: 0.35rem 0 1.35rem 1.15rem;
+}
+
+.experiment-guide-content p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.72;
+}
+
 .simulator-presets,
 .simulator-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+}
+
+.simulator-presets {
+  align-items: center;
+}
+
+.simulator-presets-label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1;
 }
 
 .simulator-presets button,
@@ -1787,7 +1844,8 @@ button {
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--muted);
-  transition: border-color 180ms ease, color 180ms ease, transform 180ms ease;
+  transition: border-color 180ms ease, color 180ms ease, box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .simulator-presets button:hover,
@@ -1801,6 +1859,13 @@ button {
 .simulator-presets button:active,
 .simulator-actions button:active {
   transform: translateY(1px);
+}
+
+.simulator-presets button.is-active {
+  border-color: var(--foreground);
+  color: var(--foreground);
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent),
+    0 0 16px color-mix(in srgb, currentColor 32%, transparent);
 }
 
 .simulator-actions .simulator-primary-action {
@@ -1820,16 +1885,25 @@ button {
 }
 
 .black-hole-stage {
-  --growth-scale: 1;
+  --mass-scale: 1;
   --view-yaw: -9deg;
   --view-pitch: 68deg;
+  --simulation-background: #121212;
+  --simulation-foreground: #d7d7d7;
+  --simulation-muted: #a1a1a1;
+  --simulation-line: #2a2a2a;
+  --disk-hot: rgba(255, 252, 232, 0.98);
+  --disk-warm: rgba(255, 183, 92, 0.88);
+  --disk-cool: rgba(154, 58, 30, 0.34);
   position: relative;
   display: grid;
   place-items: center;
-  height: 176px;
+  height: 260px;
   overflow: hidden;
   isolation: isolate;
-  background: radial-gradient(circle at 50% 50%, rgba(140, 140, 140, 0.12), transparent 45%);
+  color: var(--simulation-foreground);
+  background: radial-gradient(circle at 50% 50%, rgba(140, 140, 140, 0.12), transparent 45%),
+    var(--simulation-background);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -1847,7 +1921,7 @@ button {
   top: 0.35rem;
   left: 0;
   z-index: 4;
-  color: var(--muted);
+  color: var(--simulation-muted);
   font-size: 0.7rem;
   letter-spacing: 0.02em;
   pointer-events: none;
@@ -1859,30 +1933,24 @@ button {
 .accretion-disk {
   position: absolute;
   border-radius: 50%;
-  transition:
-    width 460ms cubic-bezier(0.22, 1, 0.36, 1),
-    height 460ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 360ms ease;
+  transition: opacity 360ms ease;
 }
 
 .black-hole-orbit-plane {
   z-index: 1;
   display: grid;
   place-items: center;
-  width: calc(138px + 76px * var(--growth-scale));
-  height: calc(138px + 76px * var(--growth-scale));
+  width: calc(86px + 174px * var(--mass-scale));
+  height: calc(86px + 174px * var(--mass-scale));
   transform: rotateX(var(--view-pitch)) rotateZ(var(--view-yaw));
   transform-style: preserve-3d;
   will-change: transform;
-  transition:
-    width 460ms cubic-bezier(0.22, 1, 0.36, 1),
-    height 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .black-hole-glow {
   z-index: 0;
-  width: calc(76px + 48px * var(--growth-scale));
-  height: calc(76px + 48px * var(--growth-scale));
+  width: calc(48px + 132px * var(--mass-scale));
+  height: calc(48px + 132px * var(--mass-scale));
   background: radial-gradient(circle, transparent 38%, rgba(205, 205, 205, 0.2) 55%, transparent 72%);
   filter: blur(5px);
 }
@@ -1891,27 +1959,113 @@ button {
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 2px solid rgba(215, 215, 215, 0.78);
-  border-right-color: rgba(215, 215, 215, 0.18);
-  border-left-color: rgba(215, 215, 215, 0.32);
-  box-shadow: 0 0 16px rgba(215, 215, 215, 0.18);
+  overflow: hidden;
+  background:
+    repeating-conic-gradient(
+      from 7deg,
+      transparent 0deg 5deg,
+      rgba(255, 243, 213, 0.14) 6deg 8deg,
+      transparent 9deg 15deg
+    ),
+    conic-gradient(
+      from 205deg,
+      rgba(255, 250, 226, 0.06) 0deg,
+      var(--disk-hot) 42deg,
+      var(--disk-warm) 91deg,
+      rgba(177, 70, 34, 0.38) 178deg,
+      rgba(31, 18, 16, 0.08) 245deg,
+      rgba(255, 173, 78, 0.45) 318deg,
+      rgba(255, 250, 226, 0.06) 360deg
+    ),
+    radial-gradient(
+      circle,
+      var(--disk-hot) var(--disk-inner-edge),
+      var(--disk-warm) 34%,
+      var(--disk-cool) 60%,
+      transparent 78%
+    );
+  background-blend-mode: screen, screen, normal;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--disk-warm) 28%, transparent);
+  filter: saturate(0.9) brightness(var(--disk-luminosity));
+  opacity: calc(0.68 + var(--disk-luminosity) * 0.32);
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 0 var(--disk-inner-edge),
+    #000 calc(var(--disk-inner-edge) + 1.4%) 72%,
+    transparent 83%
+  );
+  mask: radial-gradient(
+    circle,
+    transparent 0 var(--disk-inner-edge),
+    #000 calc(var(--disk-inner-edge) + 1.4%) 72%,
+    transparent 83%
+  );
+  clip-path: inset(0 0 49% 0);
   transform: translateZ(0);
   transform-style: preserve-3d;
+}
+
+.black-hole-orbit-plane--foreground {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.accretion-disk--foreground {
+  clip-path: inset(49% 0 0 0);
+}
+
+.accretion-texture {
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 10deg,
+    rgba(255, 255, 255, 0.2) 11deg 12deg,
+    transparent 13deg 27deg
+  );
+  mix-blend-mode: screen;
+  opacity: calc(var(--spin-opacity) * 0.6);
+  animation: accretion-shear calc(var(--spin-duration) * 1.8) linear infinite;
+  animation-direction: var(--spin-direction);
 }
 
 .accretion-flow {
   position: absolute;
   inset: 0;
-  width: 11px;
-  height: 4px;
+  width: 13px;
+  height: 3px;
   border-radius: 999px;
-  background: var(--foreground);
-  box-shadow: 0 0 8px var(--foreground);
+  background: var(--disk-hot);
+  box-shadow: 0 0 5px var(--disk-hot), 0 0 11px var(--disk-warm);
   opacity: var(--spin-opacity);
-  offset-path: ellipse(48% 48% at 50% 50%);
   offset-rotate: 0deg;
   animation: accretion-orbit var(--spin-duration) linear infinite;
   animation-direction: var(--spin-direction);
+}
+
+.accretion-flow--outer {
+  offset-path: ellipse(43% 43% at 50% 50%);
+  animation-delay: -1.7s;
+  opacity: calc(var(--spin-opacity) * 0.48);
+}
+
+.accretion-flow--middle {
+  offset-path: ellipse(34% 34% at 50% 50%);
+  animation-delay: -0.8s;
+}
+
+.accretion-flow--inner {
+  width: 9px;
+  offset-path: ellipse(27% 27% at 50% 50%);
+  animation-duration: calc(var(--spin-duration) * 0.68);
+  animation-delay: -0.25s;
+}
+
+@keyframes accretion-shear {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
 @keyframes accretion-orbit {
@@ -1924,19 +2078,37 @@ button {
   }
 }
 
-:root[data-theme="light"] .accretion-disk {
-  border-color: rgba(30, 30, 30, 0.68);
-  border-right-color: rgba(30, 30, 30, 0.14);
-  border-left-color: rgba(30, 30, 30, 0.28);
-  box-shadow: 0 0 15px rgba(30, 30, 30, 0.14);
-}
-
 .black-hole-core {
   z-index: 2;
-  width: calc(48px + 26px * var(--growth-scale));
-  height: calc(48px + 26px * var(--growth-scale));
+  width: calc(22px + 104px * var(--mass-scale));
+  height: calc(22px + 104px * var(--mass-scale));
   background: #020202;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 24px rgba(0, 0, 0, 0.78);
+}
+
+.black-hole-core::before,
+.black-hole-core::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.black-hole-core::before {
+  inset: -3px;
+  border: 1px solid rgba(255, 246, 218, 0.92);
+  border-right-color: rgba(255, 173, 84, 0.28);
+  box-shadow: 0 0 5px rgba(255, 222, 160, 0.5);
+}
+
+.black-hole-core::after {
+  inset: -7px;
+  border-top: 2px solid rgba(255, 238, 201, 0.58);
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid rgba(255, 151, 67, 0.16);
+  border-left: 1px solid transparent;
+  filter: blur(1px);
+  transform: rotate(-18deg);
 }
 
 .simulator-now {
@@ -1955,11 +2127,42 @@ button {
   text-align: right;
 }
 
+.visual-mass-scale-note {
+  margin: -0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
 .growth-chart {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
+}
+
+.growth-chart-figure {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.15fr) minmax(13rem, 0.85fr);
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+}
+
+.growth-chart-caption {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.58;
+}
+
+.growth-chart-caption strong {
+  color: var(--foreground);
+  font-size: 0.74rem;
+  font-weight: 540;
 }
 
 .growth-chart-axis,
@@ -2010,7 +2213,15 @@ button {
   font-size: 11px;
 }
 
+.growth-chart-axis-title {
+  fill: var(--foreground);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 540;
+}
+
 .chart-overflow-note {
+  grid-column: 1 / -1;
   margin-top: 0.2rem;
   color: var(--muted);
   font-size: 0.76rem;
@@ -2131,6 +2342,36 @@ button {
   text-align: right;
 }
 
+.variable-guide-content dl {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.variable-guide-content dl > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.variable-guide-content dt {
+  color: var(--foreground);
+  font-size: 0.76rem;
+  font-weight: 540;
+}
+
+.variable-guide-content dd,
+.variable-guide-content > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.62;
+}
+
+.variable-guide-content > p {
+  padding-top: 0.2rem;
+  font-style: italic;
+}
+
 .simulator-actions {
   margin-top: 0.35rem;
 }
@@ -2182,6 +2423,11 @@ button {
     column-gap: 1rem;
   }
 
+  .growth-chart-figure {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
   .simulator-actions {
     grid-column: 1 / -1;
   }
@@ -2189,7 +2435,7 @@ button {
 
 @media (max-width: 520px) {
   .page-links {
-    gap: 0.5rem;
+    gap: 0.7rem;
   }
 
   .page-links .text-btn {
@@ -2198,11 +2444,6 @@ button {
 
   .playground-layout {
     gap: 2.4rem;
-  }
-
-  .playground-status {
-    padding-block: 0.9rem;
-    font-size: 1.35rem;
   }
 
   .playground-intro {
@@ -2226,9 +2467,14 @@ button {
     font-size: 1.18rem;
   }
 
+  .experiment-guide-content {
+    gap: 0.8rem;
+    padding: 0.25rem 0 1.1rem 0.85rem;
+  }
+
   .simulator-presets {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   }
 
   .simulator-presets button {
@@ -2238,7 +2484,7 @@ button {
   }
 
   .black-hole-stage {
-    height: 148px;
+    height: 218px;
   }
 
   .simulator-now {
@@ -2277,7 +2523,13 @@ button {
     transition: none;
   }
 
-  .accretion-flow {
+  .experiment-guide summary,
+  .experiment-guide-caret {
+    transition: none;
+  }
+
+  .accretion-flow,
+  .accretion-texture {
     animation: none;
   }
 }
@@ -2317,10 +2569,14 @@ button {
 }
 
 .lensing-canvas {
+  --simulation-background: #121212;
+  --simulation-foreground: #d7d7d7;
+  --simulation-muted: #a1a1a1;
+  --simulation-line: #2a2a2a;
   display: block;
   width: 100%;
   height: auto;
-  color: var(--foreground);
+  color: var(--simulation-foreground);
   cursor: crosshair;
   touch-action: none;
   user-select: none;
@@ -2331,14 +2587,14 @@ button {
 }
 
 .lensing-field {
-  fill: var(--background);
-  stroke: var(--line);
+  fill: var(--simulation-background);
+  stroke: var(--simulation-line);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-field-star {
-  fill: var(--foreground);
+  fill: var(--simulation-foreground);
   pointer-events: none;
 }
 
@@ -2350,14 +2606,14 @@ button {
 }
 
 .einstein-guide {
-  stroke: var(--muted);
+  stroke: var(--simulation-muted);
   stroke-width: 1;
   stroke-dasharray: 3 6;
   opacity: 0.24;
 }
 
 .einstein-ring {
-  stroke: var(--foreground);
+  stroke: var(--simulation-foreground);
   stroke-width: 3;
   filter: url(#lensing-soft-glow);
   transition:
@@ -2366,7 +2622,7 @@ button {
 }
 
 .lensing-image {
-  color: var(--foreground);
+  color: var(--simulation-foreground);
   filter: url(#lensing-soft-glow);
   pointer-events: none;
   transition:
@@ -2394,29 +2650,29 @@ button {
 
 .lensing-lens,
 .lensing-source {
-  color: var(--foreground);
+  color: var(--simulation-foreground);
   pointer-events: none;
   will-change: transform;
 }
 
 .lensing-lens > circle:first-child {
   fill: url(#lensing-lens-gradient);
-  stroke: var(--muted);
+  stroke: var(--simulation-muted);
   stroke-width: 1;
   opacity: 0.8;
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-lens-core {
-  fill: var(--background);
-  stroke: var(--foreground);
+  fill: var(--simulation-background);
+  stroke: var(--simulation-foreground);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-lens text,
 .lensing-source text {
-  fill: var(--muted);
+  fill: var(--simulation-muted);
   font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.05em;
@@ -2425,7 +2681,7 @@ button {
 
 .lensing-source-handle {
   fill: transparent;
-  stroke: var(--foreground);
+  stroke: var(--simulation-foreground);
   stroke-width: 1;
   stroke-dasharray: 3 4;
   opacity: 0.58;
@@ -2434,14 +2690,14 @@ button {
 
 .lensing-source > ellipse:not(.lensing-source-core) {
   fill: url(#lensing-galaxy-gradient);
-  stroke: var(--foreground);
+  stroke: var(--simulation-foreground);
   stroke-width: 1.4;
   filter: url(#lensing-soft-glow);
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-source-core {
-  fill: var(--foreground);
+  fill: var(--simulation-foreground);
   opacity: 0.72;
 }
 
@@ -2514,10 +2770,14 @@ button {
 }
 
 .resonance-canvas {
+  --simulation-background: #121212;
+  --simulation-foreground: #d7d7d7;
+  --simulation-muted: #a1a1a1;
+  --simulation-line: #2a2a2a;
   display: block;
   width: 100%;
   height: auto;
-  color: var(--foreground);
+  color: var(--simulation-foreground);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -2529,26 +2789,26 @@ button {
 }
 
 .resonance-field {
-  fill: var(--background);
-  stroke: var(--line);
+  fill: var(--simulation-background);
+  stroke: var(--simulation-line);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .resonance-field-star {
-  fill: var(--foreground);
+  fill: var(--simulation-foreground);
 }
 
 .resonance-orbit {
   fill: none;
-  stroke: var(--muted);
+  stroke: var(--simulation-muted);
   stroke-width: 1;
   stroke-dasharray: 3 5;
   vector-effect: non-scaling-stroke;
 }
 
 .resonance-spoke {
-  stroke: var(--muted);
+  stroke: var(--simulation-muted);
   stroke-width: 0.8;
   opacity: 0.16;
   vector-effect: non-scaling-stroke;
@@ -2559,12 +2819,12 @@ button {
 }
 
 .resonance-star {
-  fill: var(--foreground);
+  fill: var(--simulation-foreground);
   filter: url(#resonance-body-glow);
 }
 
 .resonance-body {
-  color: var(--foreground);
+  color: var(--simulation-foreground);
   filter: url(#resonance-body-glow);
   will-change: transform;
 }
@@ -2588,6 +2848,14 @@ button {
   opacity: 0.48;
 }
 
+.resonance-body--4 {
+  opacity: 0.38;
+}
+
+.resonance-body--5 {
+  opacity: 0.3;
+}
+
 .resonance-body-picker {
   display: grid;
   gap: 0.45rem;
@@ -2605,7 +2873,7 @@ button {
 
 .resonance-body-picker > div {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   border: 1px solid var(--line);
   border-radius: 999px;
   overflow: hidden;

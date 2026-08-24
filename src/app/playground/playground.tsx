@@ -1,6 +1,11 @@
 "use client";
 
-import type { CSSProperties, ChangeEvent, PointerEvent as ReactPointerEvent } from "react";
+import type {
+  CSSProperties,
+  ChangeEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NightSky, SiteFooter, SiteHeader } from "../portfolio";
 
@@ -9,6 +14,8 @@ const OMEGA_MATTER = 0.315;
 const OMEGA_LAMBDA = 0.685;
 const EDDINGTON_TIME_GYR = 0.45;
 const SOLAR_MASS = "M☉";
+const VISUAL_LOG_MASS_MIN = 1;
+const VISUAL_LOG_MASS_MAX = 14;
 
 const presets = [
   {
@@ -132,6 +139,104 @@ function SimulatorSlider({
   );
 }
 
+function ExperimentGuide({ children }: { children: ReactNode }) {
+  return (
+    <details className="experiment-guide">
+      <summary>
+        <span className="experiment-guide-caret" aria-hidden="true" />
+        Explanation
+      </summary>
+      <div className="experiment-guide-reveal">
+        <div className="experiment-guide-content">{children}</div>
+      </div>
+    </details>
+  );
+}
+
+function VariablesGuide() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={`simulator-advanced variable-guide${open ? " is-open" : ""}`}>
+      <button
+        type="button"
+        className="simulator-advanced-toggle"
+        aria-expanded={open}
+        aria-controls="black-hole-variables-guide"
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className="simulator-advanced-caret" aria-hidden="true" />
+        Variables guide
+      </button>
+      <div className="simulator-advanced-reveal">
+        <div
+          id="black-hole-variables-guide"
+          className="simulator-advanced-content variable-guide-content"
+        >
+          <dl>
+            <div>
+              <dt>Seed mass</dt>
+              <dd>
+                Roughly 10–100 M☉ suits ordinary stellar remnants; 10²–10⁴ M☉ can represent
+                massive Population III remnants or runaway stellar-cluster products; and
+                10⁴–10⁶ M☉ represents proposed direct-collapse seeds.
+              </dd>
+            </div>
+            <div>
+              <dt>Accretion rate</dt>
+              <dd>
+                About 0.1× describes weak or fuel-limited feeding, approximately 1× describes
+                a luminous near-Eddington quasar, and values above 1× approximate brief
+                super-Eddington episodes.
+              </dd>
+            </div>
+            <div>
+              <dt>Spin, a*</dt>
+              <dd>
+                Values near zero can follow chaotic accretion or mixed mergers; high positive
+                spin is encouraged by prolonged aligned-disk feeding; negative spin means the
+                disk orbits opposite to the black hole.
+              </dd>
+            </div>
+            <div>
+              <dt>Seed redshift</dt>
+              <dd>
+                z ≈ 20–30 is associated with the first stellar remnants, while many
+                direct-collapse scenarios are placed around z ≈ 10–20.
+              </dd>
+            </div>
+            <div>
+              <dt>Observation redshift</dt>
+              <dd>
+                z ≈ 6–10 probes the first billion years and early quasars; lower values give
+                the seed more cosmic time to grow.
+              </dd>
+            </div>
+            <div>
+              <dt>Duty cycle</dt>
+              <dd>
+                Around 10% represents intermittent activity, 50% sustained but episodic
+                feeding, and 100% an idealized continuously active system.
+              </dd>
+            </div>
+            <div>
+              <dt>Radiative efficiency</dt>
+              <dd>
+                The thin-disk relation gives about 5.7% for zero spin, lower values for
+                retrograde disks, and progressively higher values for rapidly prograde disks.
+              </dd>
+            </div>
+          </dl>
+          <p>
+            These ranges are illustrative rather than unique classifications; real systems
+            can move between regimes and are constrained by their environment.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BlackHoleGrowthSimulator() {
   const [seedLogMass, setSeedLogMass] = useState(5);
   const [seedRedshift, setSeedRedshift] = useState(20);
@@ -181,13 +286,13 @@ export function BlackHoleGrowthSimulator() {
   useEffect(() => {
     if (!playing) return;
 
-    const initialProgress = progress >= 1 ? 0 : progress;
+    const initialProgress = progress >= 1 ? 0.02 : progress;
     const startedAt = performance.now();
-    const duration = Math.max(500, 2_600 * (1 - initialProgress));
+    const duration = Math.max(1_500, 8_500 * (1 - initialProgress));
 
     const animate = (now: number) => {
       const elapsed = Math.min(1, (now - startedAt) / duration);
-      const easedElapsed = 0.5 - Math.cos(Math.PI * elapsed) / 2;
+      const easedElapsed = 1 - (1 - elapsed) ** 1.7;
       const nextProgress = Math.min(
         1,
         initialProgress + easedElapsed * (1 - initialProgress),
@@ -277,7 +382,7 @@ export function BlackHoleGrowthSimulator() {
       setPlaying(false);
       return;
     }
-    if (progress >= 1) setProgress(0);
+    if (progress >= 1) setProgress(0.02);
     setPlaying(true);
   };
 
@@ -316,19 +421,31 @@ export function BlackHoleGrowthSimulator() {
     };
   }, [model.currentLogMass, model.finalLogMass, progress, seedLogMass]);
 
-  const growthScale = Math.min(
+  const visualMassScale = clamp(
+    (model.currentLogMass - VISUAL_LOG_MASS_MIN) /
+      (VISUAL_LOG_MASS_MAX - VISUAL_LOG_MASS_MIN),
+    0,
     1,
-    Math.max(0, (model.currentLogMass - seedLogMass) / Math.max(1, 9 - seedLogMass)),
   );
   const visualStyle = {
-    "--growth-scale": growthScale,
+    "--mass-scale": visualMassScale,
     "--spin-duration": `${(6.2 - Math.abs(spin) * 4.8).toFixed(2)}s`,
     "--spin-direction": spin < 0 ? "reverse" : "normal",
     "--spin-opacity": Math.abs(spin) < 0.03 ? 0.2 : 0.9,
+    "--disk-luminosity": (0.32 + Math.min(1, eddingtonRatio / 1.5) * 0.68).toFixed(2),
+    "--disk-inner-edge": `${clamp(22 - spin * 4.5, 17.5, 26.5).toFixed(1)}%`,
     "--view-yaw": `${viewYaw.toFixed(1)}deg`,
     "--view-pitch": `${viewPitch.toFixed(1)}deg`,
   } as CSSProperties;
   const exceedsChart = model.finalLogMass > chart.yMax;
+  const activePresetName = presets.find((preset) =>
+    Math.abs(seedLogMass - preset.seedLogMass) < 0.001 &&
+    Math.abs(seedRedshift - preset.seedRedshift) < 0.001 &&
+    Math.abs(observedRedshift - preset.observedRedshift) < 0.001 &&
+    Math.abs(eddingtonRatio - preset.eddingtonRatio) < 0.001 &&
+    Math.abs(dutyCycle - preset.dutyCycle) < 0.001 &&
+    Math.abs(spin - preset.spin) < 0.001
+  )?.name;
 
   return (
     <section className="black-hole-simulator" aria-labelledby="black-hole-simulator-title">
@@ -341,12 +458,46 @@ export function BlackHoleGrowthSimulator() {
         </p>
       </header>
 
+      <ExperimentGuide>
+        <p>
+          The dark sphere represents the event-horizon region, the tilted ring is a simplified
+          accretion disk, and its moving highlight reflects spin direction and relative speed.
+          Seed mass sets the starting mass; accretion rate sets the luminosity-relative feeding
+          rate; spin, a*, sets the rotation and radiative efficiency; seed and observation
+          redshifts define the time interval; and duty cycle sets the fraction of that interval
+          spent accreting. The results report the available time, exponential e-folding time, and
+          projected final mass.
+        </p>
+        <p>
+          The graph runs from the seed epoch to the observation epoch horizontally and uses
+          logarithmic mass vertically, so each decade is a tenfold increase and exponential growth
+          appears nearly straight. The outlined point, moving vertical line, redshift, and mass
+          readouts mark the current simulated instant; the horizontal 10⁹ M☉ line is a comparison
+          benchmark, not a limit. Larger seeds, stronger or longer accretion, and higher duty
+          cycles generally yield larger final masses, while high prograde spin raises radiative
+          efficiency and can slow mass accumulation at fixed Eddington ratio. Fuel limits,
+          feedback, mergers, and changing accretion states are not included.
+        </p>
+      </ExperimentGuide>
+
+      <VariablesGuide />
+
       <div className="simulator-presets" aria-label="Growth scenarios">
-        {presets.map((preset) => (
-          <button type="button" key={preset.name} onClick={() => applyPreset(preset)}>
-            {preset.name}
-          </button>
-        ))}
+        <span className="simulator-presets-label">Variable presets:</span>
+        {presets.map((preset) => {
+          const isActive = preset.name === activePresetName;
+          return (
+            <button
+              type="button"
+              className={isActive ? "is-active" : undefined}
+              aria-pressed={isActive}
+              key={preset.name}
+              onClick={() => applyPreset(preset)}
+            >
+              {preset.name}
+            </button>
+          );
+        })}
       </div>
 
       <div className="simulator-workspace">
@@ -363,11 +514,22 @@ export function BlackHoleGrowthSimulator() {
           >
             <span className="rotation-hint">Drag to rotate in 3D</span>
             <div className="black-hole-orbit-plane">
-              <div className="accretion-disk">
-                <span className="accretion-flow" />
+              <div className="accretion-disk" aria-hidden="true">
+                <span className="accretion-texture" />
+                <span className="accretion-flow accretion-flow--outer" />
+                <span className="accretion-flow accretion-flow--middle" />
+                <span className="accretion-flow accretion-flow--inner" />
               </div>
             </div>
-            <div className="black-hole-core" />
+            <div className="black-hole-core" aria-hidden="true" />
+            <div className="black-hole-orbit-plane black-hole-orbit-plane--foreground" aria-hidden="true">
+              <div className="accretion-disk accretion-disk--foreground">
+                <span className="accretion-texture" />
+                <span className="accretion-flow accretion-flow--outer" />
+                <span className="accretion-flow accretion-flow--middle" />
+                <span className="accretion-flow accretion-flow--inner" />
+              </div>
+            </div>
             <div className="black-hole-glow" />
           </div>
 
@@ -375,32 +537,10 @@ export function BlackHoleGrowthSimulator() {
             <span>z = {model.currentRedshift.toFixed(1)}</span>
             <strong>{formatMass(model.currentLogMass)}</strong>
           </div>
+          <p className="visual-mass-scale-note">
+            Visual diameter uses one fixed logarithmic scale: 10¹–10¹⁴ M☉.
+          </p>
 
-          <svg
-            className="growth-chart"
-            viewBox={`0 0 ${chart.width} ${chart.height}`}
-            role="img"
-            aria-label="Logarithmic black-hole mass growth over cosmic time"
-          >
-            <line className="growth-chart-axis" x1={chart.left} y1={chart.bottom} x2={chart.right} y2={chart.bottom} />
-            <line className="growth-chart-axis" x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.bottom} />
-            <line className="growth-chart-target" x1={chart.left} y1={chart.targetY} x2={chart.right} y2={chart.targetY} />
-            <text className="growth-chart-label" x={chart.right - 4} y={chart.targetY - 7} textAnchor="end">
-              10⁹ M☉ benchmark
-            </text>
-            <polyline className="growth-chart-line" points={chart.points} />
-            <line className="growth-chart-progress" x1={chart.currentX} y1={chart.top} x2={chart.currentX} y2={chart.bottom} />
-            <circle className="growth-chart-marker" cx={chart.currentX} cy={chart.currentY} r="5" />
-            <text className="growth-chart-label" x={chart.left} y={chart.height - 12}>seed</text>
-            <text className="growth-chart-label" x={chart.right} y={chart.height - 12} textAnchor="end">observed</text>
-            <text className="growth-chart-label" x={chart.left - 10} y={chart.top + 4} textAnchor="end">
-              10^{chart.yMax.toFixed(0)}
-            </text>
-            <text className="growth-chart-label" x={chart.left - 10} y={chart.bottom + 4} textAnchor="end">
-              10^{chart.yMin.toFixed(0)}
-            </text>
-          </svg>
-          {exceedsChart && <p className="chart-overflow-note">The curve continues above the displayed 10¹² M☉ scale.</p>}
         </div>
 
         <div className="simulator-controls">
@@ -422,16 +562,6 @@ export function BlackHoleGrowthSimulator() {
             displayValue={`${effectiveAccretionRate.toFixed(2)} × reference`}
             onChange={updateControl(setEddingtonRatio)}
           />
-          <SimulatorSlider
-            label="Spin"
-            value={spin}
-            min={-0.998}
-            max={0.998}
-            step={0.01}
-            displayValue={`a* = ${spin.toFixed(2)}`}
-            onChange={updateControl(setSpin)}
-          />
-
           <div className={`simulator-advanced${advancedOpen ? " is-open" : ""}`}>
             <button
               type="button"
@@ -445,6 +575,15 @@ export function BlackHoleGrowthSimulator() {
             </button>
             <div className="simulator-advanced-reveal">
               <div id="black-hole-advanced-settings" className="simulator-advanced-content">
+                <SimulatorSlider
+                  label="Spin"
+                  value={spin}
+                  min={-0.998}
+                  max={0.998}
+                  step={0.01}
+                  displayValue={`a* = ${spin.toFixed(2)}`}
+                  onChange={updateControl(setSpin)}
+                />
                 <SimulatorSlider
                   label="Seed redshift"
                   value={seedRedshift}
@@ -487,6 +626,59 @@ export function BlackHoleGrowthSimulator() {
             <button type="button" onClick={resetSimulation}>Reset</button>
           </div>
         </div>
+
+        <figure className="growth-chart-figure">
+          <svg
+            className="growth-chart"
+            viewBox={`0 0 ${chart.width} ${chart.height}`}
+            role="img"
+            aria-label="Logarithmic black-hole mass growth over cosmic time"
+          >
+            <line className="growth-chart-axis" x1={chart.left} y1={chart.bottom} x2={chart.right} y2={chart.bottom} />
+            <line className="growth-chart-axis" x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.bottom} />
+            <line className="growth-chart-target" x1={chart.left} y1={chart.targetY} x2={chart.right} y2={chart.targetY} />
+            <text className="growth-chart-label" x={chart.right - 4} y={chart.targetY - 7} textAnchor="end">
+              10⁹ M☉ benchmark
+            </text>
+            <polyline className="growth-chart-line" points={chart.points} />
+            <line className="growth-chart-progress" x1={chart.currentX} y1={chart.top} x2={chart.currentX} y2={chart.bottom} />
+            <circle className="growth-chart-marker" cx={chart.currentX} cy={chart.currentY} r="5" />
+            <text className="growth-chart-label" x={chart.left} y={chart.bottom + 17}>seed</text>
+            <text className="growth-chart-label" x={chart.right} y={chart.bottom + 17} textAnchor="end">observed</text>
+            <text
+              className="growth-chart-axis-title"
+              x={(chart.left + chart.right) / 2}
+              y={chart.height - 5}
+              textAnchor="middle"
+            >
+              Cosmic time (seed → observation)
+            </text>
+            <text
+              className="growth-chart-axis-title"
+              x="14"
+              y={(chart.top + chart.bottom) / 2}
+              textAnchor="middle"
+              transform={`rotate(-90 14 ${(chart.top + chart.bottom) / 2})`}
+            >
+              Black-hole mass (M☉, log₁₀ scale)
+            </text>
+            <text className="growth-chart-label" x={chart.left - 10} y={chart.top + 4} textAnchor="end">
+              10^{chart.yMax.toFixed(0)}
+            </text>
+            <text className="growth-chart-label" x={chart.left - 10} y={chart.bottom + 4} textAnchor="end">
+              10^{chart.yMin.toFixed(0)}
+            </text>
+          </svg>
+          <figcaption className="growth-chart-caption">
+            <strong>Projected mass growth</strong>
+            <span>
+              Time runs from the seed epoch to observation from left to right; mass increases
+              logarithmically upward. The solid curve is the model, the dot and vertical line
+              mark playback, and the dashed line is the 10⁹ M☉ comparison benchmark.
+            </span>
+          </figcaption>
+        </figure>
+        {exceedsChart && <p className="chart-overflow-note">The curve continues above the displayed 10¹² M☉ scale.</p>}
       </div>
 
       <dl className="simulator-results">
@@ -689,6 +881,27 @@ export function GravitationalLensingSandbox() {
         </p>
       </header>
 
+      <ExperimentGuide>
+        <p>
+          The central dark object is the foreground lens, the labeled source is the background
+          galaxy&apos;s true position, the stretched bright shapes are its apparent lensed images,
+          and the dashed circle marks the Einstein radius. Lens mass controls the strength and
+          scale of the bending; the distance factor, Dₗₛ / Dₛ, approximates the lens–source
+          geometry; and source size controls how broad the arcs appear. The readouts give the
+          Einstein radius, combined image magnification, and separation between the two idealized
+          images.
+        </p>
+        <p>
+          Far from the lens, one image dominates and distortion is modest. As the source approaches
+          the optical axis, both images brighten, stretch, and move toward the Einstein radius;
+          perfect alignment merges them into an Einstein ring. Increasing lens mass or the
+          distance factor enlarges the lensing scale, while a larger source creates broader arcs.
+          This point-mass model omits realistic galaxy shapes, external shear, substructure, and
+          cosmological angular units, so it demonstrates the expected geometry rather than making
+          observational predictions.
+        </p>
+      </ExperimentGuide>
+
       <div className="lensing-workspace">
         <div className="lensing-visual-panel">
           <div className="lensing-instruction">
@@ -842,30 +1055,33 @@ export function GravitationalLensingSandbox() {
 const resonancePresets = {
   "2:1": {
     label: "2:1 chain",
-    periods: [1, 2, 4],
-    repeatAfter: "4 inner orbits",
+    periods: [1, 2, 4, 8, 16],
+    repeatAfter: ["one orbit", "2 inner orbits", "4 inner orbits", "8 inner orbits", "16 inner orbits"],
   },
   "3:2": {
     label: "3:2 chain",
-    periods: [1, 1.5, 2.25],
-    repeatAfter: "9 inner orbits",
+    periods: [1, 1.5, 2.25, 3.375, 5.0625],
+    repeatAfter: ["one orbit", "3 inner orbits", "9 inner orbits", "27 inner orbits", "81 inner orbits"],
   },
   "5:3": {
     label: "5:3 chain",
-    periods: [1, 5 / 3, 25 / 9],
-    repeatAfter: "25 inner orbits",
+    periods: [1, 5 / 3, 25 / 9, 125 / 27, 625 / 81],
+    repeatAfter: ["one orbit", "5 inner orbits", "25 inner orbits", "125 inner orbits", "625 inner orbits"],
   },
   free: {
     label: "Near resonance",
-    periods: [1, 1.73, 2.91],
-    repeatAfter: "no short repeat",
+    periods: [1, 1.73, 2.91, 4.67, 7.56],
+    repeatAfter: ["one orbit", "no short repeat", "no short repeat", "no short repeat", "no short repeat"],
   },
 } as const;
 
 type ResonancePreset = keyof typeof resonancePresets;
+type ResonanceBodyCount = 1 | 2 | 3 | 4 | 5;
+
+const ORBIT_RADII = [46, 76, 108, 140, 172] as const;
 
 export function OrbitalResonanceToy() {
-  const [bodyCount, setBodyCount] = useState<1 | 2 | 3>(3);
+  const [bodyCount, setBodyCount] = useState<ResonanceBodyCount>(3);
   const [resonance, setResonance] = useState<ResonancePreset>("2:1");
   const [speed, setSpeed] = useState(1);
   const [phase, setPhase] = useState(0);
@@ -903,20 +1119,20 @@ export function OrbitalResonanceToy() {
   }, [playing, speed]);
 
   const bodies = useMemo(() => {
-    const radii = [68, 116, 164];
     return preset.periods.slice(0, bodyCount).map((period, index) => {
       const angle = (phase / period) * Math.PI * 2 - Math.PI / 2;
+      const radius = ORBIT_RADII[index];
       return {
         index,
         period,
-        radius: radii[index],
-        x: 310 + radii[index] * Math.cos(angle),
-        y: 190 + radii[index] * 0.58 * Math.sin(angle),
+        radius,
+        x: 310 + radius * Math.cos(angle),
+        y: 190 + radius * 0.58 * Math.sin(angle),
       };
     });
   }, [bodyCount, phase, preset.periods]);
 
-  const setBodies = (count: 1 | 2 | 3) => {
+  const setBodies = (count: ResonanceBodyCount) => {
     setBodyCount(count);
     setPhase(0);
   };
@@ -992,7 +1208,7 @@ export function OrbitalResonanceToy() {
         <p className="simulator-kicker">Experiment 03</p>
         <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
         <p>
-          Place one to three bodies in linked orbits and watch resonant period ratios make their
+          Place one to five bodies in linked orbits and watch resonant period ratios make their
           relative positions repeat.
         </p>
       </header>
@@ -1038,7 +1254,7 @@ export function OrbitalResonanceToy() {
                 opacity={star.opacity * 0.7}
               />
             ))}
-            {[68, 116, 164].slice(0, bodyCount).map((radius, index) => (
+            {ORBIT_RADII.slice(0, bodyCount).map((radius, index) => (
               <ellipse
                 className="resonance-orbit"
                 key={radius}
@@ -1078,7 +1294,7 @@ export function OrbitalResonanceToy() {
           <fieldset className="resonance-body-picker">
             <legend>Orbiting bodies</legend>
             <div>
-              {([1, 2, 3] as const).map((count) => (
+              {([1, 2, 3, 4, 5] as const).map((count) => (
                 <button
                   type="button"
                   key={count}
@@ -1107,8 +1323,8 @@ export function OrbitalResonanceToy() {
           <SimulatorSlider
             label="Animation speed"
             value={speed}
-            min={0.25}
-            max={2.5}
+            min={1}
+            max={10}
             step={0.25}
             displayValue={`${speed.toFixed(2).replace(/\.00$/, "")}×`}
             onChange={setSpeed}
@@ -1134,7 +1350,7 @@ export function OrbitalResonanceToy() {
         </div>
         <div>
           <dt>Pattern repeats after</dt>
-          <dd>{bodyCount === 1 ? "one orbit" : preset.repeatAfter}</dd>
+          <dd>{preset.repeatAfter[bodyCount - 1]}</dd>
         </div>
         <div>
           <dt>Inner-orbit phase</dt>
@@ -1157,9 +1373,6 @@ export function Playground() {
       <SiteHeader page="playground" />
       <NightSky />
       <main className="container layout playground-layout">
-        <p className="playground-status" role="status">
-          This page is a work in progress.
-        </p>
         <section className="playground-intro">
           <h1>Playground</h1>
           <p>

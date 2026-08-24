@@ -301,9 +301,13 @@ const galleryPhotos = galleryPhotoOrder.map((photoNumber, index) => ({
   alt: `Photo ${index + 1} of ${galleryPhotoOrder.length} from Nicole's gallery`,
 }));
 
-const naturalThingsPhotos = Array.from({ length: 18 }, (_, index) => ({
-  src: `/natural-things/natural-${String(index + 1).padStart(2, "0")}.jpg`,
-  alt: `Natural things collection photo ${index + 1} of 18`,
+const naturalThingsPhotoOrder = [
+  1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+] as const;
+
+const naturalThingsPhotos = naturalThingsPhotoOrder.map((photoNumber, index) => ({
+  src: `/natural-things/natural-${String(photoNumber).padStart(2, "0")}.jpg`,
+  alt: `Natural things collection photo ${index + 1} of ${naturalThingsPhotoOrder.length}`,
 }));
 
 const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 2, 5] as const;
@@ -958,11 +962,22 @@ function ListeningCoverWheel() {
         press.currentY >= wheelRect.top - 24 &&
         press.currentY <= wheelRect.bottom + 24
       ) {
-        wheel.scrollLeft += (rightStrength - leftStrength) * 9;
-
         const elementUnderFinger = document.elementFromPoint(press.currentX, press.currentY);
         const cover = elementUnderFinger?.closest<HTMLButtonElement>("[data-listening-index]");
+        const coverRect = cover?.getBoundingClientRect();
         const nextIndex = Number(cover?.dataset.listeningIndex);
+
+        const wantsLeftScroll = leftStrength > 0 && (!coverRect || coverRect.left < wheelRect.left);
+        const wantsRightScroll = rightStrength > 0 && (!coverRect || coverRect.right > wheelRect.right);
+        const autoScrollStrength = wantsRightScroll
+          ? rightStrength
+          : wantsLeftScroll
+            ? -leftStrength
+            : 0;
+
+        if (autoScrollStrength !== 0) {
+          wheel.scrollLeft += autoScrollStrength * 9;
+        }
 
         if (
           Number.isInteger(nextIndex) &&
@@ -972,7 +987,6 @@ function ListeningCoverWheel() {
         ) {
           press.activeIndex = nextIndex;
           void playPreview(nextIndex);
-          scrollWheelToIndex(nextIndex);
         }
       }
 
@@ -1038,7 +1052,6 @@ function ListeningCoverWheel() {
       press.previewing = true;
       press.activeIndex = index;
       void playPreview(index);
-      scrollWheelToIndex(index);
       startTouchPreviewLoop();
     }, 300);
   };
