@@ -1917,14 +1917,9 @@ button {
 }
 
 .rotation-hint {
-  position: absolute;
-  top: 0.35rem;
-  left: 0;
-  z-index: 4;
-  color: var(--simulation-muted);
-  font-size: 0.7rem;
-  letter-spacing: 0.02em;
-  pointer-events: none;
+  padding-bottom: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .black-hole-core,

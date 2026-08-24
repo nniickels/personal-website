@@ -502,6 +502,7 @@ export function BlackHoleGrowthSimulator() {
 
       <div className="simulator-workspace">
         <div className="simulator-visual-panel">
+          <p className="rotation-hint">Drag to rotate in 3D</p>
           <div
             className={`black-hole-stage${rotatingView ? " is-dragging" : ""}`}
             style={visualStyle}
@@ -512,7 +513,6 @@ export function BlackHoleGrowthSimulator() {
             onPointerUp={endBlackHoleRotation}
             onPointerCancel={endBlackHoleRotation}
           >
-            <span className="rotation-hint">Drag to rotate in 3D</span>
             <div className="black-hole-orbit-plane">
               <div className="accretion-disk" aria-hidden="true">
                 <span className="accretion-texture" />

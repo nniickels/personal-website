@@ -1995,7 +1995,7 @@ export function Portfolio({ mode }: { mode: Mode }) {
               <>
                 <p>
                   Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University
-                  of Toronto. My research interests include galaxy formation and evolution,
+                  of Toronto. Welcome to my personal website! My research interests include galaxy formation and evolution,
                   observational cosmology, early universe physics, and stellar remnants. Below is a
                   quick overview of my academic profile. Feel free to reach out via email or connect
                  on LinkedIn :))
