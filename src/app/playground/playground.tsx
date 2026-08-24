@@ -1387,8 +1387,7 @@ export function Playground() {
         <section className="playground-intro">
           <h1>Playground</h1>
           <p>
-            Interactive astronomy experiments, simulations, and small cosmic curiosities will live
-            here. This description is a placeholder for now.
+            Play with some interactive astronomy experiments and simulations! 
           </p>
         </section>
         <BlackHoleGrowthSimulator />
