@@ -20,7 +20,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - **stats.fm API** — lifetime listening-time rankings
 - **Steam Web API** — recently played games
 - **Clash Royale API via RoyaleAPI** — current trophy count
-- **GoatCounter** — privacy-friendly, combined view count across both pages
+- **GoatCounter** — privacy-friendly, combined view count across every page
 
 ## Pages
 
@@ -28,11 +28,12 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
 | `/side-quests` | Side Quests — photos, listening, reading, watching, gaming, collections, and food |
+| `/playground` | Playground — interactive astronomy experiments, including black-hole growth and gravitational-lensing sandboxes |
 
 ## Search discovery
 
 - `GET /robots.txt` allows crawling and points search engines to the sitemap.
-- `GET /sitemap.xml` lists the Main Quest and Side Quests pages using their canonical URLs.
+- `GET /sitemap.xml` lists the Main Quest, Side Quests, and Playground pages using their canonical URLs.
 - The homepage publishes `ProfilePage` and `Person` structured data connecting Nicole Jiang with the University of Toronto, LinkedIn, and GitHub.
 - Canonical URLs, page titles, descriptions, and explicit `index, follow` directives are included in page metadata.
 

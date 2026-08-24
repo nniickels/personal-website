@@ -10,6 +10,7 @@ import type { PublicStatsResponse } from "../api-stats";
 import { ThemeToggle } from "./theme-toggle";
 
 type Mode = "serious" | "fun";
+export type SitePage = Mode | "playground";
 type IconName =
   | "email"
   | "github"
@@ -430,7 +431,7 @@ const shootingStars = [
   { top: "3%", left: "68%", duration: "21s", delay: "14s" },
 ] as const;
 
-function NightSky() {
+export function NightSky() {
   return (
     <div className="night-sky" aria-hidden="true">
       <div className="night-sky__stars">
@@ -832,26 +833,32 @@ function ListeningCoverWheel() {
   const wheelItemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const keepPlayingRef = useRef(false);
   const longPressTimerRef = useRef<number | null>(null);
+  const touchPreviewFrameRef = useRef<number | null>(null);
   const touchPressRef = useRef<{
     pointerId: number;
     startX: number;
     startY: number;
+    currentX: number;
+    currentY: number;
     startWheelScrollLeft: number;
     startPageScrollY: number;
     gesture: "pending" | "horizontal" | "vertical";
     cancelled: boolean;
     previewing: boolean;
+    activeIndex: number;
+    hasDragged: boolean;
   } | null>(null);
   const suppressClickRef = useRef(false);
   const lastTouchAtRef = useRef(0);
   const activeTrack = activeIndex === null ? null : listeningTracks[activeIndex];
   const selectedTrack = selectedIndex === null ? null : listeningTracks[selectedIndex];
 
-  useEffect(() => {
-    if (selectedIndex === null) return;
-
+  const scrollWheelToIndex = (
+    index: number,
+    behavior: ScrollBehavior = "smooth",
+  ) => {
     const wheel = wheelRef.current;
-    const item = wheelItemRefs.current[selectedIndex];
+    const item = wheelItemRefs.current[index];
     if (!wheel || !item) return;
 
     const wheelRect = wheel.getBoundingClientRect();
@@ -861,8 +868,13 @@ function ListeningCoverWheel() {
 
     wheel.scrollTo({
       left: Math.max(0, nextLeft),
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : behavior,
     });
+  };
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    scrollWheelToIndex(selectedIndex);
   }, [selectedIndex]);
 
   const resetPreview = () => {
@@ -912,6 +924,64 @@ function ListeningCoverWheel() {
     }
   };
 
+  const stopTouchPreviewLoop = () => {
+    if (touchPreviewFrameRef.current !== null) {
+      window.cancelAnimationFrame(touchPreviewFrameRef.current);
+      touchPreviewFrameRef.current = null;
+    }
+  };
+
+  const startTouchPreviewLoop = () => {
+    stopTouchPreviewLoop();
+
+    const updatePreviewUnderFinger = () => {
+      const press = touchPressRef.current;
+      const wheel = wheelRef.current;
+      if (!press?.previewing || !wheel) {
+        touchPreviewFrameRef.current = null;
+        return;
+      }
+
+      const wheelRect = wheel.getBoundingClientRect();
+      const edgeZone = Math.min(64, wheelRect.width * 0.18);
+      const leftStrength = Math.max(
+        0,
+        Math.min(1, (wheelRect.left + edgeZone - press.currentX) / edgeZone),
+      );
+      const rightStrength = Math.max(
+        0,
+        Math.min(1, (press.currentX - (wheelRect.right - edgeZone)) / edgeZone),
+      );
+
+      if (
+        press.hasDragged &&
+        press.currentY >= wheelRect.top - 24 &&
+        press.currentY <= wheelRect.bottom + 24
+      ) {
+        wheel.scrollLeft += (rightStrength - leftStrength) * 9;
+
+        const elementUnderFinger = document.elementFromPoint(press.currentX, press.currentY);
+        const cover = elementUnderFinger?.closest<HTMLButtonElement>("[data-listening-index]");
+        const nextIndex = Number(cover?.dataset.listeningIndex);
+
+        if (
+          Number.isInteger(nextIndex) &&
+          nextIndex >= 0 &&
+          nextIndex < listeningTracks.length &&
+          nextIndex !== press.activeIndex
+        ) {
+          press.activeIndex = nextIndex;
+          void playPreview(nextIndex);
+          scrollWheelToIndex(nextIndex);
+        }
+      }
+
+      touchPreviewFrameRef.current = window.requestAnimationFrame(updatePreviewUnderFinger);
+    };
+
+    touchPreviewFrameRef.current = window.requestAnimationFrame(updatePreviewUnderFinger);
+  };
+
   const openTrack = (index: number) => {
     keepPlayingRef.current = true;
     setSelectedIndex(index);
@@ -952,17 +1022,24 @@ function ListeningCoverWheel() {
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
+      currentX: event.clientX,
+      currentY: event.clientY,
       startWheelScrollLeft: wheelRef.current?.scrollLeft ?? 0,
       startPageScrollY: window.scrollY,
       gesture: "pending",
       cancelled: false,
       previewing: false,
+      activeIndex: index,
+      hasDragged: false,
     };
     longPressTimerRef.current = window.setTimeout(() => {
       const press = touchPressRef.current;
       if (!press || press.cancelled || press.pointerId !== event.pointerId) return;
       press.previewing = true;
+      press.activeIndex = index;
       void playPreview(index);
+      scrollWheelToIndex(index);
+      startTouchPreviewLoop();
     }, 300);
   };
 
@@ -971,6 +1048,11 @@ function ListeningCoverWheel() {
     if (!press || press.pointerId !== event.pointerId) return;
 
     event.preventDefault();
+    press.currentX = event.clientX;
+    press.currentY = event.clientY;
+    if (Math.hypot(event.clientX - press.startX, event.clientY - press.startY) > 6) {
+      press.hasDragged = true;
+    }
     if (press.previewing) return;
 
     const deltaX = event.clientX - press.startX;
@@ -997,6 +1079,7 @@ function ListeningCoverWheel() {
 
     const press = touchPressRef.current;
     clearLongPressTimer();
+    stopTouchPreviewLoop();
     if (press && press.pointerId === event.pointerId) {
       if (press.previewing) {
         resetPreview();
@@ -1022,6 +1105,7 @@ function ListeningCoverWheel() {
       if (press.previewing) resetPreview();
       press.cancelled = true;
       clearLongPressTimer();
+      stopTouchPreviewLoop();
       touchPressRef.current = null;
       releaseTouchClickSuppression();
     }
@@ -1070,6 +1154,7 @@ function ListeningCoverWheel() {
   useEffect(
     () => () => {
       clearLongPressTimer();
+      stopTouchPreviewLoop();
       audioRef.current?.pause();
     },
     [],
@@ -1087,7 +1172,7 @@ function ListeningCoverWheel() {
               ) : (
                 <>
                   <span className="cover-instruction-hover">Hover a cover</span>
-                  <span className="cover-instruction-tap">Hold to preview, tap to expand</span>
+                  <span className="cover-instruction-tap">Hold and drag to preview, tap to expand</span>
                 </>
               )}
             </strong>
@@ -1123,8 +1208,9 @@ function ListeningCoverWheel() {
               }}
             >
               <button
-                className="listening-cover-thumbnail"
+                className={`listening-cover-thumbnail${activeIndex === index ? " is-previewing" : ""}`}
                 type="button"
+                data-listening-index={index}
                 aria-haspopup="dialog"
                 aria-label={`Preview and enlarge ${track.name} by ${track.artist}`}
                 onPointerEnter={(event) => {
@@ -1808,33 +1894,66 @@ function ViewCounter() {
   );
 }
 
+export function SiteHeader({ page }: { page: SitePage }) {
+  return (
+    <header className="bar topbar">
+      <div className="container topbar-content">
+        <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home">
+          <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
+          <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
+        </a>
+        <div className="topbar-actions">
+          <nav className="page-links" aria-label="Primary navigation">
+            {page !== "playground" && (
+              <a className="text-btn mode-switch" href="/playground">
+                Playground
+              </a>
+            )}
+            {page === "playground" ? (
+              <>
+                <a className="text-btn mode-switch" href="/">
+                  Main Quest
+                </a>
+                <a className="text-btn mode-switch" href="/side-quests">
+                  Side Quests
+                </a>
+              </>
+            ) : (
+              <a
+                className="text-btn mode-switch"
+                href={page === "serious" ? "/side-quests" : "/"}
+                aria-label={`Switch to ${page === "serious" ? "Side Quests" : "Main Quest"}`}
+              >
+                {page === "serious" ? "Side Quests" : "Main Quest"}
+              </a>
+            )}
+          </nav>
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export function SiteFooter() {
+  return (
+    <footer className="bar bottombar">
+      <div className="container footer-content">
+        <p>© {new Date().getFullYear()} Nicole Jiang</p>
+        <div className="footer-webring" data-webring="ca" data-member="nicole-jiang" />
+        <ViewCounter />
+        <script src="https://webring.ca/embed.js" defer></script>
+      </div>
+    </footer>
+  );
+}
+
 export function Portfolio({ mode }: { mode: Mode }) {
   const socialLinks = mode === "serious" ? seriousLinks : funLinks;
 
   return (
     <>
-      <header className="bar topbar">
-        <div className="container topbar-content">
-          <a
-            className="text-btn home-link"
-            href="/"
-            aria-label="Nicole Jiang home"
-          >
-            <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
-            <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
-          </a>
-          <div className="topbar-actions">
-            <a
-              className="text-btn mode-switch"
-              href={mode === "serious" ? "/side-quests" : "/"}
-              aria-label={`Switch to ${mode === "serious" ? "Side Quests" : "Main Quest"}`}
-            >
-              {mode === "serious" ? "Side Quests" : "Main Quest"}
-            </a>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <SiteHeader page={mode} />
 
       <NightSky />
 
@@ -1883,18 +2002,7 @@ export function Portfolio({ mode }: { mode: Mode }) {
         {mode === "serious" ? <SeriousContent /> : <FunContent />}
       </main>
 
-      <footer className="bar bottombar">
-        <div className="container footer-content">
-          <p>© {new Date().getFullYear()} Nicole Jiang</p>
-          <div
-            className="footer-webring"
-            data-webring="ca"
-            data-member="nicole-jiang"
-          />
-          <ViewCounter />
-          <script src="https://webring.ca/embed.js" defer></script>
-        </div>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

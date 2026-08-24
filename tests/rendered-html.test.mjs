@@ -44,7 +44,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /aria-label="Email"/i);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
+  assert.match(html, /href="\/playground"[^>]*>Playground<\/a>/i);
   assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
+  assert.ok(html.indexOf(">Playground</a>") < html.indexOf(">Side Quests</a>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?tong-calligraphy\.png[\s\S]*?tong-calligraphy\.png[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
@@ -82,6 +84,7 @@ test("publishes search-engine discovery files", async () => {
   const sitemap = await sitemapResponse.text();
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/side-quests<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/playground<\/loc>/i);
 });
 
 test("keeps the animated starfield dark-mode-only and motion-safe", async () => {
@@ -175,7 +178,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /And here are my lifetime listening statistics by time \(in hours\) via stats\.fm!/);
   assert.match(source, /Now playing preview of\.\.\./);
   assert.match(source, /className="cover-instruction-hover">Hover a cover<\/span>/);
-  assert.match(source, /className="cover-instruction-tap">Hold to preview, tap to expand<\/span>/);
+  assert.match(source, /className="cover-instruction-tap">Hold and drag to preview, tap to expand<\/span>/);
   assert.match(source, /interdisciplinary questions are my favourite/);
   assert.match(source, /I highly recommend!/);
   assert.doesNotMatch(source, /intersectional questions|reccomend/i);
@@ -191,7 +194,12 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.doesNotMatch(source, /portfolio-mode|pushState|getEntriesByType\("navigation"\)/);
   assert.match(source, /event\.pointerType === "mouse"[\s\S]*?void playPreview\(index\)/);
   assert.match(source, /handleCoverPointerDown[\s\S]*?window\.setTimeout\([\s\S]*?playPreview\(index\)[\s\S]*?, 300\)/);
-  assert.match(source, /if \(press\.previewing\) return/);
+  assert.match(source, /press\.currentX = event\.clientX[\s\S]*?press\.currentY = event\.clientY[\s\S]*?if \(press\.previewing\) return/);
+  assert.match(source, /press\.hasDragged[\s\S]*?document\.elementFromPoint\(press\.currentX, press\.currentY\)/);
+  assert.match(source, /Math\.hypot\(event\.clientX - press\.startX, event\.clientY - press\.startY\) > 6/);
+  assert.match(source, /data-listening-index=\{index\}/);
+  assert.match(source, /void playPreview\(nextIndex\)[\s\S]*?scrollWheelToIndex\(nextIndex\)/);
+  assert.match(source, /wheel\.scrollLeft \+= \(rightStrength - leftStrength\) \* 9/);
   assert.match(source, /gesture: "pending" \| "horizontal" \| "vertical"/);
   assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
   assert.match(source, /window\.scrollTo\(\{ top: press\.startPageScrollY - deltaY \}\)/);
@@ -445,6 +453,73 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
   assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
   assert.match(html, /aria-label="Side Quests content"/i);
+});
+
+test("publishes an interactive, shareable astronomy Playground", async () => {
+  const response = await render("/playground");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /<title>Playground — Nicole Jiang<\/title>/i);
+  assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/playground"/i);
+  assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
+  assert.match(html, /This page is a work in progress\./i);
+  assert.match(html, /Black-Hole Growth Simulator/i);
+  assert.match(html, /Gravitational Lensing Sandbox/i);
+  assert.match(html, /Orbital Resonance Toy/i);
+  assert.match(html, /Orbiting bodies/i);
+  assert.match(html, /Period relationship/i);
+  assert.match(html, /2:1 chain/i);
+  assert.match(html, /Pause orbits/i);
+  assert.match(html, /Lens mass/i);
+  assert.match(html, /Distance factor/i);
+  assert.match(html, /Perfect alignment/i);
+  assert.match(html, /Seed mass/i);
+  assert.match(html, /Seed redshift/i);
+  assert.match(html, /Observation redshift/i);
+  assert.match(html, /Accretion rate/i);
+  assert.match(html, /Spin/i);
+  assert.match(html, /derived from spin/i);
+  assert.match(html, /Advanced settings/i);
+  assert.match(html, /aria-expanded="false"/i);
+  assert.match(html, /Duty cycle/i);
+  assert.match(html, /Radiative efficiency/i);
+  assert.match(html, /Play growth/i);
+  assert.match(html, /Drag to rotate in 3D/i);
+  assert.match(html, /Drag to move and rotate the source galaxy/i);
+  assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
+  assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
+
+  const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
+  assert.match(source, /EDDINGTON_TIME_GYR = 0\.45/);
+  assert.match(source, /cosmicAgeAtRedshift/);
+  assert.match(source, /effectiveEfoldingTime/);
+  assert.match(source, /requestAnimationFrame\(animate\)/);
+  assert.match(source, /finite fuel supplies, mergers, feedback/);
+  assert.match(source, /const discriminant = Math\.sqrt/);
+  assert.match(source, /setPointerCapture\(event\.pointerId\)/);
+  assert.match(source, /thin-lens equation/);
+  assert.match(source, /beginBlackHoleRotation/);
+  assert.match(source, /setViewYaw/);
+  assert.match(source, /setViewPitch/);
+  assert.match(source, /setSourceRotation/);
+  assert.match(source, /resonancePresets/);
+  assert.match(source, /setBodyCount/);
+  assert.match(source, /circular, coplanar Keplerian orbits/);
+  assert.match(source, /beginOrbitDrag/);
+  assert.match(source, /rotateOrbits/);
+  assert.match(source, /setPointerCapture\(event\.pointerId\)/);
+
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.simulator-workspace\s*\{[\s\S]*?grid-template-columns:/i);
+  assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?touch-action:\s*none/i);
+  assert.match(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transform:\s*rotateX\(var\(--view-pitch\)\) rotateZ\(var\(--view-yaw\)\)/i);
+  assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.simulator-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
+  assert.match(css, /\.lensing-canvas\s*\{[\s\S]*?touch-action:\s*none/i);
+  assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.lensing-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
+  assert.match(css, /\.resonance-workspace\s*\{[\s\S]*?grid-template-columns:/i);
+  assert.match(css, /\.resonance-canvas\s*\{[\s\S]*?touch-action:\s*none/i);
+  assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.resonance-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
 });
 
 test("publishes a combined, privacy-friendly site view counter", async () => {
