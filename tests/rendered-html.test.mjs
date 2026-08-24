@@ -198,9 +198,11 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /press\.hasDragged[\s\S]*?document\.elementFromPoint\(press\.currentX, press\.currentY\)/);
   assert.match(source, /Math\.hypot\(event\.clientX - press\.startX, event\.clientY - press\.startY\) > 6/);
   assert.match(source, /data-listening-index=\{index\}/);
-  assert.match(source, /const coverRect = cover\?\.getBoundingClientRect\(\)/);
-  assert.match(source, /wantsLeftScroll[\s\S]*?wantsRightScroll[\s\S]*?autoScrollStrength/);
-  assert.match(source, /wheel\.scrollLeft \+= autoScrollStrength \* 9/);
+  assert.match(source, /const edgeZone = Math\.min\(96, Math\.max\(56, wheelRect\.width \* 0\.22\)\)/);
+  assert.match(source, /edgeScrollStrength = rightStrength - leftStrength[\s\S]*?easedStrength/);
+  assert.match(source, /wheel\.scrollLeft \+ direction \* \(1 \+ easedStrength \* 15\)/);
+  assert.match(source, /classList\.add\("is-touch-dragging"\)[\s\S]*?requestAnimationFrame/);
+  assert.match(source, /classList\.remove\("is-touch-dragging"\)/);
   assert.doesNotMatch(source, /void playPreview\(nextIndex\);\s*scrollWheelToIndex\(nextIndex\)/);
   assert.match(source, /gesture: "pending" \| "horizontal" \| "vertical"/);
   assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
@@ -411,6 +413,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     /\.listening-rankings\s*\{[\s\S]*?columns:\s*3 13rem[\s\S]*?column-fill:\s*balance[\s\S]*?margin-top:\s*0\.85rem/i,
   );
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
+  assert.match(css, /\.listening-cover-wheel\.is-touch-dragging\s*\{[\s\S]*?scroll-snap-type:\s*none/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
   assert.match(css, /\.listening-cover-thumbnail\s*\{[\s\S]*?touch-action:\s*none[\s\S]*?user-select:\s*none/i);
   assert.match(css, /\.listening-preview-heading \.listening-preview-prompt\s*\{[\s\S]*?color:\s*var\(--muted\)/i);

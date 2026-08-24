@@ -933,10 +933,12 @@ function ListeningCoverWheel() {
       window.cancelAnimationFrame(touchPreviewFrameRef.current);
       touchPreviewFrameRef.current = null;
     }
+    wheelRef.current?.classList.remove("is-touch-dragging");
   };
 
   const startTouchPreviewLoop = () => {
     stopTouchPreviewLoop();
+    wheelRef.current?.classList.add("is-touch-dragging");
 
     const updatePreviewUnderFinger = () => {
       const press = touchPressRef.current;
@@ -947,7 +949,7 @@ function ListeningCoverWheel() {
       }
 
       const wheelRect = wheel.getBoundingClientRect();
-      const edgeZone = Math.min(64, wheelRect.width * 0.18);
+      const edgeZone = Math.min(96, Math.max(56, wheelRect.width * 0.22));
       const leftStrength = Math.max(
         0,
         Math.min(1, (wheelRect.left + edgeZone - press.currentX) / edgeZone),
@@ -964,19 +966,21 @@ function ListeningCoverWheel() {
       ) {
         const elementUnderFinger = document.elementFromPoint(press.currentX, press.currentY);
         const cover = elementUnderFinger?.closest<HTMLButtonElement>("[data-listening-index]");
-        const coverRect = cover?.getBoundingClientRect();
         const nextIndex = Number(cover?.dataset.listeningIndex);
 
-        const wantsLeftScroll = leftStrength > 0 && (!coverRect || coverRect.left < wheelRect.left);
-        const wantsRightScroll = rightStrength > 0 && (!coverRect || coverRect.right > wheelRect.right);
-        const autoScrollStrength = wantsRightScroll
-          ? rightStrength
-          : wantsLeftScroll
-            ? -leftStrength
-            : 0;
+        const edgeScrollStrength = rightStrength - leftStrength;
+        const maxScrollLeft = Math.max(0, wheel.scrollWidth - wheel.clientWidth);
+        const canScrollTowardEdge =
+          (edgeScrollStrength < 0 && wheel.scrollLeft > 0) ||
+          (edgeScrollStrength > 0 && wheel.scrollLeft < maxScrollLeft);
 
-        if (autoScrollStrength !== 0) {
-          wheel.scrollLeft += autoScrollStrength * 9;
+        if (Math.abs(edgeScrollStrength) > 0.02 && canScrollTowardEdge) {
+          const direction = Math.sign(edgeScrollStrength);
+          const easedStrength = Math.pow(Math.abs(edgeScrollStrength), 1.6);
+          wheel.scrollLeft = Math.max(
+            0,
+            Math.min(maxScrollLeft, wheel.scrollLeft + direction * (1 + easedStrength * 15)),
+          );
         }
 
         if (

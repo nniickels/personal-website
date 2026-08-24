@@ -914,6 +914,11 @@ button {
   scroll-snap-type: x proximity;
 }
 
+.listening-cover-wheel.is-touch-dragging {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
 .listening-cover-wheel-item {
   flex: 0 0 112px;
   scroll-snap-align: start;
