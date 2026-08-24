@@ -185,9 +185,11 @@ function VariablesGuide() {
             <div>
               <dt>Accretion rate</dt>
               <dd>
-                About 0.1× describes weak or fuel-limited feeding, approximately 1× describes
-                a luminous near-Eddington quasar, and values above 1× approximate brief
-                super-Eddington episodes.
+                The slider sets the Eddington ratio, λ = L / Lₑdd. About 0.1 describes weak or
+                fuel-limited feeding, approximately 1 describes a luminous near-Eddington quasar,
+                and values above 1 represent idealized super-Eddington episodes. The displayed
+                “× reference” value converts λ into a relative mass-growth rate normalized to 10%
+                radiative efficiency, so it also changes when spin changes.
               </dd>
             </div>
             <div>
@@ -454,19 +456,23 @@ export function BlackHoleGrowthSimulator() {
         <h2 id="black-hole-simulator-title">Black-Hole Growth Simulator</h2>
         <p>
           Test whether a black-hole seed can grow into an early-universe giant under a simple
-          Eddington-limited accretion model.
+          constant-Eddington-ratio accretion model.
         </p>
       </header>
 
       <ExperimentGuide>
         <p>
-          The dark sphere represents the event-horizon region, the tilted ring is a simplified
-          accretion disk, and its moving highlight reflects spin direction and relative speed.
-          Seed mass sets the starting mass; accretion rate sets the luminosity-relative feeding
-          rate; spin, a*, sets the rotation and radiative efficiency; seed and observation
-          redshifts define the time interval; and duty cycle sets the fraction of that interval
-          spent accreting. The results report the available time, exponential e-folding time, and
-          projected final mass.
+          The dark sphere represents the event-horizon region and the tilted ring is a stylized
+          accretion disk; this graphic is neither ray-traced nor drawn to physical scale. Its moving
+          texture visualizes the selected spin direction and relative speed, not the disk’s true
+          orbital period. The bright lower semicircle is the near side of the disk passing in front
+          of the black hole, while the upper arc is its far side behind the black hole; neither is a
+          separate measurement or physical boundary. Seed mass sets the starting mass; the
+          accretion-rate slider sets the Eddington ratio, λ = L / Lₑdd; spin, a*, sets the
+          orientation and thin-disk radiative
+          efficiency; seed and observation redshifts define the time interval; and duty cycle sets
+          the fraction of that interval spent accreting. The results report the available time,
+          exponential e-folding time, and projected final mass.
         </p>
         <p>
           The graph runs from the seed epoch to the observation epoch horizontally and uses
@@ -888,17 +894,19 @@ export function GravitationalLensingSandbox() {
           and the dashed circle marks the Einstein radius. Lens mass controls the strength and
           scale of the bending; the distance factor, Dₗₛ / Dₛ, approximates the lens–source
           geometry; and source size controls how broad the arcs appear. The readouts give the
-          Einstein radius, combined image magnification, and separation between the two idealized
-          images.
+          Einstein radius, point-source magnification estimate, and separation between the two
+          idealized images. Source size changes the drawn arc width but not that magnification
+          estimate.
         </p>
         <p>
           Far from the lens, one image dominates and distortion is modest. As the source approaches
           the optical axis, both images brighten, stretch, and move toward the Einstein radius;
           perfect alignment merges them into an Einstein ring. Increasing lens mass or the
           distance factor enlarges the lensing scale, while a larger source creates broader arcs.
-          This point-mass model omits realistic galaxy shapes, external shear, substructure, and
-          cosmological angular units, so it demonstrates the expected geometry rather than making
-          observational predictions.
+          The ideal point-source magnification diverges at exact alignment, so the interface caps
+          the readout at “&gt; 40×” and draws a ring instead. This point-mass model omits realistic
+          extended mass profiles, external shear, substructure, and cosmological angular units, so
+          it demonstrates the expected geometry rather than making observational predictions.
         </p>
       </ExperimentGuide>
 
@@ -1208,8 +1216,8 @@ export function OrbitalResonanceToy() {
         <p className="simulator-kicker">Experiment 03</p>
         <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
         <p>
-          Place one to five bodies in linked orbits and watch resonant period ratios make their
-          relative positions repeat.
+          Choose one to five bodies and compare exact period-ratio chains with a near-resonant
+          setup whose relative positions do not repeat on a short cycle.
         </p>
       </header>
 
@@ -1345,7 +1353,7 @@ export function OrbitalResonanceToy() {
 
       <dl className="simulator-results resonance-results">
         <div>
-          <dt>Orbital periods</dt>
+          <dt>Relative periods</dt>
           <dd>{ratioLabel}</dd>
         </div>
         <div>
@@ -1359,9 +1367,12 @@ export function OrbitalResonanceToy() {
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: circular, coplanar Keplerian orbits around a much more massive central star.
-        The bodies do not perturb one another, so this demonstrates repeating geometry rather
-        than the gravitational locking that creates and maintains real resonances.
+        Toy model: prescribed circular, coplanar Keplerian orbits around a much more massive
+        central star. Exact presets return every displayed body to its starting geometry after the
+        listed repeat interval; the near-resonance preset has no short repeat. Dragging changes the
+        orbital phase and animation speed changes only the playback rate. Because the bodies do not
+        perturb one another, this demonstrates commensurate periods and repeating geometry—not the
+        gravitational locking diagnosed through librating resonant angles in real systems.
       </p>
     </section>
   );

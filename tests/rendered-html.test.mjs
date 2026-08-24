@@ -544,6 +544,14 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /accretion-flow--inner/);
   assert.match(source, /black-hole-orbit-plane--foreground/);
   assert.match(source, /finite fuel supplies, mergers, feedback/);
+  assert.match(source, /constant-Eddington-ratio accretion model/);
+  assert.match(source, /λ = L \/ Lₑdd/);
+  assert.match(source, /neither ray-traced nor drawn to physical scale/);
+  assert.match(source, /bright lower semicircle is the near side[\s\S]*?upper arc is its far side/);
+  assert.match(source, /Source size changes the drawn arc width but not that magnification/);
+  assert.match(source, /interface caps[\s\S]*?&gt; 40×/);
+  assert.match(source, /<dt>Relative periods<\/dt>/);
+  assert.match(source, /librating resonant angles/);
   assert.match(source, /const discriminant = Math\.sqrt/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /thin-lens equation/);

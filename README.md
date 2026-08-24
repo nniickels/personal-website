@@ -21,6 +21,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - **Steam Web API** — recently played games
 - **Clash Royale API via RoyaleAPI** — current trophy count
 - **GoatCounter** — privacy-friendly, combined view count across every page
+- **Canadian Webring** — previous, random, and next-site navigation in the footer
 
 ## Pages
 
@@ -28,7 +29,13 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
 | `/side-quests` | Side Quests — photos, listening, reading, watching, gaming, collections, and food |
-| `/playground` | Playground — interactive astronomy experiments, including black-hole growth and gravitational-lensing sandboxes |
+| `/playground` | Playground — interactive black-hole growth, gravitational-lensing, and orbital-resonance experiments |
+
+### Playground experiments
+
+- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. Its accretion disk is a stylized depth cue: the bright lower semicircle is the near side of the disk and the upper arc is the far side, not a separate measurement or physical boundary.
+- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of a circular point-mass thin lens. Source size changes the drawn arcs, while the magnification readout remains a capped point-source estimate.
+- **Orbital Resonance Toy** — compares prescribed Keplerian period-ratio chains with a near-resonant setup. It shows repeating orbital geometry without simulating the mutual perturbations or resonant-angle libration that maintain real resonances.
 
 ## Search discovery
 
