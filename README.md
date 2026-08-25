@@ -34,18 +34,18 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, gaming, collections, and food |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
 
-All pages share a device-synchronized light/dark theme, a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
+All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
 
-On phones, Playground experiments are collapsed by default and only one simulation is mounted at a time. On wider screens, all experiments remain visible while `IntersectionObserver` pauses offscreen JavaScript and CSS animations, resuming them shortly before they return to the viewport.
+## Desktop and mobile differences
 
-### Playground experiments
-
-- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. It includes presets, variable guides, a draggable logarithmic growth plot, and a draggable 3D near-edge-on disk whose gaseous texture, photon ring, and lensed arc are illustrative rather than ray-traced.
-- **Stellar Evolution Explorer** — follows approximate mass-dependent tracks from the main sequence through giant, nebular, or supernova phases to a white dwarf, neutron star, or black hole. Its clickable timeline is evenly spaced rather than time-scaled, playback slows through longer toy-model intervals, and the neutron-star endpoint uses an illustrative rotating-pulsar beam visual.
-- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of an axisymmetric point-mass thin lens. The source and view are draggable; source size changes illustrative arcs while the magnification readout remains a capped point-source estimate.
-- **Orbital Resonance Toy** — compares one to five bodies in prescribed 2:1, 3:2, and 5:3 period-ratio chains or a near-resonant setup. Its explanation connects period ratios to repeat cycles. Display radii remain independent of period, so the toy shows recurring alignments without enforcing Kepler's third law, mutual perturbations, or resonant-angle libration.
-
-The Playground experiments are simplified, illustrative models. Some motion, scale, color, and depth cues are exaggerated or added for clarity rather than being physically precise or necessary to the calculation.
+| Feature | Desktop and landscape tablets | Phones |
+|---------|-------------------------------|--------|
+| Layout and navigation | Uses wider gutters, full-size type and media, and single-row header controls. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
+| Side Quests section index | Uses the full-width section and subsection index with pointer hover states. | Keeps the complete index within the narrow viewport with compact labels and touch-sized targets. |
+| Listening music shelf | Hovering a cover starts its looping preview; clicking expands it, and clicking the expanded cover opens Spotify. | Holding a cover starts its preview. Dragging across covers switches tracks and smoothly scrolls near the shelf edges. Tapping expands a cover, and tapping the expanded cover opens Spotify. |
+| Pokémon card shelf | Hover states identify cards; clicking expands a card, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible on both layouts. |
+| Photo galleries | Uses wider multi-column mosaics with hover feedback and large lightboxes. | Uses responsive, smaller gallery columns and controls while preserving image aspect ratios; tapping opens the same lightbox viewer. |
+| Playground layout | Displays all four experiments in sequence. `IntersectionObserver` pauses offscreen JavaScript and CSS animations and resumes them shortly before they return to view. | Presents the experiments as a collapsed single-open accordion. Only the expanded experiment is mounted, so collapsed simulations do not run. Experiment workspaces stack their visuals and controls into one column. |
 
 ## Search discovery
 
