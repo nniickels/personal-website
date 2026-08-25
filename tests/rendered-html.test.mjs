@@ -572,12 +572,23 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
 
   const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
+  const portfolioSource = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
   assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide[\s\S]*?<VariablesGuide[\s\S]*?open=\{variablesGuideOpen\}[\s\S]*?deferContent=\{touchDisclosureOptimizations\}[\s\S]*?aria-label="Growth scenarios"/i);
+  assert.match(source, /mobileSimplified=\{usesTouchOptimizations\}/i);
+  assert.match(source, /mobileSimplified \? \([\s\S]*?selected \{activePresetName[\s\S]*?available on desktop/i);
+  assert.match(source, /\{!mobileSimplified && \([\s\S]*?<VariablesGuide/i);
+  assert.match(source, /\{!mobileSimplified && \(\s*<div className="simulator-controls"/i);
+  assert.match(source, /\{chart && \(\s*<figure className="growth-chart-figure"/i);
   assert.match(source, /function VariablesGuide[\s\S]*?\(!deferContent \|\| open\) &&/i);
   assert.match(source, /\(!touchDisclosureOptimizations \|\| advancedOpen\) &&/i);
   assert.equal((source.match(/touchDisclosureOptimizations=\{usesTouchOptimizations\}/g) ?? []).length, 2);
   assert.equal((source.match(/coordinateTouchGuides=\{usesTouchOptimizations\}/g) ?? []).length, 2);
   assert.equal((source.match(/touchLineScrubbing=\{usesTouchOptimizations\}/g) ?? []).length, 2);
+  assert.match(source, /MOBILE_FRAME_INTERVAL_MS = 1_000 \/ 30/);
+  assert.equal((source.match(/limitFrameRate=\{usesTouchOptimizations\}/g) ?? []).length, 6);
+  assert.match(source, /limitFrameRate[\s\S]*?now - lastRenderedAt < MOBILE_FRAME_INTERVAL_MS/i);
+  assert.match(source, /limitFrameRate[\s\S]*?now - previousTime\.current < MOBILE_FRAME_INTERVAL_MS/i);
+  assert.match(portfolioSource, /"--touch-twinkle-steps"[\s\S]*?Math\.round\(Number\.parseFloat\(star\.duration\) \* 2\.4 \* 30\)/i);
   assert.match(source, /advancedOpen \|\| variablesGuideOpen \|\| explanationOpen[\s\S]*?touch-playground-disclosure-open/i);
   assert.match(source, /TOUCH_PLAYGROUND_QUERY = "\(hover: none\), \(pointer: coarse\)"/i);
   assert.match(source, /matchMedia\(TOUCH_PLAYGROUND_QUERY\)[\s\S]*?setUsesTouchOptimizations\(touchQuery\.matches\)/i);
@@ -740,6 +751,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /\.black-hole-guidance > \.experiment-guide\s*\{[\s\S]*?border-bottom:\s*0/i);
   assert.match(css, /\.black-hole-guidance > \.simulator-presets\s*\{[\s\S]*?border-top:\s*1px solid var\(--line\)/i);
   assert.doesNotMatch(css, /\.black-hole-guidance > \.variable-guide\s*\{[^}]*border-top/i);
+  assert.match(css, /\.black-hole-mobile-feature-note\s*\{[\s\S]*?color:\s*var\(--muted\)[\s\S]*?font-size:\s*0\.76rem/i);
   assert.match(css, /\.experiment-guide-content\s*\{[\s\S]*?max-width:\s*46rem/i);
   assert.match(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transform:\s*rotateX\(var\(--view-pitch\)\) rotateZ\(var\(--view-yaw\)\)/i);
   assert.match(css, /\.accretion-disk\s*\{[\s\S]*?conic-gradient[\s\S]*?radial-gradient/i);
@@ -774,6 +786,9 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.variable-guide \.simulator-advanced-reveal,[\s\S]*?\.variable-guide \.simulator-advanced-content[\s\S]*?transition:\s*none/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?:root\.touch-playground-disclosure-open \.night-star,[\s\S]*?:root\.touch-playground-disclosure-open \.shooting-star[\s\S]*?animation-play-state:\s*paused !important/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.night-sky--playground \.night-star[\s\S]*?animation-duration:\s*var\(--touch-twinkle-duration\)[\s\S]*?\.night-sky--playground \.shooting-star[\s\S]*?display:\s*none/i);
+  assert.match(css, /\.night-sky--playground \.night-star\s*\{[\s\S]*?animation-timing-function:\s*steps\(var\(--touch-twinkle-steps\), end\)/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.accretion-texture\s*\{[\s\S]*?steps\(var\(--spin-shear-steps\), end\)[\s\S]*?\.black-hole-photon-ring[\s\S]*?steps\(var\(--spin-steps\), end\)/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.stellar-object\s*\{[\s\S]*?steps\(var\(--stellar-pulse-steps\), end\)[\s\S]*?\.stellar-canvas--neutron-star \.stellar-pulsar-beams[\s\S]*?steps\(35, end\)/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.stellar-timeline-scrubber\s*\{[\s\S]*?z-index:\s*4[\s\S]*?height:\s*44px[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.mobile-experiment-item\.is-open \.mobile-experiment-caret/i);
   assert.match(css, /\.playground-desktop-experiments\s*\{[\s\S]*?display:\s*none/i);

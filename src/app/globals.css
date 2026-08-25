@@ -1819,6 +1819,7 @@ button {
 
   .night-sky--playground .night-star {
     animation-duration: var(--touch-twinkle-duration);
+    animation-timing-function: steps(var(--touch-twinkle-steps), end);
   }
 
   .night-sky--playground .shooting-star {
@@ -2015,6 +2016,13 @@ button {
 
 .black-hole-guidance > .variable-guide {
   padding-block: 0 0.35rem;
+}
+
+.black-hole-mobile-feature-note {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.65;
 }
 
 .simulator-presets,
@@ -2770,6 +2778,21 @@ button {
   .simulator-results > div + div {
     border-top: 1px solid var(--line);
     border-left: 0;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .accretion-texture {
+    animation-timing-function: steps(var(--spin-shear-steps), end);
+  }
+
+  .accretion-flow,
+  .black-hole-photon-ring {
+    animation-timing-function: steps(var(--spin-steps), end);
+  }
+
+  .accretion-flow--inner {
+    animation-timing-function: steps(var(--spin-inner-steps), end);
   }
 }
 
@@ -3781,6 +3804,64 @@ button {
 
   .stellar-timeline button small {
     font-size: 0.59rem;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .stellar-object {
+    animation-timing-function: steps(var(--stellar-pulse-steps), end);
+  }
+
+  .stellar-canvas--main-sequence .stellar-object {
+    animation-timing-function: steps(var(--stellar-main-sequence-steps), end);
+  }
+
+  .stellar-canvas--red-giant .stellar-object,
+  .stellar-canvas--red-supergiant .stellar-object {
+    animation-timing-function: steps(var(--stellar-giant-steps), end);
+  }
+
+  .stellar-canvas--main-sequence .stellar-object > span {
+    animation-timing-function: steps(360, end);
+  }
+
+  .stellar-canvas--red-giant .stellar-object > span,
+  .stellar-canvas--red-supergiant .stellar-object > span {
+    animation-timing-function: steps(480, end);
+  }
+
+  .stellar-canvas--main-sequence .stellar-object > span::before {
+    animation-timing-function: steps(225, end);
+  }
+
+  .stellar-canvas--red-giant .stellar-object > span::before,
+  .stellar-canvas--red-supergiant .stellar-object > span::before {
+    animation-timing-function: steps(165, end);
+  }
+
+  .stellar-canvas--planetary-nebula .stellar-nebula {
+    animation-timing-function: steps(240, end);
+  }
+
+  .stellar-canvas--supernova .stellar-supernova-shell,
+  .stellar-canvas--supernova .stellar-burst {
+    animation-timing-function: steps(54, end);
+  }
+
+  .stellar-canvas--neutron-star .stellar-pulsar-beams {
+    animation-timing-function: steps(35, end);
+  }
+
+  .stellar-canvas--neutron-star .stellar-object > span {
+    animation-timing-function: steps(10, end);
+  }
+
+  .stellar-canvas--black-hole .stellar-glow {
+    animation-timing-function: steps(96, end);
+  }
+
+  .stellar-timeline button[aria-pressed="true"] > span {
+    animation-timing-function: steps(72, end);
   }
 }
 
