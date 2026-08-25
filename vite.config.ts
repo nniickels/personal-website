@@ -28,6 +28,8 @@ export default defineConfig(async () => {
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         config: localBindingConfig,
+        // The preview does not need a Worker debugger; keep localhost exposure minimal.
+        inspectorPort: false,
       }),
     ],
   };
