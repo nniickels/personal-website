@@ -38,14 +38,27 @@ All pages include a motion-safe colored four-point starfield in dark mode, respo
 
 ## Desktop and mobile differences
 
-| Feature | Desktop and landscape tablets | Phones |
-|---------|-------------------------------|--------|
-| Layout and navigation | Uses wider gutters, full-size type and media, and single-row header controls. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
-| Side Quests section index | Uses the full-width section and subsection index with pointer hover states. | Keeps the complete index within the narrow viewport with compact labels and touch-sized targets. |
-| Listening music shelf | Hovering a cover starts its looping preview; clicking expands it, and clicking the expanded cover opens Spotify. | Holding a cover starts its preview. Dragging across covers switches tracks and smoothly scrolls near the shelf edges. Tapping expands a cover, and tapping the expanded cover opens Spotify. |
-| Pokémon card shelf | Hover states identify cards; clicking expands a card, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible on both layouts. |
-| Photo galleries | Uses wider multi-column mosaics with hover feedback and large lightboxes. | Uses responsive, smaller gallery columns and controls while preserving image aspect ratios; tapping opens the same lightbox viewer. |
-| Playground layout | Displays all four experiments in sequence. `IntersectionObserver` pauses offscreen JavaScript and CSS animations and resumes them shortly before they return to view. | Presents the experiments as a collapsed single-open accordion. Only the expanded experiment is mounted, so collapsed simulations do not run. Experiment workspaces stack their visuals and controls into one column. |
+Layout responds to available width, so these are the typical orientation differences rather than device assumptions.
+
+### Landscape and portrait
+
+| Feature | Landscape | Portrait |
+|---------|-----------|----------|
+| Layout and navigation | Uses wider gutters, larger type and media, and single-row header controls when space permits. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
+| Side Quests section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
+| Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
+| Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | Stacks experiment visuals and controls into one column on narrow screens. |
+| Playground lifecycle | Desktop and landscape-tablet layouts show all four experiments. `IntersectionObserver` pauses offscreen motion and resumes it shortly before re-entry. Short touchscreen phone landscapes use the accordion instead. | Phone-width portraits use a collapsed single-open accordion. Only the expanded experiment is mounted, so collapsed simulations do not run. |
+
+### Cursor and touchscreen
+
+| Feature | Cursor | Touchscreen |
+|---------|--------|-------------|
+| Links and controls | Hover and focus states brighten, underline, or raise interactive elements before selection. | Controls use touch-sized targets and activate without depending on hover. |
+| Listening music shelf | Hovering a cover starts its looping preview. Clicking expands it, and clicking the expanded cover opens Spotify. | Holding a cover starts its preview. Dragging across covers switches tracks and smoothly scrolls near the shelf edges. Tapping expands it, and tapping the expanded cover opens Spotify. |
+| Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
+| Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
+| Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
 
 ## Search discovery
 
