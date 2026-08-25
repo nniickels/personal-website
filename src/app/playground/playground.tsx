@@ -24,6 +24,7 @@ const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
 const MOBILE_PLAYGROUND_QUERY =
   "(max-width: 700px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape) and (pointer: coarse)";
+const TOUCH_PLAYGROUND_QUERY = "(hover: none), (pointer: coarse)";
 
 const playgroundNavigation = [
   { label: "Black-Hole Growth", href: "#black-hole-growth" },
@@ -67,6 +68,11 @@ function navigateToPlaygroundExperiment(
 function scrollToPlaygroundExperiment(href: string) {
   const target = document.querySelector(href);
   if (!(target instanceof HTMLElement)) return;
+
+  scrollToPlaygroundElement(target);
+}
+
+function scrollToPlaygroundElement(target: HTMLElement) {
 
   const headerHeight = Number.parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
@@ -264,9 +270,15 @@ function ExperimentGuide({ children }: { children: ReactNode }) {
   );
 }
 
-function VariablesGuide() {
-  const [open, setOpen] = useState(false);
-
+function VariablesGuide({
+  open,
+  onToggle,
+  deferContent = false,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  deferContent?: boolean;
+}) {
   return (
     <div className={`simulator-advanced variable-guide${open ? " is-open" : ""}`}>
       <button
@@ -274,16 +286,17 @@ function VariablesGuide() {
         className="simulator-advanced-toggle"
         aria-expanded={open}
         aria-controls="black-hole-variables-guide"
-        onClick={() => setOpen((current) => !current)}
+        onClick={onToggle}
       >
         <span className="simulator-advanced-caret" aria-hidden="true" />
         Variables guide
       </button>
       <div className="simulator-advanced-reveal">
-        <div
-          id="black-hole-variables-guide"
-          className="simulator-advanced-content variable-guide-content"
-        >
+        {(!deferContent || open) && (
+          <div
+            id="black-hole-variables-guide"
+            className="simulator-advanced-content variable-guide-content"
+          >
           <dl>
             <div>
               <dt>Seed mass</dt>
@@ -346,13 +359,18 @@ function VariablesGuide() {
           <p>
             These ranges and presets are illustrative, not fits to individual black holes. Real systems can shift between regimes.
           </p>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export function BlackHoleGrowthSimulator() {
+export function BlackHoleGrowthSimulator({
+  touchDisclosureOptimizations = false,
+}: {
+  touchDisclosureOptimizations?: boolean;
+} = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [seedLogMass, setSeedLogMass] = useState(5);
   const [seedRedshift, setSeedRedshift] = useState(20);
@@ -365,6 +383,7 @@ export function BlackHoleGrowthSimulator() {
   const [progress, setProgress] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [variablesGuideOpen, setVariablesGuideOpen] = useState(false);
   const [viewYaw, setViewYaw] = useState(-9);
   const [viewPitch, setViewPitch] = useState(84);
   const [rotatingView, setRotatingView] = useState(false);
@@ -374,6 +393,20 @@ export function BlackHoleGrowthSimulator() {
     lastX: number;
     lastY: number;
   } | null>(null);
+
+  useEffect(() => {
+    const shouldPauseStarfield =
+      touchDisclosureOptimizations && (advancedOpen || variablesGuideOpen);
+
+    document.documentElement.classList.toggle(
+      "touch-playground-disclosure-open",
+      shouldPauseStarfield,
+    );
+
+    return () => {
+      document.documentElement.classList.remove("touch-playground-disclosure-open");
+    };
+  }, [advancedOpen, touchDisclosureOptimizations, variablesGuideOpen]);
   const chartMarkerPointer = useRef<number | null>(null);
 
   const model = useMemo(() => {
@@ -654,7 +687,11 @@ export function BlackHoleGrowthSimulator() {
         </p>
         </ExperimentGuide>
 
-        <VariablesGuide />
+        <VariablesGuide
+          open={variablesGuideOpen}
+          onToggle={() => setVariablesGuideOpen((current) => !current)}
+          deferContent={touchDisclosureOptimizations}
+        />
 
         <div className="simulator-presets" aria-label="Growth scenarios">
           <span className="simulator-presets-label">Variable presets:</span>
@@ -755,7 +792,8 @@ export function BlackHoleGrowthSimulator() {
               Advanced settings
             </button>
             <div className="simulator-advanced-reveal">
-              <div id="black-hole-advanced-settings" className="simulator-advanced-content">
+              {(!touchDisclosureOptimizations || advancedOpen) && (
+                <div id="black-hole-advanced-settings" className="simulator-advanced-content">
                 <SimulatorSlider
                   label="Spin"
                   value={spin}
@@ -787,7 +825,8 @@ export function BlackHoleGrowthSimulator() {
                   <span>Radiative efficiency</span>
                   <output>{(efficiency * 100).toFixed(1)}% — derived from spin</output>
                 </div>
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1963,12 +2002,15 @@ export function StellarEvolutionExplorer() {
 
 export function Playground() {
   const [usesMobileAccordion, setUsesMobileAccordion] = useState(false);
+  const [usesTouchOptimizations, setUsesTouchOptimizations] = useState(false);
   const [openExperiment, setOpenExperiment] = useState<string | null>(null);
   const experiments = [
     {
       href: "#black-hole-growth",
       title: "Black-Hole Growth Simulator",
-      content: <BlackHoleGrowthSimulator />,
+      content: (
+        <BlackHoleGrowthSimulator touchDisclosureOptimizations={usesTouchOptimizations} />
+      ),
     },
     {
       href: "#stellar-evolution",
@@ -1989,14 +2031,20 @@ export function Playground() {
 
   useEffect(() => {
     const mobileQuery = window.matchMedia(MOBILE_PLAYGROUND_QUERY);
+    const touchQuery = window.matchMedia(TOUCH_PLAYGROUND_QUERY);
     const updateLayout = () => {
       setUsesMobileAccordion(mobileQuery.matches);
+      setUsesTouchOptimizations(touchQuery.matches);
       if (mobileQuery.matches) setOpenExperiment(null);
     };
 
     updateLayout();
     mobileQuery.addEventListener("change", updateLayout);
-    return () => mobileQuery.removeEventListener("change", updateLayout);
+    touchQuery.addEventListener("change", updateLayout);
+    return () => {
+      mobileQuery.removeEventListener("change", updateLayout);
+      touchQuery.removeEventListener("change", updateLayout);
+    };
   }, []);
 
   const handleExperimentNavigation = (
@@ -2014,6 +2062,21 @@ export function Playground() {
     window.history.replaceState(null, "", href);
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => scrollToPlaygroundExperiment(href));
+    });
+  };
+
+  const handleMobileExperimentToggle = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    href: string,
+  ) => {
+    const willOpen = openExperiment !== href;
+    const experimentItem = event.currentTarget.closest(".mobile-experiment-item");
+    setOpenExperiment(willOpen ? href : null);
+    if (!willOpen || !(experimentItem instanceof HTMLElement)) return;
+
+    window.history.replaceState(null, "", href);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => scrollToPlaygroundElement(experimentItem));
     });
   };
 
@@ -2059,7 +2122,7 @@ export function Playground() {
                     className="mobile-experiment-toggle"
                     aria-expanded={isOpen}
                     aria-controls={panelId}
-                    onClick={() => setOpenExperiment((current) => current === experiment.href ? null : experiment.href)}
+                    onClick={(event) => handleMobileExperimentToggle(event, experiment.href)}
                   >
                     <span>{experiment.title}</span>
                     <span className="mobile-experiment-caret" aria-hidden="true" />
@@ -2076,7 +2139,7 @@ export function Playground() {
         </div>
         {!usesMobileAccordion && (
           <div className="playground-desktop-experiments">
-            <BlackHoleGrowthSimulator />
+            <BlackHoleGrowthSimulator touchDisclosureOptimizations={usesTouchOptimizations} />
             <StellarEvolutionExplorer />
             <GravitationalLensingSandbox />
             <OrbitalResonanceToy />

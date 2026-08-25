@@ -571,7 +571,13 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
 
   const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
-  assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide>[\s\S]*?<VariablesGuide \/>[\s\S]*?aria-label="Growth scenarios"/i);
+  assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide>[\s\S]*?<VariablesGuide[\s\S]*?open=\{variablesGuideOpen\}[\s\S]*?deferContent=\{touchDisclosureOptimizations\}[\s\S]*?aria-label="Growth scenarios"/i);
+  assert.match(source, /function VariablesGuide[\s\S]*?\(!deferContent \|\| open\) &&/i);
+  assert.match(source, /\(!touchDisclosureOptimizations \|\| advancedOpen\) &&/i);
+  assert.equal((source.match(/BlackHoleGrowthSimulator touchDisclosureOptimizations=\{usesTouchOptimizations\}/g) ?? []).length, 2);
+  assert.match(source, /advancedOpen \|\| variablesGuideOpen[\s\S]*?touch-playground-disclosure-open/i);
+  assert.match(source, /TOUCH_PLAYGROUND_QUERY = "\(hover: none\), \(pointer: coarse\)"/i);
+  assert.match(source, /matchMedia\(TOUCH_PLAYGROUND_QUERY\)[\s\S]*?setUsesTouchOptimizations\(touchQuery\.matches\)/i);
   assert.match(source, /MOBILE_PLAYGROUND_QUERY[\s\S]*?max-width: 700px[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse/i);
   assert.match(source, /matchMedia\(MOBILE_PLAYGROUND_QUERY\)/i);
   assert.match(source, /function useExperimentVisibility[\s\S]*?new IntersectionObserver[\s\S]*?rootMargin:\s*"120px 0px"[\s\S]*?observer\.disconnect/i);
@@ -579,7 +585,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /if \(!playing \|\| !isExperimentVisible\) return/i);
   assert.match(source, /if \(!playing \|\| !isExperimentVisible\) \{[\s\S]*?previousTime\.current = null/i);
   assert.equal((source.match(/experiment-is-paused/g) ?? []).length, 4);
-  assert.match(source, /setOpenExperiment\(\(current\) => current === experiment\.href \? null : experiment\.href\)/i);
+  assert.match(source, /function scrollToPlaygroundElement[\s\S]*?target\.getBoundingClientRect\(\)\.top/i);
+  assert.match(source, /handleMobileExperimentToggle[\s\S]*?const willOpen = openExperiment !== href[\s\S]*?requestAnimationFrame\(\(\) => scrollToPlaygroundElement\(experimentItem\)\)/i);
   assert.match(source, /\{isOpen && \([\s\S]*?className="mobile-experiment-panel"[\s\S]*?experiment\.content/i);
   assert.match(source, /!usesMobileAccordion && \([\s\S]*?className="playground-desktop-experiments"/i);
   assert.match(source, /EDDINGTON_TIME_GYR = 0\.45/);
@@ -754,6 +761,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.doesNotMatch(css, /\.playground-intro\s*\{[^}]*padding-bottom:/i);
   assert.match(css, /\.playground-index\s*\{[\s\S]*?margin-block:\s*-0\.6rem -1\.2rem/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse[\s\S]*?\.mobile-playground-accordion\s*\{[\s\S]*?display:\s*grid/i);
+  assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.playground-index\s*\{[\s\S]*?display:\s*none/i);
+  assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.mobile-playground-accordion \.simulator-advanced-reveal[\s\S]*?transition:\s*none/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?:root\.touch-playground-disclosure-open \.night-star,[\s\S]*?:root\.touch-playground-disclosure-open \.shooting-star[\s\S]*?animation-play-state:\s*paused !important/i);
+  assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.stellar-timeline-scrubber\s*\{[\s\S]*?z-index:\s*4[\s\S]*?height:\s*44px[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.mobile-experiment-item\.is-open \.mobile-experiment-caret/i);
   assert.match(css, /\.playground-desktop-experiments\s*\{[\s\S]*?display:\s*none/i);
   assert.match(css, /\.experiment-is-paused,[\s\S]*?animation-play-state:\s*paused !important/i);

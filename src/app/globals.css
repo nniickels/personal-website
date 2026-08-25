@@ -1807,8 +1807,32 @@ button {
   animation-play-state: paused !important;
 }
 
+@media (hover: none), (pointer: coarse) {
+  :root.touch-playground-disclosure-open .night-star,
+  :root.touch-playground-disclosure-open .shooting-star {
+    animation-play-state: paused !important;
+  }
+}
+
 @media (max-width: 700px) and (orientation: portrait),
   (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
+  .playground-index {
+    display: none;
+  }
+
+  .mobile-playground-accordion .simulator-advanced-caret,
+  .mobile-playground-accordion .simulator-advanced-reveal,
+  .mobile-playground-accordion .simulator-advanced-content {
+    transition: none;
+  }
+
+  .stellar-timeline-scrubber {
+    z-index: 4;
+    top: calc(0.9rem - 16px);
+    height: 44px;
+    touch-action: none;
+  }
+
   .mobile-playground-accordion {
     display: grid;
     border-block: 1px solid var(--line);
