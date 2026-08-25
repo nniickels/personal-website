@@ -74,12 +74,56 @@ body {
 
 .night-star {
   position: absolute;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.48);
+  clip-path: polygon(
+    50% 0,
+    57% 43%,
+    100% 50%,
+    57% 57%,
+    50% 100%,
+    43% 57%,
+    0 50%,
+    43% 43%
+  );
+  background: var(--star-color, #f8f9ff);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--star-color, #f8f9ff) 52%, transparent);
   opacity: 0.08;
   transform: scale(0.72);
   animation: night-star-twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite;
+}
+
+.night-star::before,
+.night-star::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 999px;
+  opacity: 0.82;
+  transform: translate(-50%, -50%);
+}
+
+.night-star::before {
+  width: 1px;
+  height: calc(100% + 8px);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--star-color, #f8f9ff) 46%,
+    var(--star-color, #f8f9ff) 54%,
+    transparent
+  );
+}
+
+.night-star::after {
+  width: calc(100% + 8px);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--star-color, #f8f9ff) 46%,
+    var(--star-color, #f8f9ff) 54%,
+    transparent
+  );
 }
 
 .shooting-star {
@@ -87,8 +131,8 @@ body {
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 7px 1px rgba(255, 255, 255, 0.68);
+  background: var(--shoot-color, #edf4ff);
+  box-shadow: 0 0 7px 1px color-mix(in srgb, var(--shoot-color, #edf4ff) 68%, transparent);
   opacity: 0;
   transform: rotate(135deg) translateX(0);
   animation: shooting-star-flight var(--shoot-duration) ease-in var(--shoot-delay) infinite;
@@ -101,7 +145,7 @@ body {
   right: 1px;
   width: 110px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78));
+  background: linear-gradient(90deg, transparent, var(--shoot-color, #edf4ff));
   transform: translateY(-50%);
 }
 
@@ -1724,7 +1768,7 @@ button {
 
 .playground-intro {
   display: grid;
-  gap: 0.9rem;
+  gap: 1.25rem;
   max-width: 42rem;
 }
 
@@ -1742,6 +1786,10 @@ button {
 
 .playground-index-row {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.playground-index {
+  margin-block: -0.6rem -1.2rem;
 }
 
 .black-hole-simulator[id],
@@ -1838,6 +1886,24 @@ button {
   line-height: 1.72;
 }
 
+.black-hole-guidance {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.black-hole-guidance > .experiment-guide {
+  border-bottom: 0;
+}
+
+.black-hole-guidance > .simulator-presets {
+  padding-block: 1rem 0.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.black-hole-guidance > .variable-guide {
+  padding-block: 0 0.35rem;
+}
+
 .simulator-presets,
 .simulator-actions {
   display: flex;
@@ -1905,14 +1971,14 @@ button {
 .black-hole-stage {
   --mass-scale: 1;
   --view-yaw: -9deg;
-  --view-pitch: 68deg;
+  --view-pitch: 84deg;
   --simulation-background: #121212;
   --simulation-foreground: #d7d7d7;
   --simulation-muted: #a1a1a1;
   --simulation-line: #2a2a2a;
   --disk-hot: rgba(255, 252, 232, 0.98);
-  --disk-warm: rgba(255, 183, 92, 0.88);
-  --disk-cool: rgba(154, 58, 30, 0.34);
+  --disk-warm: rgba(255, 190, 88, 0.92);
+  --disk-cool: rgba(143, 43, 19, 0.46);
   position: relative;
   display: grid;
   place-items: center;
@@ -1942,6 +2008,7 @@ button {
 
 .black-hole-core,
 .black-hole-glow,
+.black-hole-photon-ring,
 .black-hole-orbit-plane,
 .accretion-disk {
   position: absolute;
@@ -1974,32 +2041,38 @@ button {
   height: 100%;
   overflow: hidden;
   background:
-    repeating-conic-gradient(
-      from 7deg,
-      transparent 0deg 5deg,
-      rgba(255, 243, 213, 0.14) 6deg 8deg,
-      transparent 9deg 15deg
+    radial-gradient(
+      ellipse at 24% 49%,
+      rgba(235, 247, 255, 0.76) 0 7%,
+      rgba(255, 216, 145, 0.24) 18%,
+      transparent 39%
+    ),
+    radial-gradient(
+      ellipse at 73% 57%,
+      rgba(255, 137, 54, 0.3) 0 10%,
+      transparent 34%
     ),
     conic-gradient(
-      from 205deg,
-      rgba(255, 250, 226, 0.06) 0deg,
-      var(--disk-hot) 42deg,
-      var(--disk-warm) 91deg,
-      rgba(177, 70, 34, 0.38) 178deg,
-      rgba(31, 18, 16, 0.08) 245deg,
-      rgba(255, 173, 78, 0.45) 318deg,
-      rgba(255, 250, 226, 0.06) 360deg
+      from 198deg,
+      rgba(255, 252, 237, 0.12) 0deg,
+      rgba(237, 247, 255, 0.98) 34deg,
+      var(--disk-warm) 76deg,
+      rgba(176, 65, 28, 0.48) 165deg,
+      rgba(25, 12, 11, 0.08) 245deg,
+      rgba(255, 151, 58, 0.58) 319deg,
+      rgba(255, 252, 237, 0.12) 360deg
     ),
     radial-gradient(
       circle,
-      var(--disk-hot) var(--disk-inner-edge),
-      var(--disk-warm) 34%,
-      var(--disk-cool) 60%,
-      transparent 78%
+      rgba(231, 246, 255, 0.98) var(--disk-inner-edge),
+      rgba(255, 244, 205, 0.96) 31%,
+      var(--disk-warm) 43%,
+      var(--disk-cool) 66%,
+      transparent 80%
     );
-  background-blend-mode: screen, screen, normal;
-  box-shadow: 0 0 22px color-mix(in srgb, var(--disk-warm) 28%, transparent);
-  filter: saturate(0.9) brightness(var(--disk-luminosity));
+  background-blend-mode: screen, screen, screen, normal;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--disk-warm) 34%, transparent);
+  filter: saturate(1.08) contrast(1.08) brightness(var(--disk-luminosity));
   opacity: calc(0.68 + var(--disk-luminosity) * 0.32);
   -webkit-mask: radial-gradient(
     circle,
@@ -2029,35 +2102,52 @@ button {
 
 .accretion-texture {
   position: absolute;
-  inset: 9%;
+  inset: 7%;
   border-radius: 50%;
-  background: repeating-conic-gradient(
-    from 0deg,
-    transparent 0deg 10deg,
-    rgba(255, 255, 255, 0.2) 11deg 12deg,
-    transparent 13deg 27deg
-  );
+  background:
+    radial-gradient(ellipse at 25% 34%, rgba(255, 248, 222, 0.38) 0 4%, transparent 16%),
+    radial-gradient(ellipse at 68% 28%, rgba(255, 160, 68, 0.28) 0 6%, transparent 19%),
+    radial-gradient(ellipse at 76% 70%, rgba(121, 35, 18, 0.38) 0 7%, transparent 21%),
+    radial-gradient(ellipse at 34% 76%, rgba(255, 205, 120, 0.32) 0 5%, transparent 18%),
+    conic-gradient(
+      from 18deg,
+      transparent 0deg 24deg,
+      rgba(255, 244, 210, 0.2) 52deg,
+      transparent 88deg 154deg,
+      rgba(255, 142, 55, 0.17) 192deg,
+      transparent 244deg 314deg,
+      rgba(235, 246, 255, 0.2) 342deg,
+      transparent 360deg
+    );
   mix-blend-mode: screen;
-  opacity: calc(var(--spin-opacity) * 0.6);
+  filter: blur(1.1px);
+  opacity: calc(var(--spin-opacity) * 0.74);
+  -webkit-mask: radial-gradient(circle, transparent 0 18%, #000 27% 76%, transparent 86%);
+  mask: radial-gradient(circle, transparent 0 18%, #000 27% 76%, transparent 86%);
   animation: accretion-shear calc(var(--spin-duration) * 1.8) linear infinite;
   animation-direction: var(--spin-direction);
+  animation-play-state: var(--spin-play-state);
 }
 
 .accretion-flow {
   position: absolute;
   inset: 0;
-  width: 13px;
-  height: 3px;
+  width: 24px;
+  height: 5px;
   border-radius: 999px;
-  background: var(--disk-hot);
-  box-shadow: 0 0 5px var(--disk-hot), 0 0 11px var(--disk-warm);
+  background: linear-gradient(90deg, transparent, var(--disk-hot) 45%, var(--disk-warm) 68%, transparent);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--disk-hot) 72%, transparent),
+    0 0 14px color-mix(in srgb, var(--disk-warm) 54%, transparent);
+  filter: blur(0.7px);
   opacity: var(--spin-opacity);
   offset-rotate: 0deg;
   animation: accretion-orbit var(--spin-duration) linear infinite;
   animation-direction: var(--spin-direction);
+  animation-play-state: var(--spin-play-state);
 }
 
 .accretion-flow--outer {
+  width: 34px;
   offset-path: ellipse(43% 43% at 50% 50%);
   animation-delay: -1.7s;
   opacity: calc(var(--spin-opacity) * 0.48);
@@ -2069,7 +2159,7 @@ button {
 }
 
 .accretion-flow--inner {
-  width: 9px;
+  width: 16px;
   offset-path: ellipse(27% 27% at 50% 50%);
   animation-duration: calc(var(--spin-duration) * 0.68);
   animation-delay: -0.25s;
@@ -2097,6 +2187,25 @@ button {
   height: calc(22px + 104px * var(--mass-scale));
   background: #020202;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 24px rgba(0, 0, 0, 0.78);
+}
+
+.black-hole-photon-ring {
+  z-index: 4;
+  width: calc(29px + 114px * var(--mass-scale));
+  height: calc(29px + 114px * var(--mass-scale));
+  border: 1px solid rgba(255, 244, 214, 0.9);
+  border-right-color: rgba(255, 133, 55, 0.24);
+  border-bottom-color: rgba(255, 177, 82, 0.54);
+  box-shadow: 0 0 5px rgba(255, 239, 199, 0.72),
+    0 0 13px rgba(255, 147, 59, 0.23);
+  animation: photon-ring-drift var(--spin-duration) linear infinite;
+  animation-direction: var(--spin-direction);
+  animation-play-state: var(--spin-play-state);
+  pointer-events: none;
+}
+
+@keyframes photon-ring-drift {
+  to { transform: rotate(1turn); }
 }
 
 .black-hole-core::before,
@@ -2154,6 +2263,13 @@ button {
   align-items: center;
   gap: 1rem;
   margin: 0;
+}
+
+.growth-chart-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .growth-chart-caption {
@@ -2474,7 +2590,7 @@ button {
   }
 
   .playground-intro {
-    gap: 0.65rem;
+    gap: 0.9rem;
   }
 
   .playground-intro h1 {
@@ -2901,7 +3017,7 @@ button {
 
 .resonance-body-picker {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.75rem;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -3061,7 +3177,8 @@ button {
 .stellar-glow,
 .stellar-nebula,
 .stellar-supernova-shell,
-.stellar-burst {
+.stellar-burst,
+.stellar-pulsar-beams {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -3215,6 +3332,61 @@ button {
 .stellar-canvas--white-dwarf .stellar-object,
 .stellar-canvas--neutron-star .stellar-object {
   box-shadow: 0 0 18px var(--stellar-color), 0 0 42px color-mix(in srgb, var(--stellar-color) 38%, transparent);
+}
+
+.stellar-pulsar-beams {
+  z-index: 2;
+  width: 280px;
+  height: 280px;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.stellar-pulsar-beams::before,
+.stellar-pulsar-beams::after {
+  position: absolute;
+  top: calc(50% - 18px);
+  left: 50%;
+  width: 132px;
+  height: 36px;
+  background: linear-gradient(90deg, rgba(197, 232, 255, 0.72), rgba(126, 197, 255, 0.12) 72%, transparent);
+  clip-path: polygon(0 44%, 100% 0, 100% 100%, 0 56%);
+  filter: blur(0.7px);
+  transform-origin: 0 50%;
+  content: "";
+}
+
+.stellar-pulsar-beams::after {
+  transform: rotate(180deg);
+}
+
+.stellar-radio-wave {
+  position: absolute;
+  top: calc(50% - 29px);
+  width: 28px;
+  height: 58px;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.stellar-radio-wave--forward {
+  right: 0;
+  border-right: 2px solid rgba(153, 216, 255, 0.72);
+}
+
+.stellar-radio-wave--backward {
+  left: 0;
+  border-left: 2px solid rgba(153, 216, 255, 0.72);
+}
+
+.stellar-canvas--neutron-star .stellar-pulsar-beams {
+  opacity: 1;
+  animation: stellar-pulsar-sweep 1.15s linear infinite;
+}
+
+.stellar-canvas--neutron-star .stellar-object > span {
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.32) 0 1px, transparent 1px 4px);
+  animation: stellar-neutron-spin 0.32s linear infinite;
 }
 
 .stellar-canvas--black-hole .stellar-glow {
@@ -3442,6 +3614,15 @@ button {
   50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
 }
 
+@keyframes stellar-pulsar-sweep {
+  from { transform: translate(-50%, -50%) rotate(-18deg); }
+  to { transform: translate(-50%, -50%) rotate(342deg); }
+}
+
+@keyframes stellar-neutron-spin {
+  to { transform: rotate(1turn); }
+}
+
 @keyframes stellar-marker-pulse {
   0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--stage-color) 52%, transparent); }
   50% { box-shadow: 0 0 18px color-mix(in srgb, var(--stage-color) 82%, transparent); }
@@ -3489,6 +3670,7 @@ button {
   .stellar-nebula,
   .stellar-supernova-shell,
   .stellar-burst,
+  .stellar-pulsar-beams,
   .stellar-object > span,
   .stellar-object > span::before,
   .stellar-timeline button[aria-pressed="true"] > span {

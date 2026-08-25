@@ -5,9 +5,11 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 
 ## Structure
 
-- `src/app` contains the pages and styles.
+- `src/app` contains the pages, shared portfolio shell, theme controls, and styles.
+- `src/app/playground/playground.tsx` contains the four interactive astronomy experiments.
+- `src/api-stats.ts` combines the public stats.fm feed with secret-backed Clash Royale and Steam data.
 - `src/app/robots.ts` and `src/app/sitemap.ts` provide search-engine discovery files.
-- `src/worker.ts` connects the app to Cloudflare.
+- `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and handles image optimization.
 - `public` contains static images, icons, gallery media, and the résumé PDF.
 - `tests` contains rendered-page checks.
 
@@ -17,6 +19,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - **React 19 + TypeScript** — interface and client-side interactions
 - **Vinext + Vite** — Next.js-compatible routing and production builds
 - **Cloudflare Workers** — edge hosting, API proxying, and image optimization
+- **CSS + SVG** — responsive galleries, theme-aware animation, and interactive astronomy visuals
 - **stats.fm API** — lifetime listening-time rankings
 - **Steam Web API** — recently played games
 - **Clash Royale API via RoyaleAPI** — current trophy count
@@ -28,15 +31,19 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | Route | Description |
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
-| `/side-quests` | Side Quests — photos, listening, reading, watching, gaming, collections, and food |
-| `/playground` | Playground — interactive black-hole growth, gravitational-lensing, orbital-resonance, and stellar-evolution experiments |
+| `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, gaming, collections, and food |
+| `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
+
+All pages share a device-synchronized light/dark theme, a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
 
 ### Playground experiments
 
-- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. Its disk is an illustrative depth cue, not a ray-traced measurement or physical boundary.
-- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of an axisymmetric point-mass thin lens. Source size changes the illustrative arcs, while the magnification readout remains a capped point-source estimate.
-- **Orbital Resonance Toy** — compares prescribed period-ratio chains with a near-resonant setup. Display radii are independent of period, so it shows repeating alignments without enforcing Kepler's third law, mutual perturbations, or resonant-angle libration.
-- **Stellar Evolution Explorer** — follows approximate mass-dependent tracks from the main sequence through giant, nebular, or supernova phases to a white dwarf, neutron star, or black hole. Timeline markers are evenly spaced rather than time-scaled, while playback moves more slowly through longer toy-model intervals.
+- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. It includes presets, variable guides, a draggable logarithmic growth plot, and a draggable 3D near-edge-on disk whose gaseous texture, photon ring, and lensed arc are illustrative rather than ray-traced.
+- **Stellar Evolution Explorer** — follows approximate mass-dependent tracks from the main sequence through giant, nebular, or supernova phases to a white dwarf, neutron star, or black hole. Its clickable timeline is evenly spaced rather than time-scaled, playback slows through longer toy-model intervals, and the neutron-star endpoint uses an illustrative rotating-pulsar beam visual.
+- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of an axisymmetric point-mass thin lens. The source and view are draggable; source size changes illustrative arcs while the magnification readout remains a capped point-source estimate.
+- **Orbital Resonance Toy** — compares one to five bodies in prescribed 2:1, 3:2, and 5:3 period-ratio chains or a near-resonant setup. Its explanation connects period ratios to repeat cycles. Display radii remain independent of period, so the toy shows recurring alignments without enforcing Kepler's third law, mutual perturbations, or resonant-angle libration.
+
+The Playground experiments are simplified, illustrative models. Some motion, scale, color, and depth cues are exaggerated or added for clarity rather than being physically precise or necessary to the calculation.
 
 ## Search discovery
 
@@ -79,3 +86,4 @@ npm test
 - [Kevin Thottumkal](https://www.kevinthottumkal.com/) — dark-mode background effects
 - [Stanley Pang](https://stanleyp.dev/) — photo galleries and visual details
 - [Ryan Alumkal](https://ryanalumkal.github.io/) — horizontal media shelf
+- [Alvina Yang](https://www.alvinayang.com/blogs) — interactive simulation widgets

@@ -139,6 +139,29 @@ function formatMass(logMass: number) {
   return `${mantissa.toFixed(2)} × 10^${exponent} ${SOLAR_MASS}`;
 }
 
+function formatPowerOfTen(exponent: number) {
+  const superscriptCharacters: Record<string, string> = {
+    "-": "⁻",
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+  };
+
+  const superscriptExponent = Math.round(exponent)
+    .toString()
+    .split("")
+    .map((character) => superscriptCharacters[character] ?? character)
+    .join("");
+  return `10${superscriptExponent}`;
+}
+
 function formatDuration(gyr: number) {
   if (gyr < 1) return `${Math.round(gyr * 1_000)} Myr`;
   return `${gyr.toFixed(2)} Gyr`;
@@ -317,7 +340,7 @@ export function BlackHoleGrowthSimulator() {
   const [playing, setPlaying] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [viewYaw, setViewYaw] = useState(-9);
-  const [viewPitch, setViewPitch] = useState(68);
+  const [viewPitch, setViewPitch] = useState(84);
   const [rotatingView, setRotatingView] = useState(false);
   const animationFrame = useRef<number | null>(null);
   const blackHoleDrag = useRef<{
@@ -407,7 +430,7 @@ export function BlackHoleGrowthSimulator() {
   const resetSimulation = () => {
     applyPreset(presets[1]);
     setViewYaw(-9);
-    setViewPitch(68);
+    setViewPitch(84);
   };
 
   const beginBlackHoleRotation = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -552,7 +575,8 @@ export function BlackHoleGrowthSimulator() {
     "--mass-scale": visualMassScale,
     "--spin-duration": `${(6.2 - Math.abs(spin) * 4.8).toFixed(2)}s`,
     "--spin-direction": spin < 0 ? "reverse" : "normal",
-    "--spin-opacity": Math.abs(spin) < 0.03 ? 0.2 : 0.9,
+    "--spin-opacity": Math.abs(spin) < 0.005 ? 0.34 : 0.9,
+    "--spin-play-state": Math.abs(spin) < 0.005 ? "paused" : "running",
     "--disk-luminosity": (0.32 + Math.min(1, eddingtonRatio / 1.5) * 0.68).toFixed(2),
     "--disk-inner-edge": `${clamp(22 - spin * 4.5, 17.5, 26.5).toFixed(1)}%`,
     "--view-yaw": `${viewYaw.toFixed(1)}deg`,
@@ -578,13 +602,15 @@ export function BlackHoleGrowthSimulator() {
         </p>
       </header>
 
-      <ExperimentGuide>
+      <div className="black-hole-guidance">
+        <ExperimentGuide>
         <p>
           The dark sphere marks the event-horizon region and the tilted ring is a stylized
           accretion disk, neither ray-traced nor drawn to physical scale. The bright lower
-          semicircle is the near side of the disk, while the upper arc is the far side. They are
-          depth cues, not measurements. The moving texture indicates spin direction and relative
-          speed. Seed mass sets the starting mass, accretion rate sets the Eddington ratio,
+          semicircle is the near side of the disk, while the upper arc suggests light from its far
+          side bent around the black hole. These are visual depth cues, not measurements. Disk
+          motion is an illustrative spin cue and pauses at a* = 0, although real gas can orbit a
+          non-rotating black hole. Seed mass sets the starting mass, accretion rate sets the Eddington ratio,
           spin sets thin-disk radiative efficiency, redshifts set the time interval, and duty cycle
           sets how often the black hole is active.
         </p>
@@ -595,31 +621,32 @@ export function BlackHoleGrowthSimulator() {
           increase final mass. High prograde spin can slow growth by raising radiative efficiency.
           Fuel limits, feedback, mergers, and changing accretion states are not included.
         </p>
-      </ExperimentGuide>
+        </ExperimentGuide>
 
-      <VariablesGuide />
+        <VariablesGuide />
 
-      <div className="simulator-presets" aria-label="Growth scenarios">
-        <span className="simulator-presets-label">Variable presets:</span>
-        {presets.map((preset) => {
-          const isActive = preset.name === activePresetName;
-          return (
-            <button
-              type="button"
-              className={isActive ? "is-active" : undefined}
-              aria-pressed={isActive}
-              key={preset.name}
-              onClick={() => applyPreset(preset)}
-            >
-              {preset.name}
-            </button>
-          );
-        })}
+        <div className="simulator-presets" aria-label="Growth scenarios">
+          <span className="simulator-presets-label">Variable presets:</span>
+          {presets.map((preset) => {
+            const isActive = preset.name === activePresetName;
+            return (
+              <button
+                type="button"
+                className={isActive ? "is-active" : undefined}
+                aria-pressed={isActive}
+                key={preset.name}
+                onClick={() => applyPreset(preset)}
+              >
+                {preset.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="simulator-workspace">
         <div className="simulator-visual-panel">
-          <p className="rotation-hint">Drag to rotate in 3D; drag the plot dot to inspect mass growth</p>
+          <p className="rotation-hint">Drag to rotate in 3D</p>
           <div
             className={`black-hole-stage${rotatingView ? " is-dragging" : ""}`}
             style={visualStyle}
@@ -639,6 +666,7 @@ export function BlackHoleGrowthSimulator() {
               </div>
             </div>
             <div className="black-hole-core" aria-hidden="true" />
+            <div className="black-hole-photon-ring" aria-hidden="true" />
             <div className="black-hole-orbit-plane black-hole-orbit-plane--foreground" aria-hidden="true">
               <div className="accretion-disk accretion-disk--foreground">
                 <span className="accretion-texture" />
@@ -667,15 +695,6 @@ export function BlackHoleGrowthSimulator() {
             onChange={updateControl(setSeedLogMass)}
           />
           <SimulatorSlider
-            label="Seed redshift"
-            value={seedRedshift}
-            min={8}
-            max={30}
-            step={1}
-            displayValue={`z = ${seedRedshift.toFixed(0)}`}
-            onChange={updateSeedRedshift}
-          />
-          <SimulatorSlider
             label="Accretion rate"
             value={eddingtonRatio}
             min={0.1}
@@ -683,6 +702,15 @@ export function BlackHoleGrowthSimulator() {
             step={0.05}
             displayValue={`${effectiveAccretionRate.toFixed(2)} × reference`}
             onChange={updateControl(setEddingtonRatio)}
+          />
+          <SimulatorSlider
+            label="Seed redshift"
+            value={seedRedshift}
+            min={8}
+            max={30}
+            step={1}
+            displayValue={`z = ${seedRedshift.toFixed(0)}`}
+            onChange={updateSeedRedshift}
           />
           <div className={`simulator-advanced${advancedOpen ? " is-open" : ""}`}>
             <button
@@ -741,6 +769,7 @@ export function BlackHoleGrowthSimulator() {
         </div>
 
         <figure className="growth-chart-figure">
+          <p className="growth-chart-hint">Drag the plot dot to inspect mass growth</p>
           <svg
             className="growth-chart"
             viewBox={`0 0 ${chart.width} ${chart.height}`}
@@ -794,10 +823,10 @@ export function BlackHoleGrowthSimulator() {
               Black-hole mass (M☉, log₁₀ scale)
             </text>
             <text className="growth-chart-label" x={chart.left - 10} y={chart.top + 4} textAnchor="end">
-              10^{chart.yMax.toFixed(0)}
+              {formatPowerOfTen(chart.yMax)}
             </text>
             <text className="growth-chart-label" x={chart.left - 10} y={chart.bottom + 4} textAnchor="end">
-              10^{chart.yMin.toFixed(0)}
+              {formatPowerOfTen(chart.yMin)}
             </text>
           </svg>
           <figcaption className="growth-chart-caption">
@@ -1342,6 +1371,23 @@ export function OrbitalResonanceToy() {
         </p>
       </header>
 
+      <ExperimentGuide>
+        <p>
+          The numbers compare orbital periods, using the innermost body as 1. In a 2:1 pair,
+          the inner body completes two orbits while the next body completes one. In 3:2 and 5:3
+          pairs, the inner body completes three or five orbits while the next completes two or
+          three. Adding bodies extends the same adjacent ratio into a chain, so a 2:1 chain has
+          relative periods 1:2:4:8:16.
+        </p>
+        <p>
+          Exact rational ratios eventually return every body to the same relative alignment. The
+          listed repeat time is the smallest whole number of inner orbits needed for the displayed
+          chain to repeat. Near resonance uses non-matching approximate ratios, so it has no short
+          repeat here. This toy prescribes the periods and shows recurring geometry; it does not
+          simulate gravitational locking or libration, which define a physical orbital resonance.
+        </p>
+      </ExperimentGuide>
+
       <div className="resonance-workspace">
         <div className="resonance-visual-panel">
           <div className="resonance-status" aria-live="polite">
@@ -1708,7 +1754,9 @@ export function StellarEvolutionExplorer() {
           massive stars undergo core-collapse supernovae and leave neutron stars or black holes.
           The <strong>Sun-like</strong> preset is 1 M☉ and ends as a white dwarf, <strong>Massive</strong> is
           12 M☉ and ends as a neutron star, and <strong>Very massive</strong> is 30 M☉ and ends as a black
-          hole. Boundaries are approximate because composition, rotation, winds, and binary interaction also matter.
+          hole. The neutron-star endpoint is shown as a rapidly rotating pulsar with twin radiation
+          beams; not every neutron star is observed as a radio pulsar. Boundaries are approximate because
+          composition, rotation, winds, and binary interaction also matter.
         </p>
       </ExperimentGuide>
 
@@ -1755,6 +1803,10 @@ export function StellarEvolutionExplorer() {
             <span className="stellar-nebula" aria-hidden="true" />
             <span className="stellar-supernova-shell" aria-hidden="true" />
             <span className="stellar-burst" aria-hidden="true" />
+            <span className="stellar-pulsar-beams" aria-hidden="true">
+              <span className="stellar-radio-wave stellar-radio-wave--forward" />
+              <span className="stellar-radio-wave stellar-radio-wave--backward" />
+            </span>
             <span className="stellar-glow" aria-hidden="true" />
             <span className="stellar-object" aria-hidden="true"><span /></span>
           </div>
@@ -1867,7 +1919,9 @@ export function Playground() {
         <section className="playground-intro">
           <h1>Playground</h1>
           <p>
-            Play with some interactive astronomy experiments and simulations! 
+            Play with some interactive astronomy experiments and simulations! These are simplified,
+            illustrative models, and some visual cues are exaggerated or added for clarity rather
+            than being physically precise or necessary to the simulation.
           </p>
         </section>
         <nav className="side-quest-index playground-index" aria-label="Playground experiments">

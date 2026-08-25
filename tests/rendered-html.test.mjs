@@ -66,7 +66,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.doesNotMatch(html, /<ul\b/i);
   assert.match(html, /theme-icon__sun/i);
   assert.match(html, /class="night-sky" aria-hidden="true"/i);
-  assert.equal((html.match(/class="night-star"/g) ?? []).length, 72);
+  assert.equal((html.match(/class="night-star"/g) ?? []).length, 79);
   assert.equal((html.match(/class="shooting-star"/g) ?? []).length, 3);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/i);
 });
@@ -89,7 +89,23 @@ test("publishes search-engine discovery files", async () => {
 
 test("keeps the animated starfield dark-mode-only and motion-safe", async () => {
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const source = await readFile(new URL("../src/app/portfolio.tsx", import.meta.url), "utf8");
   assert.match(css, /:root\[data-theme="light"\] \.night-sky\s*\{[\s\S]*?visibility:\s*hidden/i);
+  assert.match(css, /\.night-star::before,\s*\.night-star::after\s*\{/i);
+  assert.match(css, /\.night-star\s*\{[\s\S]*?clip-path:\s*polygon\([\s\S]*?50% 0[\s\S]*?100% 50%[\s\S]*?50% 100%[\s\S]*?0 50%/i);
+  assert.match(css, /\.night-star::before\s*\{[\s\S]*?height:\s*calc\(100% \+ 8px\)[\s\S]*?46%[\s\S]*?54%/i);
+  assert.match(css, /\.night-star::after\s*\{[\s\S]*?width:\s*calc\(100% \+ 8px\)[\s\S]*?46%[\s\S]*?54%/i);
+  assert.match(css, /background:\s*var\(--star-color/i);
+  assert.match(source, /"--star-color":\s*star\.colour/i);
+  assert.match(source, /createNightStars\(79, 7\)/i);
+  assert.match(source, /isLeftEdgeStar[\s\S]*?36 \+ random\(\) \* 52[\s\S]*?15 \+ random\(\) \* 35/i);
+  assert.match(source, /#dceaff[\s\S]*#fff0cf[\s\S]*#ffd2ad/i);
+  assert.match(source, /colourRoll < 0\.38[\s\S]*colourRoll < 0\.62[\s\S]*colourRoll < 0\.83/i);
+  assert.match(source, /sizeRoll\s*<\s*0\.82[\s\S]*sizeRoll\s*<\s*0\.96/i);
+  assert.match(source, /2\.4 \+ random\(\) \* 2\.4[\s\S]*5\.4 \+ random\(\) \* 3[\s\S]*8\.5 \+ random\(\) \* 3/i);
+  assert.match(source, /"--shoot-color":\s*star\.colour/i);
+  assert.match(source, /#edf4ff[\s\S]*#ffe5bb[\s\S]*#d6ffe1/i);
+  assert.match(css, /background:\s*var\(--shoot-color/i);
   assert.match(css, /@keyframes night-star-twinkle/i);
   assert.match(css, /@keyframes shooting-star-flight/i);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.shooting-star\s*\{[\s\S]*?display:\s*none/i);
@@ -469,6 +485,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /<title>Playground — Nicole Jiang<\/title>/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/playground"/i);
   assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
+  assert.match(html, /These are simplified,[\s\S]*?illustrative models[\s\S]*?visual cues are exaggerated or added for clarity/i);
   assert.match(html, /aria-label="Playground experiments"/i);
   assert.match(html, /href="#black-hole-growth"/i);
   assert.match(html, /href="#gravitational-lensing"/i);
@@ -479,7 +496,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /id="orbital-resonance"/i);
   assert.match(html, /id="stellar-evolution"/i);
   assert.doesNotMatch(html, /work in progress/i);
-  assert.equal((html.match(/Explanation/g) ?? []).length, 3);
+  assert.equal((html.match(/Explanation/g) ?? []).length, 4);
   assert.doesNotMatch(html, /Experiment guide|What to do|What to expect/i);
   assert.match(html, /logarithmic mass vertically/i);
   assert.match(html, /benchmark, not a limit/i);
@@ -488,7 +505,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   const explanationBodies = [
     ...html.matchAll(/<div class="experiment-guide-content">([\s\S]*?)<\/div><\/div><\/details>/g),
   ];
-  assert.equal(explanationBodies.length, 3);
+  assert.equal(explanationBodies.length, 4);
   for (const [, explanation] of explanationBodies) {
     assert.equal((explanation.match(/<p>/g) ?? []).length, 2);
   }
@@ -498,6 +515,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /Stellar Evolution Explorer/i);
   assert.match(html, /Orbiting bodies/i);
   assert.match(html, /Period relationship/i);
+  assert.match(html, /In a 2:1 pair,[\s\S]*?inner body completes two orbits/i);
+  assert.match(html, /smallest whole number of inner orbits needed[\s\S]*?chain to repeat/i);
   assert.match(html, /2:1 chain/i);
   assert.match(html, /Pause orbits/i);
   assert.match(html, /Mass presets:/i);
@@ -521,6 +540,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /Projected mass growth/i);
   assert.match(html, /Cosmic time \(seed → observation\)/i);
   assert.match(html, /Black-hole mass \(M☉, log₁₀ scale\)/i);
+  assert.match(html, /10²⁰/i);
+  assert.doesNotMatch(html, /10\^20/i);
   assert.match(html, /Time runs from the seed epoch to observation/i);
   assert.match(html, /Variable presets:/i);
   assert.match(html, /ordinary stellar remnants/i);
@@ -537,6 +558,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
 
   const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
+  assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide>[\s\S]*?<VariablesGuide \/>[\s\S]*?aria-label="Growth scenarios"/i);
   assert.match(source, /EDDINGTON_TIME_GYR = 0\.45/);
   assert.match(source, /cosmicAgeAtRedshift/);
   assert.match(source, /effectiveEfoldingTime/);
@@ -554,6 +576,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.doesNotMatch(source, /Visual diameter follows one continuous logarithmic scale and can grow beyond the frame/);
   assert.match(source, /GROWTH_CHART_LOG_MASS_MIN = 1/);
   assert.match(source, /GROWTH_CHART_DEFAULT_LOG_MASS_MAX = 20/);
+  assert.match(source, /function formatPowerOfTen[\s\S]*?superscriptCharacters/);
   assert.match(source, /const yMin = GROWTH_CHART_LOG_MASS_MIN/);
   assert.match(source, /const yMax = Math\.max\([\s\S]*?GROWTH_CHART_DEFAULT_LOG_MASS_MAX,[\s\S]*?Math\.ceil\(model\.finalLogMass \+ 0\.25\)/);
   assert.match(source, /scale normally extends to 10²⁰ M☉ and expands automatically/);
@@ -564,13 +587,15 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /onPointerMove=\{scrubChart\}/);
   assert.match(source, /onKeyDown=\{scrubChartWithKeyboard\}/);
   assert.match(source, /Drag the dot to inspect any time in the simulation/);
-  assert.match(source, /Drag to rotate in 3D; drag the plot dot to inspect mass growth/);
+  assert.match(source, /className="rotation-hint">Drag to rotate in 3D<\/p>/);
+  assert.match(source, /className="growth-chart-hint">Drag the plot dot to inspect mass growth<\/p>/);
   assert.doesNotMatch(source, /curve continues above the displayed/);
   assert.match(source, /--disk-luminosity/);
   assert.match(source, /--disk-inner-edge/);
   assert.match(source, /const activePresetName = presets\.find/);
   assert.match(source, /aria-pressed=\{isActive\}/);
   assert.match(source, /id="black-hole-advanced-settings"[\s\S]*?label="Spin"/);
+  assert.match(source, /className="simulator-controls"[\s\S]*?label="Accretion rate"[\s\S]*?label="Seed redshift"[\s\S]*?className=\{`simulator-advanced/);
   assert.match(source, /className="simulator-controls"[\s\S]*?label="Seed redshift"[\s\S]*?className=\{`simulator-advanced/);
   assert.doesNotMatch(source, /id="black-hole-advanced-settings"[\s\S]*?label="Seed redshift"/);
   assert.match(source, /accretion-flow--outer/);
@@ -581,7 +606,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /constant-Eddington-ratio accretion model/);
   assert.match(source, /λ = L \/ Lₑdd/);
   assert.match(source, /neither ray-traced nor drawn to physical scale/);
-  assert.match(source, /bright lower[\s\S]*?semicircle is the near side[\s\S]*?upper arc is the far side/);
+  assert.match(source, /bright lower[\s\S]*?semicircle is the near side[\s\S]*?upper arc suggests light from its far[\s\S]*?side bent around the black hole/);
   assert.match(source, /The lens is a massive foreground galaxy or cluster[\s\S]*?bends light/);
   assert.match(source, /central dark marker represents its mass as a single point/);
   assert.match(source, /Source size changes the drawn arcs but not the[\s\S]*?magnification estimate/);
@@ -594,6 +619,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /beginBlackHoleRotation/);
   assert.match(source, /setViewYaw/);
   assert.match(source, /setViewPitch/);
+  assert.match(source, /useState\(84\)[\s\S]*?setViewPitch\(84\)/);
   assert.match(source, /setSourceRotation/);
   assert.match(source, /resonancePresets/);
   assert.match(source, /label="Animation speed"[\s\S]*?min=\{1\}[\s\S]*?max=\{10\}/);
@@ -620,6 +646,12 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /Phase markers are evenly[\s\S]*?spaced for readability/);
   assert.match(source, /During playback,[\s\S]*?moves more slowly[\s\S]*?through longer toy-model intervals/);
   assert.match(source, /Surface drift represents[\s\S]*?rotation and convection/);
+  assert.match(source, /"--spin-play-state":\s*Math\.abs\(spin\)\s*<\s*0\.005\s*\?\s*"paused"/);
+  assert.match(source, /className="rotation-hint">Drag to rotate in 3D<\/p>/);
+  assert.match(source, /className="growth-chart-hint">Drag the plot dot to inspect mass growth<\/p>[\s\S]*?<svg/);
+  assert.match(source, /className="black-hole-photon-ring"/);
+  assert.match(source, /not every neutron star is observed as a radio pulsar/i);
+  assert.match(source, /className="stellar-pulsar-beams"/);
   assert.match(source, /stronger giant-phase breathing represents pulsation/);
   assert.match(source, /STELLAR_TIMELINE_START_FRACTION = 5 \/ 6/);
   assert.match(source, /STELLAR_PHASE_POSITIONS = \[0, 100 \/ 3, 200 \/ 3, 100\]/);
@@ -667,9 +699,18 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.doesNotMatch(css, /--growth-scale/);
   assert.doesNotMatch(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transition:\s*[\s\S]*?width 460ms/i);
   assert.match(css, /\.variable-guide-content dl\s*\{[\s\S]*?gap:\s*0\.8rem/i);
+  assert.match(css, /\.black-hole-guidance > \.experiment-guide\s*\{[\s\S]*?border-bottom:\s*0/i);
+  assert.match(css, /\.black-hole-guidance > \.simulator-presets\s*\{[\s\S]*?border-top:\s*1px solid var\(--line\)/i);
+  assert.doesNotMatch(css, /\.black-hole-guidance > \.variable-guide\s*\{[^}]*border-top/i);
   assert.match(css, /\.experiment-guide-content\s*\{[\s\S]*?max-width:\s*46rem/i);
   assert.match(css, /\.black-hole-orbit-plane\s*\{[\s\S]*?transform:\s*rotateX\(var\(--view-pitch\)\) rotateZ\(var\(--view-yaw\)\)/i);
-  assert.match(css, /\.accretion-disk\s*\{[\s\S]*?repeating-conic-gradient[\s\S]*?conic-gradient[\s\S]*?radial-gradient/i);
+  assert.match(css, /\.accretion-disk\s*\{[\s\S]*?conic-gradient[\s\S]*?radial-gradient/i);
+  assert.doesNotMatch(css, /\.accretion-disk\s*\{[^}]*repeating-(?:conic|radial)-gradient/i);
+  assert.doesNotMatch(css, /\.accretion-texture\s*\{[^}]*repeating-conic-gradient/i);
+  assert.match(css, /animation-play-state:\s*var\(--spin-play-state\)/i);
+  assert.match(css, /\.growth-chart-hint\s*\{[\s\S]*?grid-column:\s*1 \/ -1/i);
+  assert.match(css, /@keyframes stellar-pulsar-sweep/i);
+  assert.match(css, /@keyframes stellar-neutron-spin/i);
   assert.match(css, /\.black-hole-core::before/);
   assert.match(css, /\.simulator-presets button\.is-active\s*\{[\s\S]*?box-shadow:/i);
   assert.match(css, /\.black-hole-orbit-plane--foreground\s*\{[\s\S]*?z-index:\s*3/i);
@@ -686,9 +727,11 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.resonance-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
   assert.match(css, /\.stellar-workspace\s*\{[\s\S]*?grid-template-columns:/i);
   assert.match(css, /\.playground-index-row\s*\{[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/i);
-  assert.match(css, /\.playground-intro\s*\{[\s\S]*?gap:\s*0\.9rem/i);
+  assert.match(css, /\.playground-intro\s*\{[\s\S]*?gap:\s*1\.25rem/i);
+  assert.doesNotMatch(css, /\.playground-intro\s*\{[^}]*padding-bottom:/i);
+  assert.match(css, /\.playground-index\s*\{[\s\S]*?margin-block:\s*-0\.6rem -1\.2rem/i);
   assert.match(css, /\.playground-intro p\s*\{[\s\S]*?color:\s*var\(--muted\)[\s\S]*?font-size:\s*inherit[\s\S]*?line-height:\s*inherit/i);
-  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.playground-intro\s*\{[\s\S]*?gap:\s*0\.65rem/i);
+  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.playground-intro\s*\{[\s\S]*?gap:\s*0\.9rem/i);
   assert.match(css, /\.stellar-canvas\s*\{[\s\S]*?--simulation-background:\s*#121212/i);
   assert.match(css, /\.stellar-object\s*\{[\s\S]*?animation:\s*stellar-pulse/i);
   assert.match(css, /\.stellar-timeline li\s*\{[\s\S]*?left:\s*var\(--stage-position\)/i);
