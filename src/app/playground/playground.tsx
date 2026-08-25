@@ -22,6 +22,8 @@ const GROWTH_CHART_LOG_MASS_MIN = 1;
 const GROWTH_CHART_DEFAULT_LOG_MASS_MAX = 20;
 const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
+const MOBILE_PLAYGROUND_QUERY =
+  "(max-width: 700px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape) and (pointer: coarse)";
 
 const playgroundNavigation = [
   { label: "Black-Hole Growth", href: "#black-hole-growth" },
@@ -32,6 +34,25 @@ const playgroundNavigation = [
 
 let playgroundScrollAnimationFrame: number | null = null;
 
+function useExperimentVisibility<T extends HTMLElement>() {
+  const elementRef = useRef<T | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: "120px 0px", threshold: 0.01 },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return [elementRef, isVisible] as const;
+}
+
 function navigateToPlaygroundExperiment(
   event: ReactMouseEvent<HTMLAnchorElement>,
   href: string,
@@ -39,10 +60,14 @@ function navigateToPlaygroundExperiment(
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
   event.preventDefault();
+  window.history.replaceState(null, "", href);
+  scrollToPlaygroundExperiment(href);
+}
+
+function scrollToPlaygroundExperiment(href: string) {
   const target = document.querySelector(href);
   if (!(target instanceof HTMLElement)) return;
 
-  window.history.replaceState(null, "", href);
   const headerHeight = Number.parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
   ) || 48;
@@ -328,6 +353,7 @@ function VariablesGuide() {
 }
 
 export function BlackHoleGrowthSimulator() {
+  const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [seedLogMass, setSeedLogMass] = useState(5);
   const [seedRedshift, setSeedRedshift] = useState(20);
   const [observedRedshift, setObservedRedshift] = useState(7);
@@ -375,7 +401,7 @@ export function BlackHoleGrowthSimulator() {
   }, [dutyCycle, eddingtonRatio, efficiency, observedRedshift, progress, seedLogMass, seedRedshift]);
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !isExperimentVisible) return;
 
     const initialProgress = progress >= 1 ? 0.02 : progress;
     const startedAt = performance.now();
@@ -401,7 +427,7 @@ export function BlackHoleGrowthSimulator() {
     return () => {
       if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
     };
-  }, [playing]);
+  }, [playing, isExperimentVisible]);
 
   const updateControl = (setter: (value: number) => void) => (value: number) => {
     setPlaying(false);
@@ -592,7 +618,12 @@ export function BlackHoleGrowthSimulator() {
   )?.name;
 
   return (
-    <section id="black-hole-growth" className="black-hole-simulator" aria-labelledby="black-hole-simulator-title">
+    <section
+      ref={sectionRef}
+      id="black-hole-growth"
+      className={`black-hole-simulator${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="black-hole-simulator-title"
+    >
       <header className="simulator-heading">
         <p className="simulator-kicker">Experiment 01</p>
         <h2 id="black-hole-simulator-title">Black-Hole Growth Simulator</h2>
@@ -882,6 +913,7 @@ function clamp(value: number, minimum: number, maximum: number) {
 }
 
 export function GravitationalLensingSandbox() {
+  const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [sourcePosition, setSourcePosition] = useState({ x: 410, y: 135 });
   const [displaySourcePosition, setDisplaySourcePosition] = useState({ x: 410, y: 135 });
   const displaySourceRef = useRef(displaySourcePosition);
@@ -894,6 +926,8 @@ export function GravitationalLensingSandbox() {
   const previousPointerX = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!isExperimentVisible) return;
+
     const from = displaySourceRef.current;
     const startedAt = performance.now();
     const duration = activePointer.current === null ? 260 : 110;
@@ -919,7 +953,7 @@ export function GravitationalLensingSandbox() {
         cancelAnimationFrame(lensAnimationFrame.current);
       }
     };
-  }, [sourcePosition]);
+  }, [sourcePosition, isExperimentVisible]);
 
   const lensModel = useMemo(() => {
     const dx = displaySourcePosition.x - LENS_CENTER.x;
@@ -1032,7 +1066,12 @@ export function GravitationalLensingSandbox() {
   };
 
   return (
-    <section id="gravitational-lensing" className="gravitational-lensing-sandbox" aria-labelledby="lensing-sandbox-title">
+    <section
+      ref={sectionRef}
+      id="gravitational-lensing"
+      className={`gravitational-lensing-sandbox${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="lensing-sandbox-title"
+    >
       <header className="simulator-heading">
         <p className="simulator-kicker">Experiment 03</p>
         <h2 id="lensing-sandbox-title">Gravitational Lensing Sandbox</h2>
@@ -1239,6 +1278,7 @@ type ResonanceBodyCount = 1 | 2 | 3 | 4 | 5;
 const ORBIT_RADII = [46, 76, 108, 140, 172] as const;
 
 export function OrbitalResonanceToy() {
+  const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [bodyCount, setBodyCount] = useState<ResonanceBodyCount>(3);
   const [resonance, setResonance] = useState<ResonancePreset>("2:1");
   const [speed, setSpeed] = useState(1);
@@ -1255,7 +1295,7 @@ export function OrbitalResonanceToy() {
   const preset = resonancePresets[resonance];
 
   useEffect(() => {
-    if (!playing) {
+    if (!playing || !isExperimentVisible) {
       previousTime.current = null;
       return;
     }
@@ -1274,7 +1314,7 @@ export function OrbitalResonanceToy() {
       if (resonanceFrame.current !== null) cancelAnimationFrame(resonanceFrame.current);
       previousTime.current = null;
     };
-  }, [playing, speed]);
+  }, [playing, speed, isExperimentVisible]);
 
   const bodies = useMemo(() => {
     return preset.periods.slice(0, bodyCount).map((period, index) => {
@@ -1361,7 +1401,12 @@ export function OrbitalResonanceToy() {
         .join(" : ");
 
   return (
-    <section id="orbital-resonance" className="orbital-resonance-toy" aria-labelledby="orbital-resonance-title">
+    <section
+      ref={sectionRef}
+      id="orbital-resonance"
+      className={`orbital-resonance-toy${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="orbital-resonance-title"
+    >
       <header className="simulator-heading">
         <p className="simulator-kicker">Experiment 04</p>
         <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
@@ -1667,6 +1712,7 @@ function stellarTimelinePositionToProgress(stages: StellarPhase[], position: num
 }
 
 export function StellarEvolutionExplorer() {
+  const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [mass, setMass] = useState(1);
   const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
   const [playing, setPlaying] = useState(false);
@@ -1688,7 +1734,7 @@ export function StellarEvolutionExplorer() {
   } as CSSProperties;
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || !isExperimentVisible) return;
     const initialProgress = progress >= 1 ? mainSequenceTimelineStart(mass) : progress;
     const startedAt = performance.now();
     const duration = Math.max(2_400, 18_000 * (1 - initialProgress));
@@ -1709,7 +1755,7 @@ export function StellarEvolutionExplorer() {
     return () => {
       if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
     };
-  }, [playing]);
+  }, [playing, isExperimentVisible]);
 
   const updateMass = (nextMass: number) => {
     setPlaying(false);
@@ -1729,7 +1775,12 @@ export function StellarEvolutionExplorer() {
   };
 
   return (
-    <section id="stellar-evolution" className="stellar-evolution-explorer" aria-labelledby="stellar-evolution-title">
+    <section
+      ref={sectionRef}
+      id="stellar-evolution"
+      className={`stellar-evolution-explorer${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="stellar-evolution-title"
+    >
       <header className="simulator-heading">
         <p className="simulator-kicker">Experiment 02</p>
         <h2 id="stellar-evolution-title">Stellar Evolution Explorer</h2>
@@ -1911,6 +1962,61 @@ export function StellarEvolutionExplorer() {
 }
 
 export function Playground() {
+  const [usesMobileAccordion, setUsesMobileAccordion] = useState(false);
+  const [openExperiment, setOpenExperiment] = useState<string | null>(null);
+  const experiments = [
+    {
+      href: "#black-hole-growth",
+      title: "Black-Hole Growth Simulator",
+      content: <BlackHoleGrowthSimulator />,
+    },
+    {
+      href: "#stellar-evolution",
+      title: "Stellar Evolution Explorer",
+      content: <StellarEvolutionExplorer />,
+    },
+    {
+      href: "#gravitational-lensing",
+      title: "Gravitational Lensing Sandbox",
+      content: <GravitationalLensingSandbox />,
+    },
+    {
+      href: "#orbital-resonance",
+      title: "Orbital Resonance Toy",
+      content: <OrbitalResonanceToy />,
+    },
+  ] as const;
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia(MOBILE_PLAYGROUND_QUERY);
+    const updateLayout = () => {
+      setUsesMobileAccordion(mobileQuery.matches);
+      if (mobileQuery.matches) setOpenExperiment(null);
+    };
+
+    updateLayout();
+    mobileQuery.addEventListener("change", updateLayout);
+    return () => mobileQuery.removeEventListener("change", updateLayout);
+  }, []);
+
+  const handleExperimentNavigation = (
+    event: ReactMouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (!usesMobileAccordion) {
+      navigateToPlaygroundExperiment(event, href);
+      return;
+    }
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    event.preventDefault();
+    setOpenExperiment(href);
+    window.history.replaceState(null, "", href);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => scrollToPlaygroundExperiment(href));
+    });
+  };
+
   return (
     <>
       <SiteHeader page="playground" />
@@ -1932,7 +2038,7 @@ export function Playground() {
                 <a
                   className="text-link side-quest-index-link"
                   href={item.href}
-                  onClick={(event) => navigateToPlaygroundExperiment(event, item.href)}
+                  onClick={(event) => handleExperimentNavigation(event, item.href)}
                 >
                   {item.label}
                 </a>
@@ -1940,10 +2046,42 @@ export function Playground() {
             ))}
           </div>
         </nav>
-        <BlackHoleGrowthSimulator />
-        <StellarEvolutionExplorer />
-        <GravitationalLensingSandbox />
-        <OrbitalResonanceToy />
+        <div className="mobile-playground-accordion">
+          {experiments.map((experiment) => {
+            const isOpen = usesMobileAccordion && openExperiment === experiment.href;
+            const panelId = `mobile-${experiment.href.slice(1)}-panel`;
+
+            return (
+              <section className={`mobile-experiment-item${isOpen ? " is-open" : ""}`} key={experiment.href}>
+                <h2>
+                  <button
+                    type="button"
+                    className="mobile-experiment-toggle"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => setOpenExperiment((current) => current === experiment.href ? null : experiment.href)}
+                  >
+                    <span>{experiment.title}</span>
+                    <span className="mobile-experiment-caret" aria-hidden="true" />
+                  </button>
+                </h2>
+                {isOpen && (
+                  <div className="mobile-experiment-panel" id={panelId}>
+                    {experiment.content}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+        {!usesMobileAccordion && (
+          <div className="playground-desktop-experiments">
+            <BlackHoleGrowthSimulator />
+            <StellarEvolutionExplorer />
+            <GravitationalLensingSandbox />
+            <OrbitalResonanceToy />
+          </div>
+        )}
       </main>
       <SiteFooter />
     </>

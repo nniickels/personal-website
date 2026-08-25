@@ -429,9 +429,9 @@ function createNightStars(count: number, bottomLeftCount = 0) {
   const starSize = () => {
     const sizeRoll = random();
 
-    if (sizeRoll < 0.82) return `${(2.4 + random() * 2.4).toFixed(2)}px`;
-    if (sizeRoll < 0.96) return `${(5.4 + random() * 3).toFixed(2)}px`;
-    return `${(8.5 + random() * 3).toFixed(2)}px`;
+    if (sizeRoll < 0.82) return `${(3.4 + random() * 3.4).toFixed(2)}px`;
+    if (sizeRoll < 0.96) return `${(7.5 + random() * 4.5).toFixed(2)}px`;
+    return `${(12.5 + random() * 5.5).toFixed(2)}px`;
   };
 
   return Array.from({ length: count }, (_, index) => {

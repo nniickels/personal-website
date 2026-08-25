@@ -102,7 +102,7 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   assert.match(source, /#dceaff[\s\S]*#fff0cf[\s\S]*#ffd2ad/i);
   assert.match(source, /colourRoll < 0\.38[\s\S]*colourRoll < 0\.62[\s\S]*colourRoll < 0\.83/i);
   assert.match(source, /sizeRoll\s*<\s*0\.82[\s\S]*sizeRoll\s*<\s*0\.96/i);
-  assert.match(source, /2\.4 \+ random\(\) \* 2\.4[\s\S]*5\.4 \+ random\(\) \* 3[\s\S]*8\.5 \+ random\(\) \* 3/i);
+  assert.match(source, /3\.4 \+ random\(\) \* 3\.4[\s\S]*7\.5 \+ random\(\) \* 4\.5[\s\S]*12\.5 \+ random\(\) \* 5\.5/i);
   assert.match(source, /"--shoot-color":\s*star\.colour/i);
   assert.match(source, /#edf4ff[\s\S]*#ffe5bb[\s\S]*#d6ffe1/i);
   assert.match(css, /background:\s*var\(--shoot-color/i);
@@ -487,6 +487,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
   assert.match(html, /These are simplified,[\s\S]*?illustrative models[\s\S]*?visual cues are exaggerated or added for clarity/i);
   assert.match(html, /aria-label="Playground experiments"/i);
+  assert.match(html, /class="mobile-playground-accordion"/i);
+  assert.equal((html.match(/class="mobile-experiment-toggle"/g) ?? []).length, 4);
   assert.match(html, /href="#black-hole-growth"/i);
   assert.match(html, /href="#gravitational-lensing"/i);
   assert.match(html, /href="#orbital-resonance"/i);
@@ -559,6 +561,16 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
 
   const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
   assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide>[\s\S]*?<VariablesGuide \/>[\s\S]*?aria-label="Growth scenarios"/i);
+  assert.match(source, /MOBILE_PLAYGROUND_QUERY[\s\S]*?max-width: 700px[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse/i);
+  assert.match(source, /matchMedia\(MOBILE_PLAYGROUND_QUERY\)/i);
+  assert.match(source, /function useExperimentVisibility[\s\S]*?new IntersectionObserver[\s\S]*?rootMargin:\s*"120px 0px"[\s\S]*?observer\.disconnect/i);
+  assert.equal((source.match(/useExperimentVisibility<HTMLElement>\(\)/g) ?? []).length, 4);
+  assert.match(source, /if \(!playing \|\| !isExperimentVisible\) return/i);
+  assert.match(source, /if \(!playing \|\| !isExperimentVisible\) \{[\s\S]*?previousTime\.current = null/i);
+  assert.equal((source.match(/experiment-is-paused/g) ?? []).length, 4);
+  assert.match(source, /setOpenExperiment\(\(current\) => current === experiment\.href \? null : experiment\.href\)/i);
+  assert.match(source, /\{isOpen && \([\s\S]*?className="mobile-experiment-panel"[\s\S]*?experiment\.content/i);
+  assert.match(source, /!usesMobileAccordion && \([\s\S]*?className="playground-desktop-experiments"/i);
   assert.match(source, /EDDINGTON_TIME_GYR = 0\.45/);
   assert.match(source, /cosmicAgeAtRedshift/);
   assert.match(source, /effectiveEfoldingTime/);
@@ -730,6 +742,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /\.playground-intro\s*\{[\s\S]*?gap:\s*1\.25rem/i);
   assert.doesNotMatch(css, /\.playground-intro\s*\{[^}]*padding-bottom:/i);
   assert.match(css, /\.playground-index\s*\{[\s\S]*?margin-block:\s*-0\.6rem -1\.2rem/i);
+  assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse[\s\S]*?\.mobile-playground-accordion\s*\{[\s\S]*?display:\s*grid/i);
+  assert.match(css, /\.mobile-experiment-item\.is-open \.mobile-experiment-caret/i);
+  assert.match(css, /\.playground-desktop-experiments\s*\{[\s\S]*?display:\s*none/i);
+  assert.match(css, /\.experiment-is-paused,[\s\S]*?animation-play-state:\s*paused !important/i);
   assert.match(css, /\.playground-intro p\s*\{[\s\S]*?color:\s*var\(--muted\)[\s\S]*?font-size:\s*inherit[\s\S]*?line-height:\s*inherit/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.playground-intro\s*\{[\s\S]*?gap:\s*0\.9rem/i);
   assert.match(css, /\.stellar-canvas\s*\{[\s\S]*?--simulation-background:\s*#121212/i);

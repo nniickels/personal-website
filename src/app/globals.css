@@ -1792,6 +1792,78 @@ button {
   margin-block: -0.6rem -1.2rem;
 }
 
+.mobile-playground-accordion {
+  display: none;
+}
+
+.playground-desktop-experiments {
+  display: contents;
+}
+
+.experiment-is-paused,
+.experiment-is-paused *,
+.experiment-is-paused *::before,
+.experiment-is-paused *::after {
+  animation-play-state: paused !important;
+}
+
+@media (max-width: 700px) and (orientation: portrait),
+  (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
+  .mobile-playground-accordion {
+    display: grid;
+    border-block: 1px solid var(--line);
+  }
+
+  .mobile-experiment-item + .mobile-experiment-item {
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile-experiment-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding-block: 0.95rem;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 560;
+    line-height: 1.3;
+    text-align: left;
+  }
+
+  .mobile-experiment-caret {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: translateY(-0.12rem) rotate(45deg);
+    transition: transform 220ms ease;
+  }
+
+  .mobile-experiment-item.is-open .mobile-experiment-caret {
+    transform: translateY(0.12rem) rotate(225deg);
+  }
+
+  .mobile-experiment-panel {
+    padding-bottom: 1.25rem;
+  }
+
+  .mobile-experiment-panel > .black-hole-simulator,
+  .mobile-experiment-panel > .stellar-evolution-explorer,
+  .mobile-experiment-panel > .gravitational-lensing-sandbox,
+  .mobile-experiment-panel > .orbital-resonance-toy {
+    padding-top: 0.5rem;
+    border-top: 0;
+  }
+
+  .playground-desktop-experiments {
+    display: none;
+  }
+}
+
 .black-hole-simulator[id],
 .gravitational-lensing-sandbox[id],
 .orbital-resonance-toy[id],
