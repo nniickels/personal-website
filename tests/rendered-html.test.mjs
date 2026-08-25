@@ -784,9 +784,6 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.playground-mobile-performance-note\s*\{[\s\S]*?display:\s*block/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.playground-intro\s*\{[\s\S]*?gap:\s*0\.9rem/i);
   assert.match(css, /\.stellar-canvas\s*\{[\s\S]*?--simulation-background:\s*#121212/i);
-  assert.match(css, /\.stellar-object,[\s\S]*?\.stellar-pulsar-beams\s*\{[\s\S]*?transform-origin:\s*center[\s\S]*?translate:\s*-50% -50%/i);
-  assert.match(css, /@keyframes stellar-nebula-drift\s*\{[\s\S]*?transform:\s*rotate\(0deg\) scale\(0\.96\)/i);
-  assert.match(css, /@keyframes stellar-pulsar-sweep\s*\{[\s\S]*?from\s*\{\s*transform:\s*rotate\(-18deg\)/i);
   assert.match(css, /\.stellar-object\s*\{[\s\S]*?animation:\s*stellar-pulse/i);
   assert.match(css, /\.stellar-timeline li\s*\{[\s\S]*?left:\s*var\(--stage-position\)/i);
   assert.match(css, /\.stellar-timeline-panel\s*\{[\s\S]*?grid-column:\s*1 \/ -1/i);

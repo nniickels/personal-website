@@ -3303,8 +3303,7 @@ button {
   top: 50%;
   left: 50%;
   border-radius: 50%;
-  transform-origin: center;
-  translate: -50% -50%;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 
@@ -3696,18 +3695,18 @@ button {
 }
 
 @keyframes stellar-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.04); }
 }
 
 @keyframes stellar-main-sequence-breathe {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.009); filter: brightness(1.035); }
+  0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  50% { transform: translate(-50%, -50%) scale(1.009); filter: brightness(1.035); }
 }
 
 @keyframes stellar-giant-pulse {
-  0%, 100% { transform: scale(0.985); filter: brightness(0.96); }
-  50% { transform: scale(1.035); filter: brightness(1.08); }
+  0%, 100% { transform: translate(-50%, -50%) scale(0.985); filter: brightness(0.96); }
+  50% { transform: translate(-50%, -50%) scale(1.035); filter: brightness(1.08); }
 }
 
 @keyframes stellar-surface-drift {
@@ -3720,24 +3719,24 @@ button {
 }
 
 @keyframes stellar-nebula-drift {
-  0% { transform: rotate(0deg) scale(0.96); }
-  50% { transform: rotate(180deg) scale(1.04); }
-  100% { transform: rotate(360deg) scale(0.96); }
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.96); }
+  50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.04); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.96); }
 }
 
 @keyframes stellar-supernova-pulse {
-  0%, 100% { transform: scale(0.88); }
-  50% { transform: scale(1.05); }
+  0%, 100% { transform: translate(-50%, -50%) scale(0.88); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
 }
 
 @keyframes stellar-remnant-pulse {
-  0%, 100% { opacity: 0.62; transform: scale(0.96); }
-  50% { opacity: 1; transform: scale(1.06); }
+  0%, 100% { opacity: 0.62; transform: translate(-50%, -50%) scale(0.96); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
 }
 
 @keyframes stellar-pulsar-sweep {
-  from { transform: rotate(-18deg); }
-  to { transform: rotate(342deg); }
+  from { transform: translate(-50%, -50%) rotate(-18deg); }
+  to { transform: translate(-50%, -50%) rotate(342deg); }
 }
 
 @keyframes stellar-neutron-spin {
