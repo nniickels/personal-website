@@ -36,6 +36,8 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 
 All pages share a device-synchronized light/dark theme, a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
 
+On phones, Playground experiments are collapsed by default and only one simulation is mounted at a time. On wider screens, all experiments remain visible while `IntersectionObserver` pauses offscreen JavaScript and CSS animations, resuming them shortly before they return to the viewport.
+
 ### Playground experiments
 
 - **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. It includes presets, variable guides, a draggable logarithmic growth plot, and a draggable 3D near-edge-on disk whose gaseous texture, photon ring, and lensed arc are illustrative rather than ray-traced.
@@ -49,14 +51,16 @@ The Playground experiments are simplified, illustrative models. Some motion, sca
 
 - `GET /robots.txt` allows crawling and points search engines to the sitemap.
 - `GET /sitemap.xml` lists the Main Quest, Side Quests, and Playground pages using their canonical URLs.
-- The homepage publishes `ProfilePage` and `Person` structured data connecting Nicole Jiang with the University of Toronto, LinkedIn, and GitHub.
-- Canonical URLs, page titles, descriptions, and explicit `index, follow` directives are included in page metadata.
+- The homepage publishes `WebSite` data for the preferred site name plus page-specific `ProfilePage` and `Person` data connecting Nicole Jiang with the University of Toronto, LinkedIn, and GitHub.
+- Canonical URLs, concise page titles, unique descriptions, authorship metadata, and explicit crawl and preview directives are included in page metadata.
+- The sitemap contains canonical page locations only; ignored `priority` and `changefreq` hints are intentionally omitted.
 
 ## API Routes
 
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/stats` | Combines stats.fm listening data, Clash Royale trophies, and Steam activity |
+| `GET /_vinext/image` | Serves Cloudflare-optimized raster images at responsive sizes |
 | `GET /gc/count.js` | Proxies the GoatCounter browser tracker |
 | `POST /gc/count` | Records page visits without exposing the GoatCounter site code in source URLs |
 | `GET /gc/counter/TOTAL.json` | Returns the combined view count for every page |

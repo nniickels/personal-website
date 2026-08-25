@@ -31,8 +31,12 @@ test("server-renders Nicole Jiang's homepage", async () => {
   const html = await response.text();
   assert.match(html, /<title>Nicole Jiang<\/title>/i);
   assert.match(html, /name="robots"[^>]*content="index, follow"/i);
+  assert.match(html, /type="application\/ld\+json"[^>]*>[\s\S]*?"@type":"WebSite"/i);
   assert.match(html, /type="application\/ld\+json"[^>]*>[\s\S]*?"@type":"ProfilePage"/i);
   assert.match(html, /"name":"Nicole Jiang"/i);
+  assert.match(html, /name="description"[^>]*black-hole growth and computational astrophysics/i);
+  assert.match(html, /name="author"[^>]*content="Nicole Jiang"/i);
+  assert.match(html, /name="googlebot"[^>]*max-image-preview:large[^>]*max-snippet:-1/i);
   assert.doesNotMatch(html, /property="og:|name="twitter:/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
@@ -85,6 +89,7 @@ test("publishes search-engine discovery files", async () => {
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/side-quests<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/playground<\/loc>/i);
+  assert.doesNotMatch(sitemap, /<priority>|<changefreq>/i);
 });
 
 test("keeps the animated starfield dark-mode-only and motion-safe", async () => {
@@ -460,6 +465,7 @@ test("publishes Side Quests as its own shareable page", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Side Quests — Nicole Jiang<\/title>/i);
+  assert.match(html, /name="description"[^>]*photography, music, reading, games, collections, and food/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side-quests"/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, /aria-label="Pinterest"/i);
@@ -472,6 +478,8 @@ test("publishes Side Quests as its own shareable page", async () => {
   );
   assert.doesNotMatch(html, /google\.com\/maps\/contrib/i);
   assert.doesNotMatch(html, /property="og:|name="twitter:/i);
+  assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
+  assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
   assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
   assert.match(html, /aria-label="Side Quests content"/i);
@@ -483,7 +491,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Playground — Nicole Jiang<\/title>/i);
+  assert.match(html, /name="description"[^>]*black-hole growth, stellar evolution, gravitational lensing, and orbital resonance/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/playground"/i);
+  assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
+  assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
   assert.match(html, /These are simplified,[\s\S]*?illustrative models[\s\S]*?visual cues are exaggerated or added for clarity/i);
   assert.match(html, /aria-label="Playground experiments"/i);

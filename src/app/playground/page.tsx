@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Playground } from "./playground";
 
-const description = "Interactive astronomy experiments and simulations by Nicole Jiang.";
+const description =
+  "Explore interactive astronomy simulations by Nicole Jiang, including black-hole growth, stellar evolution, gravitational lensing, and orbital resonance.";
 
 export const metadata: Metadata = {
   title: "Playground — Nicole Jiang",
