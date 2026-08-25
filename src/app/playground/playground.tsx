@@ -3,6 +3,8 @@
 import type {
   CSSProperties,
   ChangeEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from "react";
@@ -15,7 +17,68 @@ const OMEGA_LAMBDA = 0.685;
 const EDDINGTON_TIME_GYR = 0.45;
 const SOLAR_MASS = "M☉";
 const VISUAL_LOG_MASS_MIN = 1;
-const VISUAL_LOG_MASS_MAX = 14;
+const VISUAL_LOG_MASS_REFERENCE_MAX = 15;
+const GROWTH_CHART_LOG_MASS_MIN = 1;
+const GROWTH_CHART_DEFAULT_LOG_MASS_MAX = 20;
+const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
+const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
+
+const playgroundNavigation = [
+  { label: "Black-Hole Growth", href: "#black-hole-growth" },
+  { label: "Stellar Evolution", href: "#stellar-evolution" },
+  { label: "Gravitational Lensing", href: "#gravitational-lensing" },
+  { label: "Orbital Resonance", href: "#orbital-resonance" },
+] as const;
+
+let playgroundScrollAnimationFrame: number | null = null;
+
+function navigateToPlaygroundExperiment(
+  event: ReactMouseEvent<HTMLAnchorElement>,
+  href: string,
+) {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+  event.preventDefault();
+  const target = document.querySelector(href);
+  if (!(target instanceof HTMLElement)) return;
+
+  window.history.replaceState(null, "", href);
+  const headerHeight = Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
+  ) || 48;
+  const destination = Math.max(
+    0,
+    target.getBoundingClientRect().top + window.scrollY - headerHeight - 16,
+  );
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    window.scrollTo(0, destination);
+    return;
+  }
+
+  if (playgroundScrollAnimationFrame !== null) {
+    window.cancelAnimationFrame(playgroundScrollAnimationFrame);
+  }
+
+  const start = window.scrollY;
+  const distance = destination - start;
+  const duration = 260;
+  const startedAt = performance.now();
+
+  const animateScroll = (now: number) => {
+    const progress = Math.min((now - startedAt) / duration, 1);
+    const easedProgress = 1 - Math.pow(1 - progress, 3);
+    window.scrollTo(0, start + distance * easedProgress);
+
+    if (progress < 1) {
+      playgroundScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+    } else {
+      playgroundScrollAnimationFrame = null;
+    }
+  };
+
+  playgroundScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+}
 
 const presets = [
   {
@@ -177,61 +240,63 @@ function VariablesGuide() {
             <div>
               <dt>Seed mass</dt>
               <dd>
-                Roughly 10–100 M☉ suits ordinary stellar remnants; 10²–10⁴ M☉ can represent
-                massive Population III remnants or runaway stellar-cluster products; and
-                10⁴–10⁶ M☉ represents proposed direct-collapse seeds.
+                10–100 M☉ suits ordinary stellar remnants, 10²–10⁴ M☉ massive Population III
+                remnants or cluster products, and 10⁴–10⁶ M☉ proposed direct-collapse seeds.
               </dd>
             </div>
             <div>
               <dt>Accretion rate</dt>
               <dd>
-                The slider sets the Eddington ratio, λ = L / Lₑdd. About 0.1 describes weak or
-                fuel-limited feeding, approximately 1 describes a luminous near-Eddington quasar,
-                and values above 1 represent idealized super-Eddington episodes. The displayed
-                “× reference” value converts λ into a relative mass-growth rate normalized to 10%
-                radiative efficiency, so it also changes when spin changes.
+                The Eddington ratio is λ = L / Lₑdd. About 0.1 is weak feeding, 1 a near-Eddington
+                quasar, and above 1 idealized super-Eddington growth. “× reference” compares the
+                growth rate with 10% efficiency, so it varies with spin.
               </dd>
             </div>
             <div>
               <dt>Spin, a*</dt>
               <dd>
-                Values near zero can follow chaotic accretion or mixed mergers; high positive
-                spin is encouraged by prolonged aligned-disk feeding; negative spin means the
-                disk orbits opposite to the black hole.
+                Near zero can follow chaotic feeding or mixed mergers. Positive spin can follow
+                aligned feeding; negative spin means a counter-rotating disk.
               </dd>
             </div>
             <div>
               <dt>Seed redshift</dt>
               <dd>
-                z ≈ 20–30 is associated with the first stellar remnants, while many
-                direct-collapse scenarios are placed around z ≈ 10–20.
+                z ≈ 20–30 suits first stellar remnants; z ≈ 10–20 many direct-collapse scenarios.
               </dd>
             </div>
             <div>
               <dt>Observation redshift</dt>
               <dd>
-                z ≈ 6–10 probes the first billion years and early quasars; lower values give
-                the seed more cosmic time to grow.
+                z ≈ 6–10 probes the first billion years and early quasars. Lower values allow more growth time.
               </dd>
             </div>
             <div>
               <dt>Duty cycle</dt>
               <dd>
-                Around 10% represents intermittent activity, 50% sustained but episodic
-                feeding, and 100% an idealized continuously active system.
+                About 10% is intermittent, 50% sustained but episodic, and 100% continuously active.
               </dd>
             </div>
             <div>
               <dt>Radiative efficiency</dt>
               <dd>
-                The thin-disk relation gives about 5.7% for zero spin, lower values for
-                retrograde disks, and progressively higher values for rapidly prograde disks.
+                The thin-disk relation gives about 5.7% at zero spin, less for retrograde disks,
+                and more for rapidly prograde disks.
+              </dd>
+            </div>
+            <div>
+              <dt>Variable presets</dt>
+              <dd>
+                <strong>Stellar seed</strong> starts with a 10² M☉ remnant at z = 25 and tests sustained,
+                near-Eddington growth. <strong>Direct collapse</strong> starts with a 10⁵ M☉ seed at z = 20,
+                giving growth a large head start despite its higher-spin efficiency. <strong>Rapid growth</strong>
+                starts at 10⁴ M☉ and z = 25 with a 1.5 Eddington ratio and 90% duty cycle, representing
+                an idealized, sustained super-Eddington route.
               </dd>
             </div>
           </dl>
           <p>
-            These ranges are illustrative rather than unique classifications; real systems
-            can move between regimes and are constrained by their environment.
+            These ranges and presets are illustrative, not fits to individual black holes. Real systems can shift between regimes.
           </p>
         </div>
       </div>
@@ -260,6 +325,7 @@ export function BlackHoleGrowthSimulator() {
     lastX: number;
     lastY: number;
   } | null>(null);
+  const chartMarkerPointer = useRef<number | null>(null);
 
   const model = useMemo(() => {
     const seedAge = cosmicAgeAtRedshift(seedRedshift);
@@ -395,8 +461,11 @@ export function BlackHoleGrowthSimulator() {
     const right = 598;
     const top = 20;
     const bottom = 205;
-    const yMin = Math.min(2, Math.floor(seedLogMass));
-    const yMax = Math.max(9.25, Math.min(12, Math.ceil(model.finalLogMass + 0.25)));
+    const yMin = GROWTH_CHART_LOG_MASS_MIN;
+    const yMax = Math.max(
+      GROWTH_CHART_DEFAULT_LOG_MASS_MAX,
+      Math.ceil(model.finalLogMass + 0.25),
+    );
     const xAt = (fraction: number) => left + fraction * (right - left);
     const yAt = (logMass: number) => {
       const clamped = Math.min(yMax, Math.max(yMin, logMass));
@@ -423,11 +492,61 @@ export function BlackHoleGrowthSimulator() {
     };
   }, [model.currentLogMass, model.finalLogMass, progress, seedLogMass]);
 
-  const visualMassScale = clamp(
-    (model.currentLogMass - VISUAL_LOG_MASS_MIN) /
-      (VISUAL_LOG_MASS_MAX - VISUAL_LOG_MASS_MIN),
+  const updateProgressFromChartPointer = (event: ReactPointerEvent<SVGCircleElement>) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    if (!svg) return;
+    const bounds = svg.getBoundingClientRect();
+    const pointerX = ((event.clientX - bounds.left) / bounds.width) * chart.width;
+    setProgress(clamp((pointerX - chart.left) / (chart.right - chart.left), 0, 1));
+  };
+
+  const beginChartScrub = (event: ReactPointerEvent<SVGCircleElement>) => {
+    event.preventDefault();
+    setPlaying(false);
+    chartMarkerPointer.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updateProgressFromChartPointer(event);
+  };
+
+  const scrubChart = (event: ReactPointerEvent<SVGCircleElement>) => {
+    if (chartMarkerPointer.current !== event.pointerId) return;
+    updateProgressFromChartPointer(event);
+  };
+
+  const endChartScrub = (event: ReactPointerEvent<SVGCircleElement>) => {
+    if (chartMarkerPointer.current !== event.pointerId) return;
+    chartMarkerPointer.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const scrubChartWithKeyboard = (event: ReactKeyboardEvent<SVGCircleElement>) => {
+    const increments: Partial<Record<string, number>> = {
+      ArrowLeft: -0.01,
+      ArrowDown: -0.01,
+      ArrowRight: 0.01,
+      ArrowUp: 0.01,
+      PageDown: -0.05,
+      PageUp: 0.05,
+    };
+    if (event.key === "Home" || event.key === "End") {
+      event.preventDefault();
+      setPlaying(false);
+      setProgress(event.key === "Home" ? 0 : 1);
+      return;
+    }
+    const increment = increments[event.key];
+    if (increment === undefined) return;
+    event.preventDefault();
+    setPlaying(false);
+    setProgress((current) => clamp(current + increment, 0, 1));
+  };
+
+  const visualMassScale = Math.max(
     0,
-    1,
+    (model.currentLogMass - VISUAL_LOG_MASS_MIN) /
+      (VISUAL_LOG_MASS_REFERENCE_MAX - VISUAL_LOG_MASS_MIN),
   );
   const visualStyle = {
     "--mass-scale": visualMassScale,
@@ -439,7 +558,6 @@ export function BlackHoleGrowthSimulator() {
     "--view-yaw": `${viewYaw.toFixed(1)}deg`,
     "--view-pitch": `${viewPitch.toFixed(1)}deg`,
   } as CSSProperties;
-  const exceedsChart = model.finalLogMass > chart.yMax;
   const activePresetName = presets.find((preset) =>
     Math.abs(seedLogMass - preset.seedLogMass) < 0.001 &&
     Math.abs(seedRedshift - preset.seedRedshift) < 0.001 &&
@@ -450,7 +568,7 @@ export function BlackHoleGrowthSimulator() {
   )?.name;
 
   return (
-    <section className="black-hole-simulator" aria-labelledby="black-hole-simulator-title">
+    <section id="black-hole-growth" className="black-hole-simulator" aria-labelledby="black-hole-simulator-title">
       <header className="simulator-heading">
         <p className="simulator-kicker">Experiment 01</p>
         <h2 id="black-hole-simulator-title">Black-Hole Growth Simulator</h2>
@@ -462,27 +580,20 @@ export function BlackHoleGrowthSimulator() {
 
       <ExperimentGuide>
         <p>
-          The dark sphere represents the event-horizon region and the tilted ring is a stylized
-          accretion disk; this graphic is neither ray-traced nor drawn to physical scale. Its moving
-          texture visualizes the selected spin direction and relative speed, not the disk’s true
-          orbital period. The bright lower semicircle is the near side of the disk passing in front
-          of the black hole, while the upper arc is its far side behind the black hole; neither is a
-          separate measurement or physical boundary. Seed mass sets the starting mass; the
-          accretion-rate slider sets the Eddington ratio, λ = L / Lₑdd; spin, a*, sets the
-          orientation and thin-disk radiative
-          efficiency; seed and observation redshifts define the time interval; and duty cycle sets
-          the fraction of that interval spent accreting. The results report the available time,
-          exponential e-folding time, and projected final mass.
+          The dark sphere marks the event-horizon region and the tilted ring is a stylized
+          accretion disk, neither ray-traced nor drawn to physical scale. The bright lower
+          semicircle is the near side of the disk, while the upper arc is the far side. They are
+          depth cues, not measurements. The moving texture indicates spin direction and relative
+          speed. Seed mass sets the starting mass, accretion rate sets the Eddington ratio,
+          spin sets thin-disk radiative efficiency, redshifts set the time interval, and duty cycle
+          sets how often the black hole is active.
         </p>
         <p>
-          The graph runs from the seed epoch to the observation epoch horizontally and uses
-          logarithmic mass vertically, so each decade is a tenfold increase and exponential growth
-          appears nearly straight. The outlined point, moving vertical line, redshift, and mass
-          readouts mark the current simulated instant; the horizontal 10⁹ M☉ line is a comparison
-          benchmark, not a limit. Larger seeds, stronger or longer accretion, and higher duty
-          cycles generally yield larger final masses, while high prograde spin raises radiative
-          efficiency and can slow mass accumulation at fixed Eddington ratio. Fuel limits,
-          feedback, mergers, and changing accretion states are not included.
+          The graph plots cosmic time horizontally and logarithmic mass vertically, so exponential
+          growth appears nearly straight. The dot and vertical line mark playback, and 10⁹ M☉ is a benchmark, not
+          a limit. Larger seeds, higher Eddington ratios, longer growth, and higher duty cycles
+          increase final mass. High prograde spin can slow growth by raising radiative efficiency.
+          Fuel limits, feedback, mergers, and changing accretion states are not included.
         </p>
       </ExperimentGuide>
 
@@ -508,7 +619,7 @@ export function BlackHoleGrowthSimulator() {
 
       <div className="simulator-workspace">
         <div className="simulator-visual-panel">
-          <p className="rotation-hint">Drag to rotate in 3D</p>
+          <p className="rotation-hint">Drag to rotate in 3D; drag the plot dot to inspect mass growth</p>
           <div
             className={`black-hole-stage${rotatingView ? " is-dragging" : ""}`}
             style={visualStyle}
@@ -543,10 +654,6 @@ export function BlackHoleGrowthSimulator() {
             <span>z = {model.currentRedshift.toFixed(1)}</span>
             <strong>{formatMass(model.currentLogMass)}</strong>
           </div>
-          <p className="visual-mass-scale-note">
-            Visual diameter uses one fixed logarithmic scale: 10¹–10¹⁴ M☉.
-          </p>
-
         </div>
 
         <div className="simulator-controls">
@@ -558,6 +665,15 @@ export function BlackHoleGrowthSimulator() {
             step={0.1}
             displayValue={formatMass(seedLogMass)}
             onChange={updateControl(setSeedLogMass)}
+          />
+          <SimulatorSlider
+            label="Seed redshift"
+            value={seedRedshift}
+            min={8}
+            max={30}
+            step={1}
+            displayValue={`z = ${seedRedshift.toFixed(0)}`}
+            onChange={updateSeedRedshift}
           />
           <SimulatorSlider
             label="Accretion rate"
@@ -589,15 +705,6 @@ export function BlackHoleGrowthSimulator() {
                   step={0.01}
                   displayValue={`a* = ${spin.toFixed(2)}`}
                   onChange={updateControl(setSpin)}
-                />
-                <SimulatorSlider
-                  label="Seed redshift"
-                  value={seedRedshift}
-                  min={8}
-                  max={30}
-                  step={1}
-                  displayValue={`z = ${seedRedshift.toFixed(0)}`}
-                  onChange={updateSeedRedshift}
                 />
                 <SimulatorSlider
                   label="Observation redshift"
@@ -648,6 +755,24 @@ export function BlackHoleGrowthSimulator() {
             </text>
             <polyline className="growth-chart-line" points={chart.points} />
             <line className="growth-chart-progress" x1={chart.currentX} y1={chart.top} x2={chart.currentX} y2={chart.bottom} />
+            <circle
+              className="growth-chart-marker-hit"
+              cx={chart.currentX}
+              cy={chart.currentY}
+              r="15"
+              role="slider"
+              tabIndex={0}
+              aria-label="Inspect growth time"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress * 100)}
+              aria-valuetext={`z = ${model.currentRedshift.toFixed(1)}, ${formatMass(model.currentLogMass)}`}
+              onPointerDown={beginChartScrub}
+              onPointerMove={scrubChart}
+              onPointerUp={endChartScrub}
+              onPointerCancel={endChartScrub}
+              onKeyDown={scrubChartWithKeyboard}
+            />
             <circle className="growth-chart-marker" cx={chart.currentX} cy={chart.currentY} r="5" />
             <text className="growth-chart-label" x={chart.left} y={chart.bottom + 17}>seed</text>
             <text className="growth-chart-label" x={chart.right} y={chart.bottom + 17} textAnchor="end">observed</text>
@@ -680,11 +805,13 @@ export function BlackHoleGrowthSimulator() {
             <span>
               Time runs from the seed epoch to observation from left to right; mass increases
               logarithmically upward. The solid curve is the model, the dot and vertical line
-              mark playback, and the dashed line is the 10⁹ M☉ comparison benchmark.
+              mark playback. Drag the dot to inspect any time in the simulation. The dashed line is
+              the 10⁹ M☉ comparison benchmark. The vertical
+              scale normally extends to 10²⁰ M☉ and expands automatically when a selected setup
+              projects a larger result, preventing the curve from clipping.
             </span>
           </figcaption>
         </figure>
-        {exceedsChart && <p className="chart-overflow-note">The curve continues above the displayed 10¹² M☉ scale.</p>}
       </div>
 
       <dl className="simulator-results">
@@ -703,11 +830,10 @@ export function BlackHoleGrowthSimulator() {
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: flat ΛCDM with H₀ = 67.4 km s⁻¹ Mpc⁻¹, Ωₘ = 0.315, exponential
-        accretion, and a thin-disk spin–efficiency relation. Spin changes the effective mass
-        accretion rate at a fixed Eddington ratio. The model omits finite fuel supplies, mergers, feedback,
-        and changing accretion states, so extreme outputs are mathematical
-        projections—not physical predictions.
+        Toy model: a flat ΛCDM expansion without radiation sets the available time. Mass then grows
+        exponentially at fixed Eddington ratio, duty cycle, spin, and spin-derived thin-disk
+        efficiency. It omits finite fuel, feedback, mergers, and evolving accretion or spin. Outputs
+        are mathematical projections, not physical predictions.
       </p>
     </section>
   );
@@ -877,9 +1003,9 @@ export function GravitationalLensingSandbox() {
   };
 
   return (
-    <section className="gravitational-lensing-sandbox" aria-labelledby="lensing-sandbox-title">
+    <section id="gravitational-lensing" className="gravitational-lensing-sandbox" aria-labelledby="lensing-sandbox-title">
       <header className="simulator-heading">
-        <p className="simulator-kicker">Experiment 02</p>
+        <p className="simulator-kicker">Experiment 03</p>
         <h2 id="lensing-sandbox-title">Gravitational Lensing Sandbox</h2>
         <p>
           Drag the background galaxy around a foreground lens and watch gravity split, stretch,
@@ -889,24 +1015,18 @@ export function GravitationalLensingSandbox() {
 
       <ExperimentGuide>
         <p>
-          The central dark object is the foreground lens, the labeled source is the background
-          galaxy&apos;s true position, the stretched bright shapes are its apparent lensed images,
-          and the dashed circle marks the Einstein radius. Lens mass controls the strength and
-          scale of the bending; the distance factor, Dₗₛ / Dₛ, approximates the lens–source
-          geometry; and source size controls how broad the arcs appear. The readouts give the
-          Einstein radius, point-source magnification estimate, and separation between the two
-          idealized images. Source size changes the drawn arc width but not that magnification
-          estimate.
+          The lens is a massive foreground galaxy or cluster whose gravity bends light from the
+          background galaxy. The central dark marker represents its mass as a single point, not its
+          visible shape or size. The labeled source is the galaxy&apos;s true position, the bright arcs
+          are its apparent images, and the dashed circle is the Einstein radius. Lens mass and the
+          distance factor set the bending scale. Source size changes the drawn arcs but not the
+          point-source magnification estimate.
         </p>
         <p>
-          Far from the lens, one image dominates and distortion is modest. As the source approaches
-          the optical axis, both images brighten, stretch, and move toward the Einstein radius;
-          perfect alignment merges them into an Einstein ring. Increasing lens mass or the
-          distance factor enlarges the lensing scale, while a larger source creates broader arcs.
-          The ideal point-source magnification diverges at exact alignment, so the interface caps
-          the readout at “&gt; 40×” and draws a ring instead. This point-mass model omits realistic
-          extended mass profiles, external shear, substructure, and cosmological angular units, so
-          it demonstrates the expected geometry rather than making observational predictions.
+          Near alignment, the two images brighten and stretch toward the Einstein radius. Perfect
+          alignment forms an Einstein ring. The ideal point-source magnification diverges there, so
+          the readout stops at “&gt; 40×.” This point-mass model demonstrates geometry, not
+          observational predictions.
         </p>
       </ExperimentGuide>
 
@@ -929,14 +1049,14 @@ export function GravitationalLensingSandbox() {
           >
             <defs>
               <radialGradient id="lensing-galaxy-gradient">
-                <stop offset="0" stopColor="currentColor" stopOpacity="0.95" />
-                <stop offset="0.32" stopColor="currentColor" stopOpacity="0.55" />
-                <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+                <stop offset="0" stopColor="#c8a8ff" stopOpacity="0.95" />
+                <stop offset="0.32" stopColor="#9f79e8" stopOpacity="0.55" />
+                <stop offset="1" stopColor="#7953c6" stopOpacity="0" />
               </radialGradient>
               <radialGradient id="lensing-lens-gradient">
-                <stop offset="0" stopColor="currentColor" stopOpacity="0.5" />
-                <stop offset="0.45" stopColor="currentColor" stopOpacity="0.18" />
-                <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+                <stop offset="0" stopColor="#efc77f" stopOpacity="0.58" />
+                <stop offset="0.45" stopColor="#d99b55" stopOpacity="0.2" />
+                <stop offset="1" stopColor="#b46e38" stopOpacity="0" />
               </radialGradient>
               <filter id="lensing-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
                 <feGaussianBlur stdDeviation="3.2" result="blur" />
@@ -1052,9 +1172,10 @@ export function GravitationalLensingSandbox() {
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: a circular point-mass lens using the thin-lens equation. The displayed scale is
-        illustrative; real lensing depends on angular-diameter distances and extended mass profiles,
-        and galaxy lenses often produce more complicated arcs and multiple images.
+        Toy model: an axisymmetric point-mass lens uses the scalar thin-lens equation to place and
+        magnify two point-source images. Source size, arc shape, and display scale are illustrative.
+        Real galaxies and clusters have extended, asymmetric mass distributions that can produce
+        more complex images.
       </p>
     </section>
   );
@@ -1211,9 +1332,9 @@ export function OrbitalResonanceToy() {
         .join(" : ");
 
   return (
-    <section className="orbital-resonance-toy" aria-labelledby="orbital-resonance-title">
+    <section id="orbital-resonance" className="orbital-resonance-toy" aria-labelledby="orbital-resonance-title">
       <header className="simulator-heading">
-        <p className="simulator-kicker">Experiment 03</p>
+        <p className="simulator-kicker">Experiment 04</p>
         <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
         <p>
           Choose one to five bodies and compare exact period-ratio chains with a near-resonant
@@ -1239,9 +1360,9 @@ export function OrbitalResonanceToy() {
           >
             <defs>
               <radialGradient id="resonance-star-glow">
-                <stop offset="0" stopColor="currentColor" stopOpacity="0.82" />
-                <stop offset="0.24" stopColor="currentColor" stopOpacity="0.34" />
-                <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+                <stop offset="0" stopColor="#ffe1a0" stopOpacity="0.88" />
+                <stop offset="0.24" stopColor="#f3b65f" stopOpacity="0.38" />
+                <stop offset="1" stopColor="#d77b32" stopOpacity="0" />
               </radialGradient>
               <filter id="resonance-body-glow" x="-100%" y="-100%" width="300%" height="300%">
                 <feGaussianBlur stdDeviation="2" result="blur" />
@@ -1367,12 +1488,371 @@ export function OrbitalResonanceToy() {
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: prescribed circular, coplanar Keplerian orbits around a much more massive
-        central star. Exact presets return every displayed body to its starting geometry after the
-        listed repeat interval; the near-resonance preset has no short repeat. Dragging changes the
-        orbital phase and animation speed changes only the playback rate. Because the bodies do not
-        perturb one another, this demonstrates commensurate periods and repeating geometry—not the
-        gravitational locking diagnosed through librating resonant angles in real systems.
+        Toy model: non-interacting markers move at constant angular speed on prescribed circular,
+        coplanar tracks. Period ratios are independent of the displayed radii, so the diagram does not
+        enforce Kepler&apos;s third law or gravitational dynamics. Rational-ratio chains repeat; the
+        near-resonance preset has no listed short repeat. It demonstrates repeating alignments, not
+        resonance locking or librating resonant angles.
+      </p>
+    </section>
+  );
+}
+
+type StellarPhase = {
+  key: "main-sequence" | "red-giant" | "red-supergiant" | "planetary-nebula" | "supernova" | "white-dwarf" | "neutron-star" | "black-hole";
+  label: string;
+  start: number;
+  end: number;
+  timelinePosition: number;
+  size: number;
+  color: string;
+};
+
+const stellarPresets = [
+  { name: "Sun-like", mass: 1 },
+  { name: "Massive", mass: 12 },
+  { name: "Very massive", mass: 30 },
+] as const;
+
+function stellarEvolutionTrack(mass: number): StellarPhase[] {
+  const mainSequenceColor = mass < 0.8
+    ? "#ffad72"
+    : mass < 1.3
+      ? "#ffd89a"
+      : mass < 3
+        ? "#fff2cf"
+        : mass < 8
+          ? "#d8e9ff"
+          : "#9cc7ff";
+  const mainSequenceSize = clamp(56 + Math.log2(mass + 1) * 10, 60, 112);
+
+  if (mass < 8) {
+    return [
+      { key: "main-sequence", label: "Main sequence", start: 0, end: 0.72, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
+      { key: "red-giant", label: "Red giant", start: 0.72, end: 0.82, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 158, color: "#ff8757" },
+      { key: "planetary-nebula", label: "Planetary nebula", start: 0.82, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 30, color: "#e9f4ff" },
+      { key: "white-dwarf", label: "White dwarf", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 22, color: "#e7f2ff" },
+    ];
+  }
+
+  if (mass < 25) {
+    return [
+      { key: "main-sequence", label: "Main sequence", start: 0, end: 0.76, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
+      { key: "red-supergiant", label: "Red supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 178, color: "#ff704f" },
+      { key: "supernova", label: "Core-collapse supernova", start: 0.83, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 40, color: "#fff1be" },
+      { key: "neutron-star", label: "Neutron star", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 15, color: "#b9e4ff" },
+    ];
+  }
+
+  return [
+    { key: "main-sequence", label: "Main sequence", start: 0, end: 0.76, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
+    { key: "red-supergiant", label: "Supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 184, color: "#ff704f" },
+    { key: "supernova", label: "Core-collapse supernova", start: 0.83, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 42, color: "#fff1be" },
+    { key: "black-hole", label: "Black hole", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 54, color: "#020202" },
+  ];
+}
+
+function mainSequenceLuminosity(mass: number) {
+  if (mass < 0.43) return 0.23 * mass ** 2.3;
+  if (mass < 2) return mass ** 4;
+  if (mass < 16) return 1.5 * mass ** 3.5;
+  return 3_200 * mass;
+}
+
+function formatStellarLifetime(gyr: number) {
+  if (gyr < 0.01) return `${(gyr * 1_000).toFixed(1)} Myr`;
+  if (gyr < 1) return `${Math.round(gyr * 1_000)} Myr`;
+  if (gyr > 100) return "> 100 Gyr";
+  return `${gyr.toFixed(gyr < 10 ? 1 : 0)} Gyr`;
+}
+
+function formatSolarLuminosity(luminosity: number) {
+  if (luminosity < 0.1) return `${luminosity.toFixed(2)} L☉`;
+  if (luminosity < 100) return `${luminosity.toFixed(1)} L☉`;
+  if (luminosity < 10_000) return `${Math.round(luminosity).toLocaleString()} L☉`;
+  return `${luminosity.toExponential(1).replace("e+", " × 10^")} L☉`;
+}
+
+function mainSequenceTimelineStart(mass: number) {
+  const mainSequence = stellarEvolutionTrack(mass)[0];
+  return mainSequence.start +
+    (mainSequence.end - mainSequence.start) * STELLAR_TIMELINE_START_FRACTION;
+}
+
+function stellarTimelineAnchors(stages: StellarPhase[]) {
+  return stages.map((stage, index) => ({
+    progress: index === 0
+      ? stage.start + (stage.end - stage.start) * STELLAR_TIMELINE_START_FRACTION
+      : stage.start,
+    position: stage.timelinePosition,
+  }));
+}
+
+function progressToStellarTimelinePosition(stages: StellarPhase[], progress: number) {
+  const anchors = stellarTimelineAnchors(stages);
+  if (progress <= anchors[0].progress) return 0;
+
+  for (let index = 1; index < anchors.length; index += 1) {
+    const previous = anchors[index - 1];
+    const current = anchors[index];
+    if (progress <= current.progress) {
+      const fraction = (progress - previous.progress) / (current.progress - previous.progress);
+      return previous.position + fraction * (current.position - previous.position);
+    }
+  }
+
+  return 100;
+}
+
+function stellarTimelinePositionToProgress(stages: StellarPhase[], position: number) {
+  const anchors = stellarTimelineAnchors(stages);
+  if (position <= 0) return anchors[0].progress;
+
+  for (let index = 1; index < anchors.length; index += 1) {
+    const previous = anchors[index - 1];
+    const current = anchors[index];
+    if (position <= current.position) {
+      const fraction = (position - previous.position) / (current.position - previous.position);
+      return previous.progress + fraction * (current.progress - previous.progress);
+    }
+  }
+
+  return anchors[anchors.length - 1].progress;
+}
+
+export function StellarEvolutionExplorer() {
+  const [mass, setMass] = useState(1);
+  const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
+  const [playing, setPlaying] = useState(false);
+  const animationFrame = useRef<number | null>(null);
+  const stages = useMemo(() => stellarEvolutionTrack(mass), [mass]);
+  const currentStage = stages.find((stage, index) =>
+    progress >= stage.start && (progress < stage.end || index === stages.length - 1),
+  ) ?? stages[0];
+  const mainSequenceLifetime = clamp(10 * mass ** -2.5, 0.003, 180);
+  const luminosity = mainSequenceLuminosity(mass);
+  const finalRemnant = mass < 8 ? "White dwarf" : mass < 25 ? "Neutron star" : "Black hole";
+  const activePreset = stellarPresets.find((preset) => preset.mass === mass)?.name;
+  const timelineSliderPosition = progressToStellarTimelinePosition(stages, progress);
+  const stellarStyle = {
+    "--stellar-size": `${currentStage.size}px`,
+    "--stellar-glow-size": `${currentStage.size * 1.75}px`,
+    "--stellar-color": currentStage.color,
+    "--stellar-pulse-duration": `${clamp(4.8 - mass * 0.08, 1.8, 4.8).toFixed(2)}s`,
+  } as CSSProperties;
+
+  useEffect(() => {
+    if (!playing) return;
+    const initialProgress = progress >= 1 ? mainSequenceTimelineStart(mass) : progress;
+    const startedAt = performance.now();
+    const duration = Math.max(2_400, 18_000 * (1 - initialProgress));
+
+    const animate = (now: number) => {
+      const elapsed = Math.min(1, (now - startedAt) / duration);
+      const nextProgress = initialProgress + elapsed * (1 - initialProgress);
+      setProgress(nextProgress);
+      if (nextProgress < 1) {
+        animationFrame.current = requestAnimationFrame(animate);
+      } else {
+        setPlaying(false);
+      }
+    };
+
+    setProgress(initialProgress);
+    animationFrame.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
+    };
+  }, [playing]);
+
+  const updateMass = (nextMass: number) => {
+    setPlaying(false);
+    setMass(nextMass);
+    setProgress(mainSequenceTimelineStart(nextMass));
+  };
+
+  const selectStage = (stage: StellarPhase) => {
+    setPlaying(false);
+    setProgress(stage.key === "main-sequence" ? mainSequenceTimelineStart(mass) : stage.start);
+  };
+
+  const resetEvolution = () => {
+    setPlaying(false);
+    setMass(1);
+    setProgress(mainSequenceTimelineStart(1));
+  };
+
+  return (
+    <section id="stellar-evolution" className="stellar-evolution-explorer" aria-labelledby="stellar-evolution-title">
+      <header className="simulator-heading">
+        <p className="simulator-kicker">Experiment 02</p>
+        <h2 id="stellar-evolution-title">Stellar Evolution Explorer</h2>
+        <p>
+          Change a star&apos;s initial mass and follow its simplified path from the main sequence to its final remnant.
+        </p>
+      </header>
+
+      <ExperimentGuide>
+        <p>
+          Initial mass sets the approximate main-sequence lifetime, luminosity, evolutionary stages,
+          and final remnant. Play the sequence, drag the timeline slider, or select a phase below the
+          visual. The timeline begins 5/6ths through the main sequence. Phase markers are evenly
+          spaced for readability, so slider position is not to scale by time. During playback, it moves more slowly
+          through longer toy-model intervals.
+          Playback remains intentionally slowed so each final phase is visible. Surface drift represents
+          rotation and convection, while the stronger giant-phase breathing represents pulsation; their
+          animation speeds are illustrative rather than real-time.
+        </p>
+        <p>
+          Lower-mass stars become red giants, shed planetary nebulae, and leave white dwarfs. More
+          massive stars undergo core-collapse supernovae and leave neutron stars or black holes.
+          The <strong>Sun-like</strong> preset is 1 M☉ and ends as a white dwarf, <strong>Massive</strong> is
+          12 M☉ and ends as a neutron star, and <strong>Very massive</strong> is 30 M☉ and ends as a black
+          hole. Boundaries are approximate because composition, rotation, winds, and binary interaction also matter.
+        </p>
+      </ExperimentGuide>
+
+      <div className="simulator-presets" aria-label="Stellar mass presets">
+        <span className="simulator-presets-label">Mass presets:</span>
+        {stellarPresets.map((preset) => (
+          <button
+            type="button"
+            className={activePreset === preset.name ? "is-active" : undefined}
+            aria-pressed={activePreset === preset.name}
+            key={preset.name}
+            onClick={() => updateMass(preset.mass)}
+          >
+            {preset.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="stellar-workspace">
+        <div className="stellar-visual-panel">
+          <div className="stellar-status" aria-live="polite">
+            <span>{mass.toFixed(1)} M☉ · {Math.round(progress * 100)}%</span>
+            <strong>{currentStage.label}</strong>
+          </div>
+          <div
+            className={`stellar-canvas stellar-canvas--${currentStage.key}`}
+            style={stellarStyle}
+            role="img"
+            aria-label={`${mass.toFixed(1)} solar-mass star in the ${currentStage.label} phase`}
+          >
+            {lensingFieldStars.slice(0, 30).map((star, index) => (
+              <span
+                className="stellar-field-star"
+                key={`stellar-${star.x}-${star.y}-${index}`}
+                style={{
+                  left: `${(star.x / 620) * 100}%`,
+                  top: `${(star.y / 370) * 100}%`,
+                  width: `${star.radius * 1.4}px`,
+                  height: `${star.radius * 1.4}px`,
+                  opacity: star.opacity * 0.7,
+                }}
+              />
+            ))}
+            <span className="stellar-nebula" aria-hidden="true" />
+            <span className="stellar-supernova-shell" aria-hidden="true" />
+            <span className="stellar-burst" aria-hidden="true" />
+            <span className="stellar-glow" aria-hidden="true" />
+            <span className="stellar-object" aria-hidden="true"><span /></span>
+          </div>
+
+        </div>
+
+        <div className="stellar-controls simulator-controls">
+          <SimulatorSlider
+            label="Initial mass"
+            value={mass}
+            min={0.5}
+            max={40}
+            step={0.5}
+            displayValue={`${mass.toFixed(1)} M☉`}
+            onChange={updateMass}
+          />
+          <div className="simulator-actions stellar-actions">
+            <button
+              type="button"
+              className="simulator-primary-action"
+              onClick={() => setPlaying((current) => !current)}
+            >
+              {playing ? "Pause evolution" : "Play evolution"}
+            </button>
+            <button type="button" onClick={resetEvolution}>Reset</button>
+          </div>
+        </div>
+
+        <div className="stellar-timeline-panel">
+          <p id="stellar-timeline-hint" className="stellar-timeline-hint">
+            Phases are evenly spaced, not to scale by time; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
+          </p>
+          <div className="stellar-timeline-control">
+            <input
+              className="stellar-timeline-scrubber"
+              type="range"
+              min={0}
+              max={100}
+              step={0.1}
+              value={timelineSliderPosition}
+              aria-label="Evolution progress"
+              aria-describedby="stellar-timeline-hint"
+              onChange={(event) => {
+                setPlaying(false);
+                setProgress(stellarTimelinePositionToProgress(stages, Number(event.currentTarget.value)));
+              }}
+            />
+            <ol className="stellar-timeline" aria-label="Evolutionary phases">
+              {stages.map((stage, index) => (
+                <li
+                  key={stage.key}
+                  style={{
+                    "--stage-color": stage.color,
+                    "--stage-position": `${stage.timelinePosition}%`,
+                    "--stage-label-offset": "0rem",
+                  } as CSSProperties}
+                >
+                  <button
+                    type="button"
+                    aria-pressed={currentStage.key === stage.key}
+                    onClick={() => selectStage(stage)}
+                  >
+                    <span aria-hidden="true" />
+                    <small>
+                      {index === 0 ? (
+                        "5/6ths through main sequence"
+                      ) : (
+                        stage.label
+                      )}
+                    </small>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <dl className="simulator-results stellar-results">
+        <div>
+          <dt>Main-sequence lifetime</dt>
+          <dd>{formatStellarLifetime(mainSequenceLifetime)}</dd>
+        </div>
+        <div>
+          <dt>Main-sequence luminosity</dt>
+          <dd>{formatSolarLuminosity(luminosity)}</dd>
+        </div>
+        <div>
+          <dt>Final remnant</dt>
+          <dd>{finalRemnant}</dd>
+        </div>
+      </dl>
+
+      <p className="simulator-method-note">
+        Toy model: single-star evolution at solar-like composition uses piecewise luminosity scaling,
+        an approximate mass-lifetime relation, simplified phase timing, and fixed remnant thresholds.
+        Surface rotation is visual only. It omits detailed nuclear burning, metallicity dependence,
+        winds and mass loss, binaries, and uncertain remnant formation.
       </p>
     </section>
   );
@@ -1390,7 +1870,24 @@ export function Playground() {
             Play with some interactive astronomy experiments and simulations! 
           </p>
         </section>
+        <nav className="side-quest-index playground-index" aria-label="Playground experiments">
+          <div className="side-quest-index-row playground-index-row">
+            {playgroundNavigation.map((item, index) => (
+              <span className="side-quest-index-item" key={item.href}>
+                {index > 0 && <span className="side-quest-index-divider">|</span>}
+                <a
+                  className="text-link side-quest-index-link"
+                  href={item.href}
+                  onClick={(event) => navigateToPlaygroundExperiment(event, item.href)}
+                >
+                  {item.label}
+                </a>
+              </span>
+            ))}
+          </div>
+        </nav>
         <BlackHoleGrowthSimulator />
+        <StellarEvolutionExplorer />
         <GravitationalLensingSandbox />
         <OrbitalResonanceToy />
       </main>

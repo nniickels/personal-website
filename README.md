@@ -29,13 +29,14 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
 | `/side-quests` | Side Quests — photos, listening, reading, watching, gaming, collections, and food |
-| `/playground` | Playground — interactive black-hole growth, gravitational-lensing, and orbital-resonance experiments |
+| `/playground` | Playground — interactive black-hole growth, gravitational-lensing, orbital-resonance, and stellar-evolution experiments |
 
 ### Playground experiments
 
-- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. Its accretion disk is a stylized depth cue: the bright lower semicircle is the near side of the disk and the upper arc is the far side, not a separate measurement or physical boundary.
-- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of a circular point-mass thin lens. Source size changes the drawn arcs, while the magnification readout remains a capped point-source estimate.
-- **Orbital Resonance Toy** — compares prescribed Keplerian period-ratio chains with a near-resonant setup. It shows repeating orbital geometry without simulating the mutual perturbations or resonant-angle libration that maintain real resonances.
+- **Black-Hole Growth Simulator** — projects seed growth with a constant Eddington ratio, spin-derived thin-disk radiative efficiency, duty cycle, and a flat ΛCDM time interval. Its disk is an illustrative depth cue, not a ray-traced measurement or physical boundary.
+- **Gravitational Lensing Sandbox** — demonstrates the two idealized images and Einstein ring of an axisymmetric point-mass thin lens. Source size changes the illustrative arcs, while the magnification readout remains a capped point-source estimate.
+- **Orbital Resonance Toy** — compares prescribed period-ratio chains with a near-resonant setup. Display radii are independent of period, so it shows repeating alignments without enforcing Kepler's third law, mutual perturbations, or resonant-angle libration.
+- **Stellar Evolution Explorer** — follows approximate mass-dependent tracks from the main sequence through giant, nebular, or supernova phases to a white dwarf, neutron star, or black hole. Timeline markers are evenly spaced rather than time-scaled, while playback moves more slowly through longer toy-model intervals.
 
 ## Search discovery
 

@@ -1724,7 +1724,7 @@ button {
 
 .playground-intro {
   display: grid;
-  gap: 1.15rem;
+  gap: 0.9rem;
   max-width: 42rem;
 }
 
@@ -1735,7 +1735,20 @@ button {
 }
 
 .playground-intro p {
-  line-height: 1.85;
+  color: var(--muted);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.playground-index-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.black-hole-simulator[id],
+.gravitational-lensing-sandbox[id],
+.orbital-resonance-toy[id],
+.stellar-evolution-explorer[id] {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 .black-hole-simulator {
@@ -1940,8 +1953,8 @@ button {
   z-index: 1;
   display: grid;
   place-items: center;
-  width: calc(86px + 174px * var(--mass-scale));
-  height: calc(86px + 174px * var(--mass-scale));
+  width: calc(102px + 208px * var(--mass-scale));
+  height: calc(102px + 208px * var(--mass-scale));
   transform: rotateX(var(--view-pitch)) rotateZ(var(--view-yaw));
   transform-style: preserve-3d;
   will-change: transform;
@@ -2127,14 +2140,6 @@ button {
   text-align: right;
 }
 
-.visual-mass-scale-note {
-  margin: -0.25rem 0 0;
-  color: var(--muted);
-  font-size: 0.66rem;
-  line-height: 1.5;
-  text-align: right;
-}
-
 .growth-chart {
   display: block;
   width: 100%;
@@ -2204,7 +2209,29 @@ button {
   fill: var(--background);
   stroke: var(--foreground);
   stroke-width: 2;
+  pointer-events: none;
   vector-effect: non-scaling-stroke;
+}
+
+.growth-chart-marker-hit {
+  fill: transparent;
+  stroke: transparent;
+  cursor: ew-resize;
+  touch-action: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.growth-chart-marker-hit:hover + .growth-chart-marker,
+.growth-chart-marker-hit:focus-visible + .growth-chart-marker {
+  fill: color-mix(in srgb, var(--foreground) 16%, var(--background));
+  stroke-width: 3;
+}
+
+.growth-chart-marker-hit:focus-visible {
+  outline: none;
+  stroke: var(--foreground);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
 }
 
 .growth-chart-label {
@@ -2447,7 +2474,7 @@ button {
   }
 
   .playground-intro {
-    gap: 0.85rem;
+    gap: 0.65rem;
   }
 
   .playground-intro h1 {
@@ -2613,7 +2640,7 @@ button {
 }
 
 .einstein-ring {
-  stroke: var(--simulation-foreground);
+  stroke: #9bdcff;
   stroke-width: 3;
   filter: url(#lensing-soft-glow);
   transition:
@@ -2622,7 +2649,7 @@ button {
 }
 
 .lensing-image {
-  color: var(--simulation-foreground);
+  color: #9bdcff;
   filter: url(#lensing-soft-glow);
   pointer-events: none;
   transition:
@@ -2650,14 +2677,21 @@ button {
 
 .lensing-lens,
 .lensing-source {
-  color: var(--simulation-foreground);
   pointer-events: none;
   will-change: transform;
 }
 
+.lensing-lens {
+  color: #efc77f;
+}
+
+.lensing-source {
+  color: #c8a8ff;
+}
+
 .lensing-lens > circle:first-child {
   fill: url(#lensing-lens-gradient);
-  stroke: var(--simulation-muted);
+  stroke: currentColor;
   stroke-width: 1;
   opacity: 0.8;
   vector-effect: non-scaling-stroke;
@@ -2665,7 +2699,7 @@ button {
 
 .lensing-lens-core {
   fill: var(--simulation-background);
-  stroke: var(--simulation-foreground);
+  stroke: currentColor;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -2681,7 +2715,7 @@ button {
 
 .lensing-source-handle {
   fill: transparent;
-  stroke: var(--simulation-foreground);
+  stroke: currentColor;
   stroke-width: 1;
   stroke-dasharray: 3 4;
   opacity: 0.58;
@@ -2690,14 +2724,14 @@ button {
 
 .lensing-source > ellipse:not(.lensing-source-core) {
   fill: url(#lensing-galaxy-gradient);
-  stroke: var(--simulation-foreground);
+  stroke: currentColor;
   stroke-width: 1.4;
   filter: url(#lensing-soft-glow);
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-source-core {
-  fill: var(--simulation-foreground);
+  fill: currentColor;
   opacity: 0.72;
 }
 
@@ -2801,25 +2835,26 @@ button {
 
 .resonance-orbit {
   fill: none;
-  stroke: var(--simulation-muted);
+  stroke: #7189aa;
   stroke-width: 1;
   stroke-dasharray: 3 5;
   vector-effect: non-scaling-stroke;
 }
 
 .resonance-spoke {
-  stroke: var(--simulation-muted);
+  stroke: #91a7c2;
   stroke-width: 0.8;
   opacity: 0.16;
   vector-effect: non-scaling-stroke;
 }
 
 .resonance-star-glow {
+  color: #f3b65f;
   fill: url(#resonance-star-glow);
 }
 
 .resonance-star {
-  fill: var(--simulation-foreground);
+  fill: #ffe1a0;
   filter: url(#resonance-body-glow);
 }
 
@@ -2841,19 +2876,27 @@ button {
 }
 
 .resonance-body--2 {
-  opacity: 0.72;
+  color: #f1a66f;
+  opacity: 0.88;
 }
 
 .resonance-body--3 {
-  opacity: 0.48;
+  color: #a9dd88;
+  opacity: 0.82;
 }
 
 .resonance-body--4 {
-  opacity: 0.38;
+  color: #c6a2f5;
+  opacity: 0.76;
 }
 
 .resonance-body--5 {
-  opacity: 0.3;
+  color: #ef8f9a;
+  opacity: 0.7;
+}
+
+.resonance-body--1 {
+  color: #82cfff;
 }
 
 .resonance-body-picker {
@@ -2946,5 +2989,509 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .resonance-body-picker button {
     transition: none;
+  }
+}
+
+.stellar-evolution-explorer {
+  display: grid;
+  gap: 1.6rem;
+  padding-top: 2.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.stellar-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.75fr);
+  column-gap: 1.7rem;
+  row-gap: 0.8rem;
+  align-items: start;
+}
+
+.stellar-visual-panel {
+  min-width: 0;
+}
+
+.stellar-status {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.stellar-status strong {
+  color: var(--foreground);
+  font-weight: 530;
+  text-align: right;
+}
+
+.stellar-canvas {
+  --simulation-background: #121212;
+  --simulation-foreground: #d7d7d7;
+  --simulation-line: #2a2a2a;
+  --stellar-size: 68px;
+  --stellar-glow-size: 119px;
+  --stellar-color: #ffd89a;
+  --stellar-pulse-duration: 4s;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 330px;
+  overflow: hidden;
+  border: 1px solid var(--simulation-line);
+  border-radius: 10px;
+  color: var(--simulation-foreground);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(95, 115, 150, 0.12), transparent 43%),
+    var(--simulation-background);
+  isolation: isolate;
+}
+
+.stellar-field-star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--simulation-foreground);
+  pointer-events: none;
+}
+
+.stellar-object,
+.stellar-glow,
+.stellar-nebula,
+.stellar-supernova-shell,
+.stellar-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stellar-glow {
+  z-index: 1;
+  width: var(--stellar-glow-size);
+  height: var(--stellar-glow-size);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--stellar-color) 42%, transparent),
+    color-mix(in srgb, var(--stellar-color) 14%, transparent) 46%,
+    transparent 72%
+  );
+  filter: blur(7px);
+  transition: width 950ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 950ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 750ms ease;
+}
+
+.stellar-object {
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: var(--stellar-size);
+  height: var(--stellar-size);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--stellar-color) 75%, white);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.76), transparent 13%),
+    radial-gradient(circle at 42% 38%, color-mix(in srgb, var(--stellar-color) 92%, white), var(--stellar-color) 58%, color-mix(in srgb, var(--stellar-color) 68%, black));
+  box-shadow: 0 0 24px color-mix(in srgb, var(--stellar-color) 52%, transparent);
+  animation: stellar-pulse var(--stellar-pulse-duration) ease-in-out infinite;
+  transition: width 950ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 950ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 750ms ease,
+    border-color 750ms ease,
+    box-shadow 750ms ease;
+}
+
+.stellar-object > span {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    repeating-radial-gradient(circle at 36% 33%, transparent 0 5px, rgba(255, 255, 255, 0.085) 6px 7px),
+    repeating-conic-gradient(from 15deg, transparent 0 16deg, rgba(40, 20, 10, 0.16) 18deg 22deg);
+  mix-blend-mode: soft-light;
+}
+
+.stellar-object > span::before {
+  position: absolute;
+  inset: -12%;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 22% 32%, rgba(255, 255, 255, 0.3) 0 3%, transparent 9%),
+    radial-gradient(circle at 68% 24%, rgba(70, 28, 12, 0.32) 0 4%, transparent 11%),
+    radial-gradient(circle at 76% 68%, rgba(255, 238, 194, 0.26) 0 5%, transparent 13%),
+    radial-gradient(circle at 35% 76%, rgba(84, 31, 13, 0.27) 0 4%, transparent 12%);
+  content: "";
+  opacity: 0.72;
+}
+
+.stellar-canvas--main-sequence .stellar-object {
+  animation: stellar-main-sequence-breathe calc(var(--stellar-pulse-duration) * 1.45) ease-in-out infinite;
+}
+
+.stellar-canvas--red-giant .stellar-object,
+.stellar-canvas--red-supergiant .stellar-object {
+  animation: stellar-giant-pulse calc(var(--stellar-pulse-duration) * 1.65) ease-in-out infinite;
+}
+
+.stellar-canvas--main-sequence .stellar-object > span,
+.stellar-canvas--red-giant .stellar-object > span,
+.stellar-canvas--red-supergiant .stellar-object > span {
+  animation: stellar-surface-drift 12s linear infinite;
+  will-change: transform;
+}
+
+.stellar-canvas--red-giant .stellar-object > span,
+.stellar-canvas--red-supergiant .stellar-object > span {
+  animation-duration: 16s;
+}
+
+.stellar-canvas--main-sequence .stellar-object > span::before,
+.stellar-canvas--red-giant .stellar-object > span::before,
+.stellar-canvas--red-supergiant .stellar-object > span::before {
+  animation: stellar-convection-shift 7.5s ease-in-out infinite alternate;
+}
+
+.stellar-canvas--red-giant .stellar-object > span::before,
+.stellar-canvas--red-supergiant .stellar-object > span::before {
+  opacity: 0.9;
+  animation-duration: 5.5s;
+}
+
+.stellar-nebula {
+  z-index: 2;
+  width: 250px;
+  height: 190px;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 7%, rgba(126, 223, 255, 0.46) 17%, rgba(154, 116, 255, 0.22) 35%, transparent 66%),
+    conic-gradient(from 30deg, transparent, rgba(92, 218, 255, 0.3), transparent 35%, rgba(218, 112, 255, 0.24), transparent 72%);
+  filter: blur(6px);
+  transition: opacity 850ms ease;
+}
+
+.stellar-supernova-shell {
+  z-index: 2;
+  width: 205px;
+  height: 205px;
+  border: 2px solid rgba(255, 203, 119, 0.72);
+  opacity: 0;
+  box-shadow: 0 0 24px rgba(255, 115, 55, 0.38), inset 0 0 22px rgba(255, 227, 166, 0.24);
+  transition: opacity 850ms ease;
+}
+
+.stellar-burst {
+  z-index: 1;
+  width: 270px;
+  height: 270px;
+  opacity: 0;
+  background: repeating-conic-gradient(
+    from 4deg,
+    transparent 0 7deg,
+    rgba(255, 222, 158, 0.46) 8deg,
+    transparent 10deg 17deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 14%, #000 16%, transparent 70%);
+  mask: radial-gradient(circle, transparent 0 14%, #000 16%, transparent 70%);
+  transition: opacity 850ms ease;
+}
+
+.stellar-canvas--planetary-nebula .stellar-nebula {
+  opacity: 1;
+  animation: stellar-nebula-drift 8s linear infinite;
+}
+
+.stellar-canvas--supernova .stellar-supernova-shell,
+.stellar-canvas--supernova .stellar-burst {
+  opacity: 1;
+  animation: stellar-supernova-pulse 1.8s ease-in-out infinite;
+}
+
+.stellar-canvas--white-dwarf .stellar-object,
+.stellar-canvas--neutron-star .stellar-object {
+  box-shadow: 0 0 18px var(--stellar-color), 0 0 42px color-mix(in srgb, var(--stellar-color) 38%, transparent);
+}
+
+.stellar-canvas--black-hole .stellar-glow {
+  width: 112px;
+  height: 112px;
+  background: radial-gradient(circle, transparent 31%, rgba(216, 151, 80, 0.24) 38%, transparent 58%);
+  animation: stellar-remnant-pulse 3.2s ease-in-out infinite;
+}
+
+.stellar-canvas--black-hole .stellar-object {
+  overflow: visible;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #010101;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 28px rgba(0, 0, 0, 0.9);
+  animation: none;
+}
+
+.stellar-canvas--black-hole .stellar-object::after {
+  position: absolute;
+  inset: -12px;
+  border: 3px solid rgba(229, 169, 94, 0.58);
+  border-radius: 50%;
+  clip-path: inset(48% 0 0 0);
+  transform: rotate(-8deg) scaleY(0.34);
+  content: "";
+}
+
+.stellar-timeline-panel {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.stellar-timeline-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.stellar-timeline-hint strong {
+  color: var(--foreground);
+  font-weight: 650;
+}
+
+.stellar-timeline-control {
+  position: relative;
+}
+
+.stellar-timeline-scrubber {
+  position: absolute;
+  z-index: 2;
+  top: calc(0.9rem - 4px);
+  left: 0;
+  width: 100%;
+  height: 19px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.stellar-timeline-scrubber::-webkit-slider-runnable-track {
+  height: 1px;
+  background: transparent;
+}
+
+.stellar-timeline-scrubber::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  margin-top: -6px;
+  border: 1px solid var(--foreground);
+  border-radius: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--background);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--foreground) 12%, transparent),
+    0 0 12px color-mix(in srgb, var(--foreground) 46%, transparent);
+}
+
+.stellar-timeline-scrubber::-moz-range-track {
+  height: 1px;
+  background: transparent;
+}
+
+.stellar-timeline-scrubber::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--foreground);
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--foreground) 12%, transparent),
+    0 0 12px color-mix(in srgb, var(--foreground) 46%, transparent);
+}
+
+.stellar-timeline-scrubber:focus-visible {
+  outline: 1px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+.stellar-timeline {
+  position: relative;
+  width: 100%;
+  height: 5.5rem;
+  margin: 0;
+  padding: 0.9rem 0 0;
+  list-style: none;
+}
+
+.stellar-timeline::before {
+  position: absolute;
+  top: calc(0.9rem + 5px);
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--line);
+  content: "";
+}
+
+.stellar-timeline li {
+  --stage-color: var(--foreground);
+  position: absolute;
+  top: 0.9rem;
+  left: var(--stage-position);
+  width: 0;
+}
+
+.stellar-timeline button {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 0.42rem;
+  width: max-content;
+  color: var(--muted);
+  text-align: center;
+  transform: translateX(-50%);
+  transition: color 180ms ease;
+}
+
+.stellar-timeline li:first-child button {
+  justify-items: start;
+  transform: none;
+  text-align: left;
+}
+
+.stellar-timeline li:last-child button {
+  justify-items: end;
+  transform: translateX(-100%);
+  text-align: right;
+}
+
+.stellar-timeline button > span {
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--stage-color);
+  border-radius: 50%;
+  background: var(--background);
+  box-shadow: 0 0 0 transparent;
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.stellar-timeline button small {
+  position: relative;
+  top: var(--stage-label-offset);
+  max-width: 8rem;
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.stellar-timeline button:hover,
+.stellar-timeline button:focus-visible,
+.stellar-timeline button[aria-pressed="true"] {
+  color: var(--foreground);
+}
+
+.stellar-timeline button[aria-pressed="true"] > span {
+  background: var(--stage-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--stage-color) 68%, transparent);
+  transform: scale(1.15);
+  animation: stellar-marker-pulse 2.4s ease-in-out infinite;
+}
+
+.stellar-results dd {
+  white-space: normal;
+}
+
+@keyframes stellar-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.04); }
+}
+
+@keyframes stellar-main-sequence-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  50% { transform: translate(-50%, -50%) scale(1.009); filter: brightness(1.035); }
+}
+
+@keyframes stellar-giant-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.985); filter: brightness(0.96); }
+  50% { transform: translate(-50%, -50%) scale(1.035); filter: brightness(1.08); }
+}
+
+@keyframes stellar-surface-drift {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes stellar-convection-shift {
+  0% { transform: translate3d(-1.5%, 1%, 0) scale(0.98) rotate(-3deg); opacity: 0.55; }
+  100% { transform: translate3d(1.5%, -1%, 0) scale(1.04) rotate(4deg); opacity: 0.92; }
+}
+
+@keyframes stellar-nebula-drift {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.96); }
+  50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.04); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.96); }
+}
+
+@keyframes stellar-supernova-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.88); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes stellar-remnant-pulse {
+  0%, 100% { opacity: 0.62; transform: translate(-50%, -50%) scale(0.96); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+
+@keyframes stellar-marker-pulse {
+  0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--stage-color) 52%, transparent); }
+  50% { box-shadow: 0 0 18px color-mix(in srgb, var(--stage-color) 82%, transparent); }
+}
+
+@media (max-width: 700px) {
+  .stellar-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .stellar-timeline-panel {
+    order: 2;
+  }
+
+  .stellar-controls {
+    order: 3;
+  }
+}
+
+@media (max-width: 520px) {
+  .stellar-evolution-explorer {
+    gap: 1.25rem;
+    padding-top: 1.7rem;
+  }
+
+  .stellar-status {
+    align-items: flex-start;
+    font-size: 0.72rem;
+  }
+
+  .stellar-canvas {
+    height: 255px;
+    margin-inline: -0.15rem;
+    width: calc(100% + 0.3rem);
+  }
+
+  .stellar-timeline button small {
+    font-size: 0.59rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stellar-object,
+  .stellar-glow,
+  .stellar-nebula,
+  .stellar-supernova-shell,
+  .stellar-burst,
+  .stellar-object > span,
+  .stellar-object > span::before,
+  .stellar-timeline button[aria-pressed="true"] > span {
+    animation: none;
   }
 }
