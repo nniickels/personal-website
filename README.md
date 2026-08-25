@@ -59,6 +59,7 @@ Layout responds to available width, so these are the typical orientation differe
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
 | Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
+| Playground performance notice | Hidden. | Shown beneath the page description to recommend desktop for the best performance and allow time for experiments to load. |
 | Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open, and the starfield pauses while it is displayed. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly and shooting stars are hidden. |
 
 ## Search discovery

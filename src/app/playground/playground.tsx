@@ -2171,6 +2171,10 @@ export function Playground() {
             Play with some interactive astronomy experiments and simulations! These are simplified,
             illustrative models, and some visual cues are exaggerated or added for clarity rather
             than being physically precise or necessary to the simulation.
+            <span className="playground-mobile-performance-note">
+              For the best performance, please use a desktop. On mobile, please allow experiments a
+              moment to load.
+            </span>
           </p>
         </section>
         <nav className="side-quest-index playground-index" aria-label="Playground experiments">
