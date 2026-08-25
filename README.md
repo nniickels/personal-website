@@ -48,7 +48,7 @@ Layout responds to available width, so these are the typical orientation differe
 | Side Quests section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
 | Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | Stacks experiment visuals and controls into one column on narrow screens. |
-| Playground lifecycle | Desktop and landscape-tablet layouts show all four experiments. `IntersectionObserver` pauses offscreen motion and resumes it shortly before re-entry. Short touchscreen phone landscapes use the accordion instead. | Phone-width portraits use a collapsed single-open accordion. Only the expanded experiment is mounted, so collapsed simulations do not run. |
+| Playground lifecycle | Desktop and landscape-tablet layouts show all four experiments. `IntersectionObserver` pauses offscreen motion and resumes it shortly before re-entry. Short touchscreen phone landscapes use the accordion instead. | Phone-width portraits use a collapsed single-open accordion. Only the expanded experiment is mounted, and opening one jumps immediately to its heading. |
 
 ### Cursor and touchscreen
 
@@ -58,8 +58,8 @@ Layout responds to available width, so these are the typical orientation differe
 | Listening music shelf | Hovering a cover starts its looping preview. Clicking expands it, and clicking the expanded cover opens Spotify. | Holding a cover starts its preview. Dragging across covers switches tracks and smoothly scrolls near the shelf edges. Tapping expands it, and tapping the expanded cover opens Spotify. |
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
-| Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. The stellar-evolution timeline has an enlarged touch target so it can be scrubbed without the phase markers intercepting the gesture. |
-| Playground disclosures | Variable Guide and Advanced Settings content remains mounted and uses animated expansion. | Disclosure content is mounted only while open, and the starfield pauses while it is displayed. Tablets retain animated expansion; phone accordion layouts reveal the content instantly. |
+| Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
+| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open, and the starfield pauses while it is displayed. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly and shooting stars are hidden. |
 
 ## Search discovery
 

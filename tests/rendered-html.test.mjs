@@ -63,6 +63,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /<h2>Service &amp; Leadership<\/h2>/i);
   assert.match(html, /University of Toronto/i);
   assert.match(html, /class="project-description"/i);
+  assert.doesNotMatch(html, /class="project-tools"/i);
   assert.match(html, /Predicting APA Site Choice from mRNA Sequences[\s\S]*?class="external-link-icon"/i);
   assert.match(html, /Royal Astronomical Society of Canada/i);
   assert.match(html, /Ontario Science Centre/i);
@@ -571,11 +572,13 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
 
   const source = await readFile(new URL("../src/app/playground/playground.tsx", import.meta.url), "utf8");
-  assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide>[\s\S]*?<VariablesGuide[\s\S]*?open=\{variablesGuideOpen\}[\s\S]*?deferContent=\{touchDisclosureOptimizations\}[\s\S]*?aria-label="Growth scenarios"/i);
+  assert.match(source, /className="black-hole-guidance"[\s\S]*?<ExperimentGuide[\s\S]*?<VariablesGuide[\s\S]*?open=\{variablesGuideOpen\}[\s\S]*?deferContent=\{touchDisclosureOptimizations\}[\s\S]*?aria-label="Growth scenarios"/i);
   assert.match(source, /function VariablesGuide[\s\S]*?\(!deferContent \|\| open\) &&/i);
   assert.match(source, /\(!touchDisclosureOptimizations \|\| advancedOpen\) &&/i);
-  assert.equal((source.match(/BlackHoleGrowthSimulator touchDisclosureOptimizations=\{usesTouchOptimizations\}/g) ?? []).length, 2);
-  assert.match(source, /advancedOpen \|\| variablesGuideOpen[\s\S]*?touch-playground-disclosure-open/i);
+  assert.equal((source.match(/touchDisclosureOptimizations=\{usesTouchOptimizations\}/g) ?? []).length, 2);
+  assert.equal((source.match(/coordinateTouchGuides=\{usesTouchOptimizations\}/g) ?? []).length, 2);
+  assert.equal((source.match(/touchLineScrubbing=\{usesTouchOptimizations\}/g) ?? []).length, 2);
+  assert.match(source, /advancedOpen \|\| variablesGuideOpen \|\| explanationOpen[\s\S]*?touch-playground-disclosure-open/i);
   assert.match(source, /TOUCH_PLAYGROUND_QUERY = "\(hover: none\), \(pointer: coarse\)"/i);
   assert.match(source, /matchMedia\(TOUCH_PLAYGROUND_QUERY\)[\s\S]*?setUsesTouchOptimizations\(touchQuery\.matches\)/i);
   assert.match(source, /MOBILE_PLAYGROUND_QUERY[\s\S]*?max-width: 700px[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse/i);
@@ -586,7 +589,12 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /if \(!playing \|\| !isExperimentVisible\) \{[\s\S]*?previousTime\.current = null/i);
   assert.equal((source.match(/experiment-is-paused/g) ?? []).length, 4);
   assert.match(source, /function scrollToPlaygroundElement[\s\S]*?target\.getBoundingClientRect\(\)\.top/i);
-  assert.match(source, /handleMobileExperimentToggle[\s\S]*?const willOpen = openExperiment !== href[\s\S]*?requestAnimationFrame\(\(\) => scrollToPlaygroundElement\(experimentItem\)\)/i);
+  assert.match(source, /handleMobileExperimentToggle[\s\S]*?const willOpen = openExperiment !== href[\s\S]*?scrollToPlaygroundElement\(experimentItem, true\)/i);
+  assert.match(source, /coordinateTouchGuides[\s\S]*?setExplanationOpen\(open\)[\s\S]*?if \(open\) setVariablesGuideOpen\(false\)/i);
+  assert.match(source, /nextOpen && coordinateTouchGuides[\s\S]*?setExplanationOpen\(false\)/i);
+  assert.match(source, /beginTimelineDrag[\s\S]*?setPointerCapture\(event\.pointerId\)[\s\S]*?updateTimelineFromPointer\(event\)/i);
+  assert.match(source, /updateTimelineFromPointer[\s\S]*?event\.clientX - bounds\.left[\s\S]*?stellarTimelinePositionToProgress/i);
+  assert.match(source, /NightSky className="night-sky--playground"/i);
   assert.match(source, /\{isOpen && \([\s\S]*?className="mobile-experiment-panel"[\s\S]*?experiment\.content/i);
   assert.match(source, /!usesMobileAccordion && \([\s\S]*?className="playground-desktop-experiments"/i);
   assert.match(source, /EDDINGTON_TIME_GYR = 0\.45/);
@@ -763,8 +771,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse[\s\S]*?\.mobile-playground-accordion\s*\{[\s\S]*?display:\s*grid/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.playground-index\s*\{[\s\S]*?display:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.mobile-playground-accordion \.simulator-advanced-reveal[\s\S]*?transition:\s*none/i);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.variable-guide \.simulator-advanced-reveal,[\s\S]*?\.variable-guide \.simulator-advanced-content[\s\S]*?transition:\s*none/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?:root\.touch-playground-disclosure-open \.night-star,[\s\S]*?:root\.touch-playground-disclosure-open \.shooting-star[\s\S]*?animation-play-state:\s*paused !important/i);
-  assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.stellar-timeline-scrubber\s*\{[\s\S]*?z-index:\s*4[\s\S]*?height:\s*44px[\s\S]*?touch-action:\s*none/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.night-sky--playground \.night-star[\s\S]*?animation-duration:\s*var\(--touch-twinkle-duration\)[\s\S]*?\.night-sky--playground \.shooting-star[\s\S]*?display:\s*none/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.stellar-timeline-scrubber\s*\{[\s\S]*?z-index:\s*4[\s\S]*?height:\s*44px[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.mobile-experiment-item\.is-open \.mobile-experiment-caret/i);
   assert.match(css, /\.playground-desktop-experiments\s*\{[\s\S]*?display:\s*none/i);
   assert.match(css, /\.experiment-is-paused,[\s\S]*?animation-play-state:\s*paused !important/i);

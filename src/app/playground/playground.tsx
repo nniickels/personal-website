@@ -72,7 +72,7 @@ function scrollToPlaygroundExperiment(href: string) {
   scrollToPlaygroundElement(target);
 }
 
-function scrollToPlaygroundElement(target: HTMLElement) {
+function scrollToPlaygroundElement(target: HTMLElement, instant = false) {
 
   const headerHeight = Number.parseFloat(
     getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
@@ -82,7 +82,7 @@ function scrollToPlaygroundElement(target: HTMLElement) {
     target.getBoundingClientRect().top + window.scrollY - headerHeight - 16,
   );
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (instant || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     window.scrollTo(0, destination);
     return;
   }
@@ -256,9 +256,21 @@ function SimulatorSlider({
   );
 }
 
-function ExperimentGuide({ children }: { children: ReactNode }) {
+function ExperimentGuide({
+  children,
+  open,
+  onOpenChange,
+}: {
+  children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   return (
-    <details className="experiment-guide">
+    <details
+      className="experiment-guide"
+      open={open}
+      onToggle={(event) => onOpenChange?.(event.currentTarget.open)}
+    >
       <summary>
         <span className="experiment-guide-caret" aria-hidden="true" />
         Explanation
@@ -368,8 +380,10 @@ function VariablesGuide({
 
 export function BlackHoleGrowthSimulator({
   touchDisclosureOptimizations = false,
+  coordinateTouchGuides = false,
 }: {
   touchDisclosureOptimizations?: boolean;
+  coordinateTouchGuides?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [seedLogMass, setSeedLogMass] = useState(5);
@@ -384,6 +398,7 @@ export function BlackHoleGrowthSimulator({
   const [playing, setPlaying] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [variablesGuideOpen, setVariablesGuideOpen] = useState(false);
+  const [explanationOpen, setExplanationOpen] = useState(false);
   const [viewYaw, setViewYaw] = useState(-9);
   const [viewPitch, setViewPitch] = useState(84);
   const [rotatingView, setRotatingView] = useState(false);
@@ -396,7 +411,8 @@ export function BlackHoleGrowthSimulator({
 
   useEffect(() => {
     const shouldPauseStarfield =
-      touchDisclosureOptimizations && (advancedOpen || variablesGuideOpen);
+      touchDisclosureOptimizations &&
+      (advancedOpen || variablesGuideOpen || explanationOpen);
 
     document.documentElement.classList.toggle(
       "touch-playground-disclosure-open",
@@ -406,7 +422,7 @@ export function BlackHoleGrowthSimulator({
     return () => {
       document.documentElement.classList.remove("touch-playground-disclosure-open");
     };
-  }, [advancedOpen, touchDisclosureOptimizations, variablesGuideOpen]);
+  }, [advancedOpen, explanationOpen, touchDisclosureOptimizations, variablesGuideOpen]);
   const chartMarkerPointer = useRef<number | null>(null);
 
   const model = useMemo(() => {
@@ -667,7 +683,17 @@ export function BlackHoleGrowthSimulator({
       </header>
 
       <div className="black-hole-guidance">
-        <ExperimentGuide>
+        <ExperimentGuide
+          {...(coordinateTouchGuides
+            ? {
+                open: explanationOpen,
+                onOpenChange: (open: boolean) => {
+                  setExplanationOpen(open);
+                  if (open) setVariablesGuideOpen(false);
+                },
+              }
+            : {})}
+        >
         <p>
           The dark sphere marks the event-horizon region and the tilted ring is a stylized
           accretion disk, neither ray-traced nor drawn to physical scale. The bright lower
@@ -689,7 +715,13 @@ export function BlackHoleGrowthSimulator({
 
         <VariablesGuide
           open={variablesGuideOpen}
-          onToggle={() => setVariablesGuideOpen((current) => !current)}
+          onToggle={() => {
+            setVariablesGuideOpen((current) => {
+              const nextOpen = !current;
+              if (nextOpen && coordinateTouchGuides) setExplanationOpen(false);
+              return nextOpen;
+            });
+          }}
           deferContent={touchDisclosureOptimizations}
         />
 
@@ -1750,12 +1782,17 @@ function stellarTimelinePositionToProgress(stages: StellarPhase[], position: num
   return anchors[anchors.length - 1].progress;
 }
 
-export function StellarEvolutionExplorer() {
+export function StellarEvolutionExplorer({
+  touchLineScrubbing = false,
+}: {
+  touchLineScrubbing?: boolean;
+} = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [mass, setMass] = useState(1);
   const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
   const [playing, setPlaying] = useState(false);
   const animationFrame = useRef<number | null>(null);
+  const timelineDragPointer = useRef<number | null>(null);
   const stages = useMemo(() => stellarEvolutionTrack(mass), [mass]);
   const currentStage = stages.find((stage, index) =>
     progress >= stage.start && (progress < stage.end || index === stages.length - 1),
@@ -1811,6 +1848,40 @@ export function StellarEvolutionExplorer() {
     setPlaying(false);
     setMass(1);
     setProgress(mainSequenceTimelineStart(1));
+  };
+
+  const updateTimelineFromPointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const timelinePosition = clamp(
+      ((event.clientX - bounds.left) / bounds.width) * 100,
+      0,
+      100,
+    );
+    setPlaying(false);
+    setProgress(stellarTimelinePositionToProgress(stages, timelinePosition));
+  };
+
+  const beginTimelineDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!touchLineScrubbing) return;
+    if (event.target instanceof Element && event.target.closest(".stellar-timeline button")) return;
+    event.preventDefault();
+    timelineDragPointer.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updateTimelineFromPointer(event);
+  };
+
+  const scrubTimeline = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (timelineDragPointer.current !== event.pointerId) return;
+    event.preventDefault();
+    updateTimelineFromPointer(event);
+  };
+
+  const endTimelineDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (timelineDragPointer.current !== event.pointerId) return;
+    timelineDragPointer.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   return (
@@ -1929,7 +2000,13 @@ export function StellarEvolutionExplorer() {
           <p id="stellar-timeline-hint" className="stellar-timeline-hint">
             Phases are evenly spaced, not to scale by time; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
           </p>
-          <div className="stellar-timeline-control">
+          <div
+            className="stellar-timeline-control"
+            onPointerDown={beginTimelineDrag}
+            onPointerMove={scrubTimeline}
+            onPointerUp={endTimelineDrag}
+            onPointerCancel={endTimelineDrag}
+          >
             <input
               className="stellar-timeline-scrubber"
               type="range"
@@ -2009,13 +2086,16 @@ export function Playground() {
       href: "#black-hole-growth",
       title: "Black-Hole Growth Simulator",
       content: (
-        <BlackHoleGrowthSimulator touchDisclosureOptimizations={usesTouchOptimizations} />
+        <BlackHoleGrowthSimulator
+          touchDisclosureOptimizations={usesTouchOptimizations}
+          coordinateTouchGuides={usesTouchOptimizations}
+        />
       ),
     },
     {
       href: "#stellar-evolution",
       title: "Stellar Evolution Explorer",
-      content: <StellarEvolutionExplorer />,
+      content: <StellarEvolutionExplorer touchLineScrubbing={usesTouchOptimizations} />,
     },
     {
       href: "#gravitational-lensing",
@@ -2076,14 +2156,14 @@ export function Playground() {
 
     window.history.replaceState(null, "", href);
     window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => scrollToPlaygroundElement(experimentItem));
+      window.requestAnimationFrame(() => scrollToPlaygroundElement(experimentItem, true));
     });
   };
 
   return (
     <>
       <SiteHeader page="playground" />
-      <NightSky />
+      <NightSky className="night-sky--playground" />
       <main className="container layout playground-layout">
         <section className="playground-intro">
           <h1>Playground</h1>
@@ -2139,8 +2219,11 @@ export function Playground() {
         </div>
         {!usesMobileAccordion && (
           <div className="playground-desktop-experiments">
-            <BlackHoleGrowthSimulator touchDisclosureOptimizations={usesTouchOptimizations} />
-            <StellarEvolutionExplorer />
+            <BlackHoleGrowthSimulator
+              touchDisclosureOptimizations={usesTouchOptimizations}
+              coordinateTouchGuides={usesTouchOptimizations}
+            />
+            <StellarEvolutionExplorer touchLineScrubbing={usesTouchOptimizations} />
             <GravitationalLensingSandbox />
             <OrbitalResonanceToy />
           </div>

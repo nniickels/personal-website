@@ -1808,6 +1808,21 @@ button {
 }
 
 @media (hover: none), (pointer: coarse) {
+  .night-sky--playground .night-star {
+    animation-duration: var(--touch-twinkle-duration);
+  }
+
+  .night-sky--playground .shooting-star {
+    display: none;
+  }
+
+  .stellar-timeline-scrubber {
+    z-index: 4;
+    top: calc(0.9rem - 16px);
+    height: 44px;
+    touch-action: none;
+  }
+
   :root.touch-playground-disclosure-open .night-star,
   :root.touch-playground-disclosure-open .shooting-star {
     animation-play-state: paused !important;
@@ -1824,13 +1839,6 @@ button {
   .mobile-playground-accordion .simulator-advanced-reveal,
   .mobile-playground-accordion .simulator-advanced-content {
     transition: none;
-  }
-
-  .stellar-timeline-scrubber {
-    z-index: 4;
-    top: calc(0.9rem - 16px);
-    height: 44px;
-    touch-action: none;
   }
 
   .mobile-playground-accordion {
@@ -2564,6 +2572,13 @@ button {
 
 .simulator-advanced.is-open .simulator-advanced-content {
   padding-top: 0.75rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .variable-guide .simulator-advanced-reveal,
+  .variable-guide .simulator-advanced-content {
+    transition: none;
+  }
 }
 
 .simulator-derived-setting {

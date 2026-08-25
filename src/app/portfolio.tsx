@@ -471,9 +471,9 @@ const shootingStars = [
   { top: "3%", left: "68%", duration: "21s", delay: "14s", colour: "#d6ffe1" },
 ] as const;
 
-export function NightSky() {
+export function NightSky({ className = "" }: { className?: string } = {}) {
   return (
-    <div className="night-sky" aria-hidden="true">
+    <div className={`night-sky${className ? ` ${className}` : ""}`} aria-hidden="true">
       <div className="night-sky__stars">
         {nightStars.map((star, index) => (
           <span
@@ -488,6 +488,7 @@ export function NightSky() {
                 "--star-color": star.colour,
                 "--star-peak": star.peak,
                 "--twinkle-duration": star.duration,
+                "--touch-twinkle-duration": `${(Number.parseFloat(star.duration) * 2.4).toFixed(2)}s`,
                 "--twinkle-delay": star.delay,
               } as CSSProperties
             }
