@@ -345,7 +345,15 @@ const sideQuestNavigationRows = [
 ] as const;
 
 let sideQuestScrollAnimationFrame: number | null = null;
+const MAX_ANIMATION_FRAME_INTERVAL_MS = 1_000 / 60;
 const MOBILE_SIDE_QUEST_QUERY = "(hover: none), (pointer: coarse)";
+
+function animationFrameIsTooSoon(now: number, lastRenderedAt: number | null) {
+  return (
+    lastRenderedAt !== null &&
+    now - lastRenderedAt < MAX_ANIMATION_FRAME_INTERVAL_MS - 0.5
+  );
+}
 
 function useMobileSideQuestVisibility<T extends HTMLElement>() {
   const contentRef = useRef<T | null>(null);
@@ -444,8 +452,14 @@ function navigateToSideQuestDestination(
   const distance = destination - start;
   const duration = 260;
   const startedAt = performance.now();
+  let lastRenderedAt: number | null = null;
 
   const animateScroll = (now: number) => {
+    if (animationFrameIsTooSoon(now, lastRenderedAt)) {
+      sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+      return;
+    }
+    lastRenderedAt = now;
     const progress = Math.min((now - startedAt) / duration, 1);
     const easedProgress = 1 - Math.pow(1 - progress, 3);
     window.scrollTo(0, start + distance * easedProgress);
@@ -538,6 +552,10 @@ export function NightSky({ className = "" }: { className?: string } = {}) {
                 "--star-color": star.colour,
                 "--star-peak": star.peak,
                 "--twinkle-duration": star.duration,
+                "--twinkle-steps": Math.max(
+                  1,
+                  Math.round(Number.parseFloat(star.duration) * 60),
+                ),
                 "--touch-twinkle-duration": `${(Number.parseFloat(star.duration) * 2.4).toFixed(2)}s`,
                 "--touch-twinkle-steps": Math.max(
                   1,
@@ -560,6 +578,10 @@ export function NightSky({ className = "" }: { className?: string } = {}) {
                 left: star.left,
                 "--shoot-color": star.colour,
                 "--shoot-duration": star.duration,
+                "--shoot-steps": Math.max(
+                  1,
+                  Math.round(Number.parseFloat(star.duration) * 60),
+                ),
                 "--shoot-delay": star.delay,
               } as CSSProperties
             }
@@ -1032,14 +1054,20 @@ function ListeningCoverWheel() {
   const startTouchPreviewLoop = () => {
     stopTouchPreviewLoop();
     wheelRef.current?.classList.add("is-touch-dragging");
+    let lastRenderedAt: number | null = null;
 
-    const updatePreviewUnderFinger = () => {
+    const updatePreviewUnderFinger = (now: number) => {
       const press = touchPressRef.current;
       const wheel = wheelRef.current;
       if (!press?.previewing || !wheel) {
         touchPreviewFrameRef.current = null;
         return;
       }
+      if (animationFrameIsTooSoon(now, lastRenderedAt)) {
+        touchPreviewFrameRef.current = window.requestAnimationFrame(updatePreviewUnderFinger);
+        return;
+      }
+      lastRenderedAt = now;
 
       const wheelRect = wheel.getBoundingClientRect();
       const edgeZone = Math.min(96, Math.max(56, wheelRect.width * 0.22));

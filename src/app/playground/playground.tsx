@@ -20,12 +20,25 @@ const VISUAL_LOG_MASS_MIN = 1;
 const VISUAL_LOG_MASS_REFERENCE_MAX = 15;
 const GROWTH_CHART_LOG_MASS_MIN = 1;
 const GROWTH_CHART_DEFAULT_LOG_MASS_MAX = 20;
+const MAX_FRAME_INTERVAL_MS = 1_000 / 60;
 const MOBILE_FRAME_INTERVAL_MS = 1_000 / 30;
 const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
 const MOBILE_PLAYGROUND_QUERY =
   "(max-width: 700px) and (orientation: portrait), (max-height: 520px) and (orientation: landscape) and (pointer: coarse)";
 const TOUCH_PLAYGROUND_QUERY = "(hover: none), (pointer: coarse)";
+
+function animationFrameInterval(useLowerMobileRate: boolean) {
+  return useLowerMobileRate ? MOBILE_FRAME_INTERVAL_MS : MAX_FRAME_INTERVAL_MS;
+}
+
+function animationFrameIsTooSoon(
+  now: number,
+  lastRenderedAt: number | null,
+  interval: number,
+) {
+  return lastRenderedAt !== null && now - lastRenderedAt < interval - 0.5;
+}
 
 const playgroundNavigation = [
   { label: "Black-Hole Growth", href: "#black-hole-growth" },
@@ -96,8 +109,14 @@ function scrollToPlaygroundElement(target: HTMLElement, instant = false) {
   const distance = destination - start;
   const duration = 260;
   const startedAt = performance.now();
+  let lastRenderedAt: number | null = null;
 
   const animateScroll = (now: number) => {
+    if (animationFrameIsTooSoon(now, lastRenderedAt, MAX_FRAME_INTERVAL_MS)) {
+      playgroundScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+      return;
+    }
+    lastRenderedAt = now;
     const progress = Math.min((now - startedAt) / duration, 1);
     const easedProgress = 1 - Math.pow(1 - progress, 3);
     window.scrollTo(0, start + distance * easedProgress);
@@ -380,11 +399,11 @@ function VariablesGuide({
 export function BlackHoleGrowthSimulator({
   touchDisclosureOptimizations = false,
   coordinateTouchGuides = false,
-  mobileSimplified = false,
+  limitFrameRate = false,
 }: {
   touchDisclosureOptimizations?: boolean;
   coordinateTouchGuides?: boolean;
-  mobileSimplified?: boolean;
+  limitFrameRate?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const [seedLogMass, setSeedLogMass] = useState(5);
@@ -409,14 +428,6 @@ export function BlackHoleGrowthSimulator({
     lastX: number;
     lastY: number;
   } | null>(null);
-
-  useEffect(() => {
-    if (!mobileSimplified) return;
-    setPlaying(false);
-    setProgress(1);
-    setAdvancedOpen(false);
-    setVariablesGuideOpen(false);
-  }, [mobileSimplified]);
 
   useEffect(() => {
     const shouldPauseStarfield =
@@ -464,8 +475,15 @@ export function BlackHoleGrowthSimulator({
     const initialProgress = progress >= 1 ? 0.02 : progress;
     const startedAt = performance.now();
     const duration = Math.max(1_500, 8_500 * (1 - initialProgress));
+    const frameInterval = animationFrameInterval(limitFrameRate);
+    let lastRenderedAt: number | null = null;
 
     const animate = (now: number) => {
+      if (animationFrameIsTooSoon(now, lastRenderedAt, frameInterval)) {
+        animationFrame.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastRenderedAt = now;
       const elapsed = Math.min(1, (now - startedAt) / duration);
       const easedElapsed = 1 - (1 - elapsed) ** 1.7;
       const nextProgress = Math.min(
@@ -485,7 +503,7 @@ export function BlackHoleGrowthSimulator({
     return () => {
       if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
     };
-  }, [playing, isExperimentVisible]);
+  }, [playing, isExperimentVisible, limitFrameRate]);
 
   const updateControl = (setter: (value: number) => void) => (value: number) => {
     setPlaying(false);
@@ -562,8 +580,6 @@ export function BlackHoleGrowthSimulator({
   };
 
   const chart = useMemo(() => {
-    if (mobileSimplified) return null;
-
     const width = 620;
     const height = 250;
     const left = 58;
@@ -599,7 +615,7 @@ export function BlackHoleGrowthSimulator({
       currentX: xAt(progress),
       currentY: yAt(model.currentLogMass),
     };
-  }, [mobileSimplified, model.currentLogMass, model.finalLogMass, progress, seedLogMass]);
+  }, [model.currentLogMass, model.finalLogMass, progress, seedLogMass]);
 
   const updateProgressFromChartPointer = (event: ReactPointerEvent<SVGCircleElement>) => {
     if (!chart) return;
@@ -659,12 +675,13 @@ export function BlackHoleGrowthSimulator({
       (VISUAL_LOG_MASS_REFERENCE_MAX - VISUAL_LOG_MASS_MIN),
   );
   const spinDuration = 6.2 - Math.abs(spin) * 4.8;
+  const visualFrameRate = limitFrameRate ? 30 : 60;
   const visualStyle = {
     "--mass-scale": visualMassScale,
     "--spin-duration": `${spinDuration.toFixed(2)}s`,
-    "--spin-steps": Math.max(1, Math.round(spinDuration * 30)),
-    "--spin-shear-steps": Math.max(1, Math.round(spinDuration * 1.8 * 30)),
-    "--spin-inner-steps": Math.max(1, Math.round(spinDuration * 0.68 * 30)),
+    "--spin-steps": Math.max(1, Math.round(spinDuration * visualFrameRate)),
+    "--spin-shear-steps": Math.max(1, Math.round(spinDuration * 1.8 * visualFrameRate)),
+    "--spin-inner-steps": Math.max(1, Math.round(spinDuration * 0.68 * visualFrameRate)),
     "--spin-direction": spin < 0 ? "reverse" : "normal",
     "--spin-opacity": Math.abs(spin) < 0.005 ? 0.34 : 0.9,
     "--spin-play-state": Math.abs(spin) < 0.005 ? "paused" : "running",
@@ -710,21 +727,6 @@ export function BlackHoleGrowthSimulator({
               }
             : {})}
         >
-        {mobileSimplified ? (
-          <>
-            <p>
-              The dark sphere marks the region around the event horizon, while the tilted ring
-              represents a hot accretion disk feeding the black hole. The drawing is stylized, with
-              bright arcs added to make the disk&apos;s depth and orientation easy to see as you rotate it.
-            </p>
-            <p>
-              The {activePresetName ?? "growth"} scenario begins with a {formatMass(seedLogMass)} seed
-              at redshift {seedRedshift} and follows it to redshift {observedRedshift}. During that
-              interval, the model feeds it at {eddingtonRatio.toFixed(1)} times the Eddington rate for
-              {" "}{Math.round(dutyCycle * 100)}% of the available time, then reports the projected mass.
-            </p>
-          </>
-        ) : (
           <>
             <p>
               The dark sphere marks the region around the event horizon, and the tilted ring represents
@@ -741,22 +743,19 @@ export function BlackHoleGrowthSimulator({
               prograde spin can slow growth because more of the incoming matter&apos;s energy escapes as light.
             </p>
           </>
-        )}
         </ExperimentGuide>
 
-        {!mobileSimplified && (
-          <VariablesGuide
-            open={variablesGuideOpen}
-            onToggle={() => {
-              setVariablesGuideOpen((current) => {
-                const nextOpen = !current;
-                if (nextOpen && coordinateTouchGuides) setExplanationOpen(false);
-                return nextOpen;
-              });
-            }}
-            deferContent={touchDisclosureOptimizations}
-          />
-        )}
+        <VariablesGuide
+          open={variablesGuideOpen}
+          onToggle={() => {
+            setVariablesGuideOpen((current) => {
+              const nextOpen = !current;
+              if (nextOpen && coordinateTouchGuides) setExplanationOpen(false);
+              return nextOpen;
+            });
+          }}
+          deferContent={touchDisclosureOptimizations}
+        />
 
         <div className="simulator-presets" aria-label="Growth scenarios">
           <span className="simulator-presets-label">Variable presets:</span>
@@ -775,12 +774,6 @@ export function BlackHoleGrowthSimulator({
             );
           })}
         </div>
-        {mobileSimplified && (
-          <p className="black-hole-mobile-feature-note">
-            Variable controls, growth playback, the Variables Guide, and the mass-growth plot are
-            available on desktop.
-          </p>
-        )}
       </div>
 
       <div className="simulator-workspace">
@@ -823,7 +816,6 @@ export function BlackHoleGrowthSimulator({
           </div>
         </div>
 
-        {!mobileSimplified && (
         <div className="simulator-controls">
           <SimulatorSlider
             label="Seed mass"
@@ -909,9 +901,7 @@ export function BlackHoleGrowthSimulator({
             <button type="button" onClick={resetSimulation}>Reset</button>
           </div>
         </div>
-        )}
 
-        {chart && (
         <figure className="growth-chart-figure">
           <p className="growth-chart-hint">Drag the plot dot to inspect mass growth</p>
           <svg
@@ -985,7 +975,6 @@ export function BlackHoleGrowthSimulator({
             </span>
           </figcaption>
         </figure>
-        )}
       </div>
 
       <dl className="simulator-results">
@@ -1050,14 +1039,11 @@ export function GravitationalLensingSandbox({
     const from = displaySourceRef.current;
     const startedAt = performance.now();
     const duration = activePointer.current === null ? 260 : 110;
+    const frameInterval = animationFrameInterval(limitFrameRate);
     let lastRenderedAt: number | null = null;
 
     const animate = (now: number) => {
-      if (
-        limitFrameRate &&
-        lastRenderedAt !== null &&
-        now - lastRenderedAt < MOBILE_FRAME_INTERVAL_MS
-      ) {
+      if (animationFrameIsTooSoon(now, lastRenderedAt, frameInterval)) {
         lensAnimationFrame.current = requestAnimationFrame(animate);
         return;
       }
@@ -1523,12 +1509,10 @@ export function OrbitalResonanceToy({
       return;
     }
 
+    const frameInterval = animationFrameInterval(limitFrameRate);
+
     const animate = (now: number) => {
-      if (
-        limitFrameRate &&
-        previousTime.current !== null &&
-        now - previousTime.current < MOBILE_FRAME_INTERVAL_MS
-      ) {
+      if (animationFrameIsTooSoon(now, previousTime.current, frameInterval)) {
         resonanceFrame.current = requestAnimationFrame(animate);
         return;
       }
@@ -1965,14 +1949,15 @@ export function StellarEvolutionExplorer({
   const activePreset = stellarPresets.find((preset) => preset.mass === mass)?.name;
   const timelineSliderPosition = progressToStellarTimelinePosition(stages, progress);
   const stellarPulseDuration = clamp(4.8 - mass * 0.08, 1.8, 4.8);
+  const visualFrameRate = limitFrameRate ? 30 : 60;
   const stellarStyle = {
     "--stellar-size": `${currentStage.size}px`,
     "--stellar-glow-size": `${currentStage.size * 1.75}px`,
     "--stellar-color": currentStage.color,
     "--stellar-pulse-duration": `${stellarPulseDuration.toFixed(2)}s`,
-    "--stellar-pulse-steps": Math.max(1, Math.round(stellarPulseDuration * 30)),
-    "--stellar-main-sequence-steps": Math.max(1, Math.round(stellarPulseDuration * 1.45 * 30)),
-    "--stellar-giant-steps": Math.max(1, Math.round(stellarPulseDuration * 1.65 * 30)),
+    "--stellar-pulse-steps": Math.max(1, Math.round(stellarPulseDuration * visualFrameRate)),
+    "--stellar-main-sequence-steps": Math.max(1, Math.round(stellarPulseDuration * 1.45 * visualFrameRate)),
+    "--stellar-giant-steps": Math.max(1, Math.round(stellarPulseDuration * 1.65 * visualFrameRate)),
   } as CSSProperties;
 
   useEffect(() => {
@@ -1980,14 +1965,11 @@ export function StellarEvolutionExplorer({
     const initialProgress = progress >= 1 ? mainSequenceTimelineStart(mass) : progress;
     const startedAt = performance.now();
     const duration = Math.max(2_400, 18_000 * (1 - initialProgress));
+    const frameInterval = animationFrameInterval(limitFrameRate);
     let lastRenderedAt: number | null = null;
 
     const animate = (now: number) => {
-      if (
-        limitFrameRate &&
-        lastRenderedAt !== null &&
-        now - lastRenderedAt < MOBILE_FRAME_INTERVAL_MS
-      ) {
+      if (animationFrameIsTooSoon(now, lastRenderedAt, frameInterval)) {
         animationFrame.current = requestAnimationFrame(animate);
         return;
       }
@@ -2011,9 +1993,8 @@ export function StellarEvolutionExplorer({
 
   const updateMass = (nextMass: number) => {
     setPlaying(false);
-    const nextStages = stellarEvolutionTrack(nextMass);
     setMass(nextMass);
-    setProgress(stellarTimelinePositionToProgress(nextStages, timelineSliderPosition));
+    setProgress(mainSequenceTimelineStart(nextMass));
   };
 
   const selectStage = (stage: StellarPhase) => {
@@ -2265,7 +2246,7 @@ export function Playground() {
         <BlackHoleGrowthSimulator
           touchDisclosureOptimizations={usesTouchOptimizations}
           coordinateTouchGuides={usesTouchOptimizations}
-          mobileSimplified={usesTouchOptimizations}
+          limitFrameRate={usesTouchOptimizations}
         />
       ),
     },
@@ -2408,7 +2389,7 @@ export function Playground() {
             <BlackHoleGrowthSimulator
               touchDisclosureOptimizations={usesTouchOptimizations}
               coordinateTouchGuides={usesTouchOptimizations}
-              mobileSimplified={usesTouchOptimizations}
+              limitFrameRate={usesTouchOptimizations}
             />
             <StellarEvolutionExplorer
               touchLineScrubbing={usesTouchOptimizations}
