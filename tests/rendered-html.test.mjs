@@ -244,7 +244,17 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(source, /previewProgress \* 360/);
   assert.match(source, /audio\.currentTime \/ audio\.duration/);
   assert.match(source, /audio\.muted = nextVolume === 0/);
-  assert.equal((source.match(/https:\/\/p\.scdn\.co\/mp3-preview\//g) ?? []).length, 17);
+  assert.match(
+    source,
+    /id: "6DUKQUhWqUySYngLXLNwP2"[\s\S]*?\},\n  \{\n    id: "4bZnIdaGBf162pZEkxXSgQ"[\s\S]*?\},\n  \{\n    id: "2LMloFiV7DHpBhITOaBSam"[\s\S]*?\},\n  \{\n    id: "1XowbeLc27U22ao4MgJKO0"/,
+  );
+  assert.match(source, /id: "1jDfBnciGhI9qdTye6CnYn"[\s\S]*?\},\n  \{\n    id: "1oboGe98iqHCR1DkigF2BQ"/);
+  assert.match(
+    source,
+    /id: "2Vqi1Si1dQjMtAZ79UreqL"[\s\S]*?\},\n  \{\n    id: "4qTlJH6ZM4sUX39EB9VMFy"[\s\S]*?\},\n  \{\n    id: "0XRlCDp99MEaPDRWTUXmep"/,
+  );
+  assert.match(source, /id: "6n9AvpTLSNunpIr2Gr2AXa"[\s\S]*?\},\n  \{\n    id: "0bOvjYU552KSscyA0af4aw"/);
+  assert.equal((source.match(/https:\/\/p\.scdn\.co\/mp3-preview\//g) ?? []).length, 30);
   for (const trackId of [
     "24105EgaBPLzZp5kCeSh9g",
     "3YB9cvd668HXBEq8rbBW8P",
@@ -263,6 +273,19 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     "6DUKQUhWqUySYngLXLNwP2",
     "7DmtizlT6hVi5Uf1WL6TT3",
     "6JkRuPFjvHLOpMeubjra1Q",
+    "1jDfBnciGhI9qdTye6CnYn",
+    "2Vqi1Si1dQjMtAZ79UreqL",
+    "0gdfBpopSSWLbIEZgw2xOc",
+    "4Ee6ZsyVepVsvObgYwzgH1",
+    "1oboGe98iqHCR1DkigF2BQ",
+    "3NllfyQRtxZ4N7im99XYKX",
+    "4OmlsAT8r4q9vPFBvfYgyZ",
+    "1GT9jsKDk6osfnR5lWIUMD",
+    "4bLCPfBLKlqiONo6TALTh5",
+    "79neP7cNFqrYjq2B7aT0Ct",
+    "3iUtEZNNdQnM5ZSfKLT6Gw",
+    "0XRlCDp99MEaPDRWTUXmep",
+    "5qyJcHrZEC1Q0vzEKY0yMD",
   ]) {
     assert.match(source, new RegExp(trackId));
   }
@@ -387,7 +410,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   }
 
   const coverAssets = await readdir(new URL("../public/music-covers/", import.meta.url));
-  assert.equal(coverAssets.length, 17);
+  assert.equal(coverAssets.length, 30);
   for (const asset of coverAssets) {
     const cover = await readFile(new URL(`../public/music-covers/${asset}`, import.meta.url));
     assert.ok(cover.length > 10_000);
