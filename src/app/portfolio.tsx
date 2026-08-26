@@ -1720,10 +1720,10 @@ function FunContent() {
         <p className="placeholder-copy">
           My current favourite book is{" "}
           <strong><cite>The Book of Laughter and Forgetting</cite></strong> by Milan Kundera (Michael Henry Heim translation). 
-          I like his essayistic prose, and enjoy reading other books within the realm of literary fiction, philosophical fiction, 
+          I like his essayistic prose and enjoy reading other books within the realm of literary fiction, philosophical fiction, 
           and surrealism. As for papers, I recently read Derek Parfit's 1971 paper on personal identity and took a liking to his theory. 
           More casually, I like to read comics and manga also. Some favourites include the{" "}
-          <strong><cite>House of Slaughter Vol.2</cite></strong>, and the <strong><cite>Heaven's Design Team</cite></strong> series. I'm also a big fan of all of{""} <strong><cite><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer">
+          <strong><cite>House of Slaughter Vol. 2</cite></strong> and the <strong><cite>Heaven's Design Team</cite></strong> series. I'm also a big fan of all of{""} <strong><cite><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer">
                 Joshua Barkman
               </a></cite></strong>{""}'s works!
         </p>
@@ -1748,7 +1748,7 @@ function FunContent() {
               </a>
             </cite>
           </strong>.{" "}
-          If you like video essays about video-games and/or philosophy and psychology, I highly recommend! I also really like the 2007 anime
+          If you like video essays about video games and/or philosophy and psychology, I highly recommend! I also really like the 2007 anime
           <strong><cite> Mononoke</cite></strong>, and am currently watching <strong><cite>Steins;Gate</cite></strong>. Regarding Western media, I like <strong><cite>Superbad</cite></strong>, <strong><cite>BoJack Horseman </cite></strong> 
           and <strong><cite> Dead Poets Society</cite></strong>. 
         </p>
@@ -1870,7 +1870,7 @@ function FunContent() {
       <section className="section" id="food" data-expand-on-navigate="true">
         <h2>Food</h2>
         <p className="placeholder-copy">
-          I'm a big snacker, and tend to eat more of appetizers and starters rather than fully balanced meals... 
+          I'm a big snacker, and tend to eat more of appetizers and starters than fully balanced meals... 
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare! 
         
@@ -2043,7 +2043,7 @@ export function Portfolio({ mode }: { mode: Mode }) {
                 <p>
                   Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University
                   of Toronto. Welcome to my personal website! My research interests include galaxy formation and evolution,
-                  observational cosmology, early universe physics, and stellar remnants. Below is a
+                  observational cosmology, early-universe physics, and stellar remnants. Below is a
                   quick overview of my academic profile. Feel free to reach out via email or connect
                  on LinkedIn :))
                 </p>
