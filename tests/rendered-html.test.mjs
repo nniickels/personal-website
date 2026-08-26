@@ -497,7 +497,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
   assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
-  assert.match(html, /These are simplified,[\s\S]*?illustrative models[\s\S]*?visual cues are exaggerated or added for clarity/i);
+  assert.match(html, /These are simplified,[\s\S]*?illustrative toy models[\s\S]*?visual cues are exaggerated or added for clarity/i);
   assert.match(html, /aria-label="Playground experiments"/i);
   assert.match(html, /class="mobile-playground-accordion"/i);
   assert.equal((html.match(/class="mobile-experiment-toggle"/g) ?? []).length, 4);
@@ -608,6 +608,11 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /nextOpen && coordinateTouchGuides[\s\S]*?setExplanationOpen\(false\)/i);
   assert.match(source, /beginTimelineDrag[\s\S]*?setPointerCapture\(event\.pointerId\)[\s\S]*?updateTimelineFromPointer\(event\)/i);
   assert.match(source, /updateTimelineFromPointer[\s\S]*?event\.clientX - bounds\.left[\s\S]*?stellarTimelinePositionToProgress/i);
+  assert.match(source, /const updateMass = \(nextMass: number\)[\s\S]*?stellarEvolutionTrack\(nextMass\)[\s\S]*?stellarTimelinePositionToProgress\(nextStages, timelineSliderPosition\)/i);
+  assert.doesNotMatch(source, /const updateMass = \(nextMass: number\)[\s\S]*?setProgress\(mainSequenceTimelineStart\(nextMass\)\)/i);
+  assert.equal((source.match(/label: "Red supergiant"/g) ?? []).length, 2);
+  assert.match(source, /High-mass stars expand into red supergiants[\s\S]*?more massive, larger, and more luminous than ordinary red giants/i);
+  assert.match(source, /Displayed[\s\S]*?sizes are not to scale/i);
   assert.match(source, /NightSky className="night-sky--playground"/i);
   assert.match(source, /\{isOpen && \([\s\S]*?className="mobile-experiment-panel"[\s\S]*?experiment\.content/i);
   assert.match(source, /!usesMobileAccordion && \([\s\S]*?className="playground-desktop-experiments"/i);
@@ -730,9 +735,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /Direct collapse[\s\S]*?begins with a much larger seed/);
   assert.match(source, /Rapid growth[\s\S]*?large seed,[\s\S]*?fast feeding,[\s\S]*?high duty cycle/);
   assert.match(source, /Sun-like stars[\s\S]*?leave white dwarfs/);
-  assert.match(source, /More massive stars[\s\S]*?leave neutron stars or black holes/);
+  assert.match(source, /High-mass stars expand into red supergiants[\s\S]*?leave neutron stars[\s\S]*?or black holes/);
 
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.stellar-canvas--red-supergiant \.stellar-object[\s\S]*?0 0 92px/);
   assert.match(css, /\.simulator-workspace\s*\{[\s\S]*?grid-template-columns:/i);
   assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.black-hole-stage\s*\{[\s\S]*?--simulation-background:\s*#121212/i);

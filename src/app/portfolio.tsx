@@ -1870,7 +1870,7 @@ function FunContent() {
       <section className="section" id="food" data-expand-on-navigate="true">
         <h2>Food</h2>
         <p className="placeholder-copy">
-          I'm a big snacker, and tend to eat more of appetizers and starters than fully balanced meals... 
+          I'm a big snacker, and tend to eat more appetizers and starters than fully balanced meals... 
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare! 
         

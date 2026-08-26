@@ -1839,7 +1839,7 @@ function stellarEvolutionTrack(mass: number): StellarPhase[] {
   if (mass < 8) {
     return [
       { key: "main-sequence", label: "Main sequence", start: 0, end: 0.72, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
-      { key: "red-giant", label: "Red giant", start: 0.72, end: 0.82, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 158, color: "#ff8757" },
+      { key: "red-giant", label: "Red giant", start: 0.72, end: 0.82, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 148, color: "#ff9a5c" },
       { key: "planetary-nebula", label: "Planetary nebula", start: 0.82, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 30, color: "#e9f4ff" },
       { key: "white-dwarf", label: "White dwarf", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 22, color: "#e7f2ff" },
     ];
@@ -1848,7 +1848,7 @@ function stellarEvolutionTrack(mass: number): StellarPhase[] {
   if (mass < 25) {
     return [
       { key: "main-sequence", label: "Main sequence", start: 0, end: 0.76, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
-      { key: "red-supergiant", label: "Red supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 178, color: "#ff704f" },
+      { key: "red-supergiant", label: "Red supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 204, color: "#ef553f" },
       { key: "supernova", label: "Core-collapse supernova", start: 0.83, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 40, color: "#fff1be" },
       { key: "neutron-star", label: "Neutron star", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 15, color: "#b9e4ff" },
     ];
@@ -1856,7 +1856,7 @@ function stellarEvolutionTrack(mass: number): StellarPhase[] {
 
   return [
     { key: "main-sequence", label: "Main sequence", start: 0, end: 0.76, timelinePosition: STELLAR_PHASE_POSITIONS[0], size: mainSequenceSize, color: mainSequenceColor },
-    { key: "red-supergiant", label: "Supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 184, color: "#ff704f" },
+    { key: "red-supergiant", label: "Red supergiant", start: 0.76, end: 0.83, timelinePosition: STELLAR_PHASE_POSITIONS[1], size: 220, color: "#ef553f" },
     { key: "supernova", label: "Core-collapse supernova", start: 0.83, end: 0.91, timelinePosition: STELLAR_PHASE_POSITIONS[2], size: 42, color: "#fff1be" },
     { key: "black-hole", label: "Black hole", start: 0.91, end: 1, timelinePosition: STELLAR_PHASE_POSITIONS[3], size: 54, color: "#020202" },
   ];
@@ -1999,8 +1999,9 @@ export function StellarEvolutionExplorer({
 
   const updateMass = (nextMass: number) => {
     setPlaying(false);
+    const nextStages = stellarEvolutionTrack(nextMass);
     setMass(nextMass);
-    setProgress(mainSequenceTimelineStart(nextMass));
+    setProgress(stellarTimelinePositionToProgress(nextStages, timelineSliderPosition));
   };
 
   const selectStage = (stage: StellarPhase) => {
@@ -2073,9 +2074,12 @@ export function StellarEvolutionExplorer({
         </p>
         <p>
           Sun-like stars swell into red giants, shed their outer layers as planetary nebulae, and
-          leave white dwarfs. More massive stars become supergiants, undergo core-collapse supernovae,
-          and leave neutron stars or black holes. The 1 M☉, 12 M☉, and 30 M☉ presets illustrate these
-          three outcomes. Surface motion and pulsation are visual cues, and the neutron-star stage is
+          leave white dwarfs. High-mass stars expand into red supergiants: they are substantially
+          more massive, larger, and more luminous than ordinary red giants, despite having similarly
+          cool, reddish surfaces. They then undergo core-collapse supernovae and leave neutron stars
+          or black holes. The 1 M☉, 12 M☉, and 30 M☉ presets illustrate these three outcomes. Displayed
+          sizes are not to scale; the stronger size, colour, and glow differences identify the two
+          giant phases. Surface motion and pulsation are visual cues, and the neutron-star stage is
           shown as a pulsar whose sweeping beams happen to cross our line of sight.
         </p>
       </ExperimentGuide>
@@ -2335,7 +2339,7 @@ export function Playground() {
           <h1>Playground</h1>
           <p>
             Play with some interactive astronomy experiments and simulations! These are simplified,
-            illustrative models, and some visual cues are exaggerated or added for clarity rather
+            illustrative toy models, and some visual cues are exaggerated or added for clarity rather
             than being physically precise or necessary to the simulation.
             <span className="playground-mobile-performance-note">
               For the best performance, please use a desktop. On mobile, please allow experiments a

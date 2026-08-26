@@ -3589,6 +3589,29 @@ button {
   animation-duration: 5.5s;
 }
 
+.stellar-canvas--red-giant .stellar-object {
+  box-shadow:
+    0 0 28px color-mix(in srgb, var(--stellar-color) 58%, transparent),
+    0 0 54px color-mix(in srgb, var(--stellar-color) 18%, transparent);
+}
+
+.stellar-canvas--red-supergiant .stellar-object {
+  border-color: color-mix(in srgb, var(--stellar-color) 62%, white);
+  box-shadow:
+    0 0 42px color-mix(in srgb, var(--stellar-color) 72%, transparent),
+    0 0 92px color-mix(in srgb, var(--stellar-color) 34%, transparent);
+}
+
+.stellar-canvas--red-supergiant .stellar-glow {
+  filter: blur(11px);
+}
+
+.stellar-canvas--red-supergiant .stellar-object > span {
+  background:
+    repeating-radial-gradient(circle at 36% 33%, transparent 0 9px, rgba(255, 235, 206, 0.13) 10px 12px),
+    repeating-conic-gradient(from 15deg, transparent 0 20deg, rgba(65, 16, 8, 0.24) 22deg 28deg);
+}
+
 .stellar-nebula {
   z-index: 2;
   width: 250px;
