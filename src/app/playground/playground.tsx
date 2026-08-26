@@ -1226,7 +1226,8 @@ export function GravitationalLensingSandbox({
           true position and the two places where its light appears to an observer. The dashed circle
           is the Einstein radius, the natural angular scale set by the lens mass and the distances
           between observer, lens, and source. Display units are arbitrary distances within this
-          diagram, useful for comparing how the results change.
+          diagram, useful for comparing how the results change. The side view shows the line-of-sight
+          order; its distances and light paths are schematic and unscaled.
         </p>
         <p>
           Dragging the source toward the centre moves both images toward the Einstein radius, where
@@ -1277,6 +1278,16 @@ export function GravitationalLensingSandbox({
             </defs>
 
             <rect className="lensing-field" width="620" height="370" rx="10" />
+            <g className="lensing-angular-grid" aria-hidden="true">
+              <line className="lensing-grid-axis" x1="0" y1={LENS_CENTER.y} x2="620" y2={LENS_CENTER.y} />
+              <line className="lensing-grid-axis" x1={LENS_CENTER.x} y1="0" x2={LENS_CENTER.x} y2="370" />
+              <line className="lensing-grid-spoke" x1="0" y1="0" x2="620" y2="370" />
+              <line className="lensing-grid-spoke" x1="0" y1="370" x2="620" y2="0" />
+              <circle className="lensing-grid-ring" cx={LENS_CENTER.x} cy={LENS_CENTER.y} r="55" />
+              <circle className="lensing-grid-ring" cx={LENS_CENTER.x} cy={LENS_CENTER.y} r="110" />
+              <circle className="lensing-grid-ring" cx={LENS_CENTER.x} cy={LENS_CENTER.y} r="165" />
+              <text className="lensing-grid-label" x="24" y="28">angular position on sky</text>
+            </g>
             {lensingFieldStars.map((star, index) => (
               <circle
                 className="lensing-field-star"
@@ -1333,7 +1344,7 @@ export function GravitationalLensingSandbox({
             className="lensing-depth-diagram"
             viewBox="0 0 620 92"
             role="img"
-            aria-label="Side view showing the observer, foreground lens, and background source with two bent light paths"
+            aria-label="Schematic unscaled side view showing the observer, foreground lens, and background source with two bent light paths"
           >
             <defs>
               <linearGradient id="lensing-depth-field" x1="0" x2="1">
@@ -1385,7 +1396,8 @@ export function GravitationalLensingSandbox({
               </g>
               <text x="0" y={depthSourceY > 52 ? -24 : 30} textAnchor="middle">background source</text>
             </g>
-            <text className="lensing-depth-caption" x="165" y="16" textAnchor="middle">light bends toward the lens</text>
+            <text className="lensing-depth-caption" x="155" y="16" textAnchor="middle">schematic light paths</text>
+            <text className="lensing-depth-caption" x="485" y="16" textAnchor="middle">distances unscaled</text>
           </svg>
         </div>
 

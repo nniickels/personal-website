@@ -3010,6 +3010,44 @@ button {
   pointer-events: none;
 }
 
+.lensing-angular-grid {
+  pointer-events: none;
+}
+
+.lensing-angular-grid line,
+.lensing-angular-grid circle {
+  fill: none;
+  stroke: #71808a;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-grid-axis {
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: 0.2;
+}
+
+.lensing-grid-spoke {
+  stroke-width: 0.75;
+  stroke-dasharray: 2 8;
+  opacity: 0.1;
+}
+
+.lensing-grid-ring {
+  stroke-width: 0.75;
+  stroke-dasharray: 2 7;
+  opacity: 0.15;
+}
+
+.lensing-grid-label {
+  fill: #82909a;
+  font-family: inherit;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  opacity: 0.58;
+  text-transform: uppercase;
+}
+
 .einstein-guide,
 .einstein-ring {
   fill: none;

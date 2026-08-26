@@ -516,6 +516,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /dashed 10⁹ M☉ line provides[\s\S]*?benchmark/i);
   assert.match(html, /Einstein radius/i);
   assert.match(html, /Display units are arbitrary distances within this[\s\S]*?useful for comparing how the results change/i);
+  assert.match(html, /side view shows the line-of-sight[\s\S]*?schematic and unscaled/i);
   assert.equal((html.match(/display units/g) ?? []).length, 2);
   assert.doesNotMatch(html, /canvas units/i);
   assert.match(html, /Pattern repeats after/i);
@@ -681,6 +682,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /className="lensing-canvas"[\s\S]*?className="lensing-depth-diagram"/i);
   assert.match(source, /className="lensing-depth-diagram"[\s\S]*?observer[\s\S]*?foreground lens[\s\S]*?background source/i);
   assert.match(source, /className="lensing-light-path"/);
+  assert.match(source, /className="lensing-angular-grid"[\s\S]*?lensing-grid-axis[\s\S]*?lensing-grid-ring[\s\S]*?angular position on sky/i);
+  assert.doesNotMatch(source, /lensing-perspective-grid|farther · background|nearer · foreground/i);
   assert.match(source, /className="lensing-source"[\s\S]*?background source[\s\S]*?className="einstein-guide"/i);
   assert.match(source, /className="lensing-source-arms"[\s\S]*?<path/);
   assert.match(source, /className="lensing-lens-halo"[\s\S]*?lensing-lens-disk[\s\S]*?lensing-lens-core/i);
@@ -784,6 +787,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /\.lensing-canvas\s*\{[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.lensing-depth-diagram\s*\{[\s\S]*?width:\s*100%/i);
   assert.match(css, /\.lensing-light-path\s*\{[\s\S]*?marker-end:\s*url\(#lensing-light-arrow\)/i);
+  assert.match(css, /\.lensing-angular-grid line,[\s\S]*?\.lensing-angular-grid circle[\s\S]*?stroke:\s*#71808a/i);
   assert.match(css, /\.lensing-lens-halo\s*\{[\s\S]*?lensing-soft-glow/i);
   assert.match(css, /\.lensing-source-arms\s*\{[\s\S]*?stroke:/i);
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.lensing-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
