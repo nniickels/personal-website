@@ -34,7 +34,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, gaming, collections, and food |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
 
-All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
+All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count. Desktop and tablet layouts show 96 stars; phone widths up to 520px show 64 stars at a smaller size.
 
 ## Desktop and mobile differences
 
@@ -46,6 +46,7 @@ Layout responds to available width, so these are the typical orientation differe
 |---------|-----------|----------|
 | Layout and navigation | Uses wider gutters, larger type and media, and single-row header controls when space permits. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
 | Side Quests section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
+| Side Quests lifecycle | Sections remain active throughout the page. | `IntersectionObserver` pauses CSS motion in distant sections and resumes it shortly before they return to view. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
 | Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | Stacks experiment visuals and controls into one column on narrow screens. |
 | Playground lifecycle | Desktop and landscape-tablet layouts show all four experiments. `IntersectionObserver` pauses offscreen motion and resumes it shortly before re-entry. Short touchscreen phone landscapes use the accordion instead. | Phone-width portraits use a collapsed single-open accordion. Only the expanded experiment is mounted, and opening one jumps immediately to its heading. |
@@ -59,7 +60,7 @@ Layout responds to available width, so these are the typical orientation differe
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
 | Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
-| Playground animation rate | JavaScript experiment updates are capped at approximately 60 FPS. Offscreen experiments are still paused by `IntersectionObserver`. | JavaScript experiment updates and continuous CSS visual steps are capped at approximately 30 FPS to reduce mobile CPU and GPU load. |
+| Playground animation rate | JavaScript experiment updates and continuous CSS visual steps are capped at approximately 60 FPS. Offscreen experiments are still paused by `IntersectionObserver`. | JavaScript experiment updates and continuous CSS visual steps are capped at approximately 30 FPS to reduce mobile CPU and GPU load. |
 | Black Hole experiment | Includes the Variables Guide, all variable sliders, growth playback, the draggable mass-growth plot, presets, results, and 3D rotation. | Includes the same complete feature set in the mobile accordion. |
 | Playground performance notice | Hidden. | Shown beneath the page description to recommend desktop for the best performance and allow time for experiments to load. |
 | Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open, and the starfield pauses while it is displayed. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly and shooting stars are hidden. |
@@ -98,8 +99,11 @@ npm install
 npm run dev
 npm run build
 npm run start
+npm run privacy:strip-gallery-metadata
 npm test
 ```
+
+Run the privacy command after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
 
 ## Design references and inspiration
 

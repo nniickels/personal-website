@@ -114,6 +114,9 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   assert.match(css, /background:\s*var\(--shoot-color/i);
   assert.match(css, /@keyframes night-star-twinkle/i);
   assert.match(css, /@keyframes shooting-star-flight/i);
+  assert.match(css, /@media \(max-width:\s*520px\)[\s\S]*?:root\[data-theme="dark"\] \.night-star\s*\{[\s\S]*?--night-star-size-scale:\s*0\.68/i);
+  assert.match(css, /@media \(max-width:\s*520px\)[\s\S]*?:root\[data-theme="dark"\] \.night-star:nth-child\(3n\)\s*\{[\s\S]*?display:\s*none/i);
+  assert.match(css, /@keyframes night-star-twinkle[\s\S]*?scale\(calc\(0\.72 \* var\(--night-star-size-scale\)\)\)[\s\S]*?scale\(calc\(1\.16 \* var\(--night-star-size-scale\)\)\)/i);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.shooting-star\s*\{[\s\S]*?display:\s*none/i);
 });
 

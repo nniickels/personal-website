@@ -73,6 +73,7 @@ body {
 }
 
 .night-star {
+  --night-star-size-scale: 1;
   position: absolute;
   clip-path: polygon(
     50% 0,
@@ -87,7 +88,7 @@ body {
   background: var(--star-color, #f8f9ff);
   box-shadow: 0 0 5px color-mix(in srgb, var(--star-color, #f8f9ff) 52%, transparent);
   opacity: 0.08;
-  transform: scale(0.72);
+  transform: scale(calc(0.72 * var(--night-star-size-scale)));
   animation: night-star-twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite;
   animation-timing-function: steps(var(--twinkle-steps), end);
 }
@@ -155,12 +156,12 @@ body {
   0%,
   100% {
     opacity: 0.08;
-    transform: scale(0.72);
+    transform: scale(calc(0.72 * var(--night-star-size-scale)));
   }
 
   48% {
     opacity: var(--star-peak);
-    transform: scale(1.16);
+    transform: scale(calc(1.16 * var(--night-star-size-scale)));
   }
 }
 
@@ -1439,6 +1440,14 @@ button {
 }
 
 @media (max-width: 520px) {
+  :root[data-theme="dark"] .night-star {
+    --night-star-size-scale: 0.68;
+  }
+
+  :root[data-theme="dark"] .night-star:nth-child(3n) {
+    display: none;
+  }
+
   :root {
     --header-height: 44px;
     --footer-height: 38px;
