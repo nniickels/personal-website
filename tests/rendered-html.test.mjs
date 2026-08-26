@@ -593,6 +593,9 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /limitFrameRate[\s\S]*?now - lastRenderedAt < MOBILE_FRAME_INTERVAL_MS/i);
   assert.match(source, /limitFrameRate[\s\S]*?now - previousTime\.current < MOBILE_FRAME_INTERVAL_MS/i);
   assert.match(portfolioSource, /"--touch-twinkle-steps"[\s\S]*?Math\.round\(Number\.parseFloat\(star\.duration\) \* 2\.4 \* 30\)/i);
+  assert.match(portfolioSource, /MOBILE_SIDE_QUEST_QUERY = "\(hover: none\), \(pointer: coarse\)"/i);
+  assert.match(portfolioSource, /function useMobileSideQuestVisibility[\s\S]*?new IntersectionObserver[\s\S]*?rootMargin:\s*"160px 0px"[\s\S]*?observer\?\.disconnect/i);
+  assert.match(portfolioSource, /useMobileSideQuestVisibility<HTMLDivElement>\(\)[\s\S]*?ref=\{contentRef\}/i);
   assert.match(source, /advancedOpen \|\| variablesGuideOpen \|\| explanationOpen[\s\S]*?touch-playground-disclosure-open/i);
   assert.match(source, /TOUCH_PLAYGROUND_QUERY = "\(hover: none\), \(pointer: coarse\)"/i);
   assert.match(source, /matchMedia\(TOUCH_PLAYGROUND_QUERY\)[\s\S]*?setUsesTouchOptimizations\(touchQuery\.matches\)/i);

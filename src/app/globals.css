@@ -590,6 +590,13 @@ button {
   gap: 0.58rem;
 }
 
+.side-quest-section-is-paused,
+.side-quest-section-is-paused *,
+.side-quest-section-is-paused *::before,
+.side-quest-section-is-paused *::after {
+  animation-play-state: paused !important;
+}
+
 .side-quest-index {
   display: grid;
   gap: 0.55rem;

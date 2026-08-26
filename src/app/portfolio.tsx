@@ -345,6 +345,56 @@ const sideQuestNavigationRows = [
 ] as const;
 
 let sideQuestScrollAnimationFrame: number | null = null;
+const MOBILE_SIDE_QUEST_QUERY = "(hover: none), (pointer: coarse)";
+
+function useMobileSideQuestVisibility<T extends HTMLElement>() {
+  const contentRef = useRef<T | null>(null);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    const mobileQuery = window.matchMedia(MOBILE_SIDE_QUEST_QUERY);
+    const sections = Array.from(content.querySelectorAll<HTMLElement>(":scope > .section"));
+    let observer: IntersectionObserver | null = null;
+
+    const clearPausedSections = () => {
+      sections.forEach((section) => section.classList.remove("side-quest-section-is-paused"));
+    };
+
+    const updateObserver = () => {
+      observer?.disconnect();
+      observer = null;
+      clearPausedSections();
+
+      if (!mobileQuery.matches || typeof IntersectionObserver === "undefined") return;
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            entry.target.classList.toggle(
+              "side-quest-section-is-paused",
+              !entry.isIntersecting,
+            );
+          });
+        },
+        { rootMargin: "160px 0px", threshold: 0.01 },
+      );
+      sections.forEach((section) => observer?.observe(section));
+    };
+
+    updateObserver();
+    mobileQuery.addEventListener("change", updateObserver);
+
+    return () => {
+      mobileQuery.removeEventListener("change", updateObserver);
+      observer?.disconnect();
+      clearPausedSections();
+    };
+  }, []);
+
+  return contentRef;
+}
 
 function navigateToSideQuestDestination(
   event: ReactMouseEvent<HTMLAnchorElement>,
@@ -1572,6 +1622,7 @@ function FoodPhotoGallery() {
 
 function FunContent() {
   const [stats, setStats] = useState<PublicStatsResponse | null>(null);
+  const contentRef = useMobileSideQuestVisibility<HTMLDivElement>();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1627,7 +1678,11 @@ function FunContent() {
     : listeningRankings.map(({ kind, title, count }) => ({ kind, title, count, items: [] }));
 
   return (
-    <div className="mode-content fun-content" aria-label="Side Quests content">
+    <div
+      className="mode-content fun-content"
+      aria-label="Side Quests content"
+      ref={contentRef}
+    >
       <nav className="side-quest-index" aria-label="Side Quests sections">
         {sideQuestNavigationRows.map((row, rowIndex) => (
           <div className="side-quest-index-row" key={rowIndex}>
