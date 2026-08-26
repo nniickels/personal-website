@@ -314,63 +314,61 @@ function VariablesGuide({
             <div>
               <dt>Seed mass</dt>
               <dd>
-                10–100 M☉ suits ordinary stellar remnants, 10²–10⁴ M☉ massive Population III
-                remnants or cluster products, and 10⁴–10⁶ M☉ proposed direct-collapse seeds.
+                The black hole&apos;s starting mass. Stellar remnants are often 10–100 M☉, while
+                proposed direct-collapse seeds can reach 10⁴–10⁶ M☉.
               </dd>
             </div>
             <div>
               <dt>Accretion rate</dt>
               <dd>
-                The Eddington ratio is λ = L / Lₑdd. About 0.1 is weak feeding, 1 a near-Eddington
-                quasar, and above 1 idealized super-Eddington growth. “× reference” compares the
-                growth rate with 10% efficiency, so it varies with spin.
+                How quickly the black hole feeds. An Eddington ratio near 0.1 means slow feeding,
+                1 means rapid quasar-like feeding, and values above 1 explore extreme growth.
               </dd>
             </div>
             <div>
               <dt>Spin, a*</dt>
               <dd>
-                Near zero can follow chaotic feeding or mixed mergers. Positive spin can follow
-                aligned feeding; negative spin means a counter-rotating disk.
+                How fast and in which direction the black hole rotates. Positive values turn with
+                the disk, while negative values turn against it.
               </dd>
             </div>
             <div>
               <dt>Seed redshift</dt>
               <dd>
-                z ≈ 20–30 suits first stellar remnants; z ≈ 10–20 many direct-collapse scenarios.
+                When growth begins. A higher redshift means an earlier time in the universe.
               </dd>
             </div>
             <div>
               <dt>Observation redshift</dt>
               <dd>
-                z ≈ 6–10 probes the first billion years and early quasars. Lower values allow more growth time.
+                When growth ends in the simulation. A lower value gives the black hole more time to grow.
               </dd>
             </div>
             <div>
               <dt>Duty cycle</dt>
               <dd>
-                About 10% is intermittent, 50% sustained but episodic, and 100% continuously active.
+                The share of time spent feeding. A 50% duty cycle means the black hole feeds for
+                half of the available time.
               </dd>
             </div>
             <div>
               <dt>Radiative efficiency</dt>
               <dd>
-                The thin-disk relation gives about 5.7% at zero spin, less for retrograde disks,
-                and more for rapidly prograde disks.
+                The share of incoming matter released as light. Higher efficiency leaves less
+                matter available to add to the black hole&apos;s mass.
               </dd>
             </div>
             <div>
               <dt>Variable presets</dt>
               <dd>
-                <strong>Stellar seed</strong> starts with a 10² M☉ remnant at z = 25 and tests sustained,
-                near-Eddington growth. <strong>Direct collapse</strong> starts with a 10⁵ M☉ seed at z = 20,
-                giving growth a large head start despite its higher-spin efficiency. <strong>Rapid growth</strong>
-                starts at 10⁴ M☉ and z = 25 with a 1.5 Eddington ratio and 90% duty cycle, representing
-                an idealized, sustained super-Eddington route.
+                <strong>Stellar seed</strong> begins small and early. <strong>Direct collapse</strong>
+                begins with a much larger seed. <strong>Rapid growth</strong> combines a large seed,
+                fast feeding, and a high duty cycle.
               </dd>
             </div>
           </dl>
           <p>
-            These ranges and presets are illustrative, not fits to individual black holes. Real systems can shift between regimes.
+            These settings are simple examples. Real black holes can move between different growth patterns.
           </p>
           </div>
         )}
@@ -715,36 +713,32 @@ export function BlackHoleGrowthSimulator({
         {mobileSimplified ? (
           <>
             <p>
-              The dark sphere marks the event-horizon region and the tilted ring is a stylized
-              accretion disk. Drag the visual to rotate it. The bright lower semicircle and upper
-              arc are depth cues rather than measurements.
+              The dark sphere marks the region around the event horizon, while the tilted ring
+              represents a hot accretion disk feeding the black hole. The drawing is stylized, with
+              bright arcs added to make the disk&apos;s depth and orientation easy to see as you rotate it.
             </p>
             <p>
-              The selected {activePresetName ?? "growth"} preset starts with a {formatMass(seedLogMass)}
-              {" "}seed at z = {seedRedshift}, observed at z = {observedRedshift}, with an Eddington
-              ratio of {eddingtonRatio.toFixed(1)}, a {Math.round(dutyCycle * 100)}% duty cycle, and
-              spin a* = {spin.toFixed(2)}. Presets are simplified growth scenarios, not predictions
-              for individual black holes.
+              The {activePresetName ?? "growth"} scenario begins with a {formatMass(seedLogMass)} seed
+              at redshift {seedRedshift} and follows it to redshift {observedRedshift}. During that
+              interval, the model feeds it at {eddingtonRatio.toFixed(1)} times the Eddington rate for
+              {" "}{Math.round(dutyCycle * 100)}% of the available time, then reports the projected mass.
             </p>
           </>
         ) : (
           <>
             <p>
-              The dark sphere marks the event-horizon region and the tilted ring is a stylized
-              accretion disk, neither ray-traced nor drawn to physical scale. The bright lower
-              semicircle is the near side of the disk, while the upper arc suggests light from its far
-              side bent around the black hole. These are visual depth cues, not measurements. Disk
-              motion is an illustrative spin cue and pauses at a* = 0, although real gas can orbit a
-              non-rotating black hole. Seed mass sets the starting mass, accretion rate sets the Eddington ratio,
-              spin sets thin-disk radiative efficiency, redshifts set the time interval, and duty cycle
-              sets how often the black hole is active.
+              The dark sphere marks the region around the event horizon, and the tilted ring represents
+              a hot accretion disk feeding the black hole. The drawing is stylized, with bright arcs
+              added to make depth easy to read as you rotate it. Seed mass sets the starting point;
+              the two redshifts set the available cosmic time; and accretion rate, duty cycle, and spin
+              determine how quickly incoming matter adds to the black hole.
             </p>
             <p>
-              The graph plots cosmic time horizontally and logarithmic mass vertically, so exponential
-              growth appears nearly straight. The dot and vertical line mark playback, and 10⁹ M☉ is a benchmark, not
-              a limit. Larger seeds, higher Eddington ratios, longer growth, and higher duty cycles
-              increase final mass. High prograde spin can slow growth by raising radiative efficiency.
-              Fuel limits, feedback, mergers, and changing accretion states are not included.
+              The graph follows cosmic time from left to right and uses a logarithmic mass scale, so
+              each vertical step represents a tenfold increase. The moving dot shows the current mass,
+              while the dashed 10⁹ M☉ line provides a useful early-quasar benchmark. Larger seeds,
+              faster or more sustained feeding, and longer time intervals raise the final mass; rapid
+              prograde spin can slow growth because more of the incoming matter&apos;s energy escapes as light.
             </p>
           </>
         )}
@@ -1010,10 +1004,11 @@ export function BlackHoleGrowthSimulator({
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: a flat ΛCDM expansion without radiation sets the available time. Mass then grows
-        exponentially at fixed Eddington ratio, duty cycle, spin, and spin-derived thin-disk
-        efficiency. It omits finite fuel, feedback, mergers, and evolving accretion or spin. Outputs
-        are mathematical projections, not physical predictions.
+        Toy model: A flat ΛCDM expansion history converts the seed and observation redshifts into an
+        elapsed growth time. The mass then grows exponentially with fixed accretion rate, duty cycle,
+        spin, and spin-based radiative efficiency. Fuel shortages, feedback, mergers, and changing
+        accretion states fall outside the calculation, so the result is best read as a controlled
+        growth scenario for comparing assumptions.
       </p>
     </section>
   );
@@ -1195,9 +1190,18 @@ export function GravitationalLensingSandbox({
       >
         <ellipse rx={tangentialRadius} ry={radialRadius} />
         <ellipse className="lensing-image-core" rx={tangentialRadius * 0.56} ry={radialRadius * 0.55} />
+        <ellipse className="lensing-image-highlight" rx={tangentialRadius * 0.82} ry={radialRadius * 0.74} />
       </g>
     );
   };
+
+  const depthLensX = 286;
+  const depthSourceX = 430 + distanceRatio * 150;
+  const depthSourceY = 46 + clamp(
+    (displaySourcePosition.y - LENS_CENTER.y) * 0.12,
+    -20,
+    20,
+  );
 
   return (
     <section
@@ -1217,18 +1221,19 @@ export function GravitationalLensingSandbox({
 
       <ExperimentGuide>
         <p>
-          The lens is a massive foreground galaxy or cluster whose gravity bends light from the
-          background galaxy. The central dark marker represents its mass as a single point, not its
-          visible shape or size. The labeled source is the galaxy&apos;s true position, the bright arcs
-          are its apparent images, and the dashed circle is the Einstein radius. Lens mass and the
-          distance factor set the bending scale. Source size changes the drawn arcs but not the
-          point-source magnification estimate.
+          Gravity from a foreground galaxy or cluster bends light from a more distant source galaxy.
+          This sandbox gathers the foreground mass into the central marker, then shows the source&apos;s
+          true position and the two places where its light appears to an observer. The dashed circle
+          is the Einstein radius, the natural angular scale set by the lens mass and the distances
+          between observer, lens, and source. Display units are arbitrary distances within this
+          diagram, useful for comparing how the results change.
         </p>
         <p>
-          Near alignment, the two images brighten and stretch toward the Einstein radius. Perfect
-          alignment forms an Einstein ring. The ideal point-source magnification diverges there, so
-          the readout stops at “&gt; 40×.” This point-mass model demonstrates geometry, not
-          observational predictions.
+          Dragging the source toward the centre moves both images toward the Einstein radius, where
+          they brighten and stretch into arcs; perfect alignment joins them into an Einstein ring.
+          Increasing lens mass or the distance factor enlarges this bending scale, while source size
+          changes the width of the drawn arcs. The point-source equation predicts unlimited
+          magnification at exact alignment, so the display caps the readout at “&gt; 40×.”
         </p>
       </ExperimentGuide>
 
@@ -1251,14 +1256,16 @@ export function GravitationalLensingSandbox({
           >
             <defs>
               <radialGradient id="lensing-galaxy-gradient">
-                <stop offset="0" stopColor="#c8a8ff" stopOpacity="0.95" />
-                <stop offset="0.32" stopColor="#9f79e8" stopOpacity="0.55" />
-                <stop offset="1" stopColor="#7953c6" stopOpacity="0" />
+                <stop offset="0" stopColor="#fff4dc" stopOpacity="0.98" />
+                <stop offset="0.18" stopColor="#d8c7ff" stopOpacity="0.88" />
+                <stop offset="0.52" stopColor="#9675dc" stopOpacity="0.48" />
+                <stop offset="1" stopColor="#513d91" stopOpacity="0" />
               </radialGradient>
               <radialGradient id="lensing-lens-gradient">
-                <stop offset="0" stopColor="#efc77f" stopOpacity="0.58" />
-                <stop offset="0.45" stopColor="#d99b55" stopOpacity="0.2" />
-                <stop offset="1" stopColor="#b46e38" stopOpacity="0" />
+                <stop offset="0" stopColor="#fff4cd" stopOpacity="0.94" />
+                <stop offset="0.2" stopColor="#efc77f" stopOpacity="0.76" />
+                <stop offset="0.58" stopColor="#c68245" stopOpacity="0.3" />
+                <stop offset="1" stopColor="#7a4328" stopOpacity="0" />
               </radialGradient>
               <filter id="lensing-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
                 <feGaussianBlur stdDeviation="3.2" result="blur" />
@@ -1281,6 +1288,20 @@ export function GravitationalLensingSandbox({
               />
             ))}
 
+            <g
+              className="lensing-source"
+              transform={`translate(${displaySourcePosition.x} ${displaySourcePosition.y}) rotate(${sourceRotation})`}
+            >
+              <circle className="lensing-source-handle" r={Math.max(18, sourceSize * 1.9)} />
+              <ellipse className="lensing-source-disk" rx={sourceSize * 1.7} ry={sourceSize * 0.8} />
+              <ellipse className="lensing-source-core" rx={sourceSize * 0.55} ry={sourceSize * 0.34} />
+              <g className="lensing-source-arms" transform={`scale(${sourceSize / 10})`}>
+                <path d="M -2 0 C 3 -5 12 -4 14 1 C 16 6 8 9 1 8" />
+                <path d="M 2 0 C -3 5 -12 4 -14 -1 C -16 -6 -8 -9 -1 -8" />
+              </g>
+              <text y={Math.max(29, sourceSize * 2.5)} textAnchor="middle">background source</text>
+            </g>
+
             <circle
               className="einstein-guide"
               cx={LENS_CENTER.x}
@@ -1299,20 +1320,72 @@ export function GravitationalLensingSandbox({
             {lensModel.ringStrength < 0.94 && renderImage(lensModel.plus, "lensing-image--plus")}
 
             <g className="lensing-lens" transform={`translate(${LENS_CENTER.x} ${LENS_CENTER.y})`}>
-              <circle r="36" />
-              <circle className="lensing-lens-core" r="13" />
-              <text y="55" textAnchor="middle">foreground lens</text>
+              <ellipse className="lensing-lens-halo" rx="48" ry="34" transform="rotate(-18)" />
+              <ellipse className="lensing-lens-disk" rx="33" ry="15" transform="rotate(-18)" />
+              <ellipse className="lensing-lens-isophote" rx="22" ry="9" transform="rotate(-18)" />
+              <ellipse className="lensing-lens-core" rx="10" ry="4.8" transform="rotate(-18)" />
+              <circle className="lensing-lens-mass-centre" r="2.2" />
+              <text y="57" textAnchor="middle">foreground lens</text>
             </g>
+          </svg>
 
-            <g
-              className="lensing-source"
-              transform={`translate(${displaySourcePosition.x} ${displaySourcePosition.y}) rotate(${sourceRotation})`}
-            >
-              <circle className="lensing-source-handle" r={Math.max(18, sourceSize * 1.9)} />
-              <ellipse rx={sourceSize * 1.55} ry={sourceSize * 0.72} />
-              <ellipse className="lensing-source-core" rx={sourceSize * 0.55} ry={sourceSize * 0.34} />
-              <text y={Math.max(29, sourceSize * 2.5)} textAnchor="middle">source</text>
+          <svg
+            className="lensing-depth-diagram"
+            viewBox="0 0 620 92"
+            role="img"
+            aria-label="Side view showing the observer, foreground lens, and background source with two bent light paths"
+          >
+            <defs>
+              <linearGradient id="lensing-depth-field" x1="0" x2="1">
+                <stop offset="0" stopColor="#151515" />
+                <stop offset="0.55" stopColor="#171614" />
+                <stop offset="1" stopColor="#17141d" />
+              </linearGradient>
+              <marker
+                id="lensing-light-arrow"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 8 4 L 0 8 z" />
+              </marker>
+            </defs>
+            <rect className="lensing-depth-field" width="620" height="92" rx="10" />
+            <line className="lensing-depth-axis" x1="58" y1="46" x2={depthSourceX} y2="46" />
+            <line className="lensing-depth-plane lensing-depth-plane--lens" x1={depthLensX} y1="10" x2={depthLensX} y2="80" />
+            <line className="lensing-depth-plane lensing-depth-plane--source" x1={depthSourceX} y1="10" x2={depthSourceX} y2="80" />
+            <path
+              className="lensing-light-path"
+              d={`M ${depthSourceX} ${depthSourceY} Q ${(depthSourceX + depthLensX) / 2} 23 ${depthLensX} 34 Q 170 43 62 46`}
+            />
+            <path
+              className="lensing-light-path"
+              d={`M ${depthSourceX} ${depthSourceY} Q ${(depthSourceX + depthLensX) / 2} 69 ${depthLensX} 58 Q 170 49 62 46`}
+            />
+            <g className="lensing-depth-observer" transform="translate(54 46)">
+              <path d="M -14 0 Q 0 -11 14 0 Q 0 11 -14 0 Z" />
+              <circle r="3.2" />
+              <text x="0" y="30" textAnchor="middle">observer</text>
             </g>
+            <g className="lensing-depth-lens" transform={`translate(${depthLensX} 46)`}>
+              <ellipse className="lensing-depth-lens-halo" rx="18" ry="12" transform="rotate(-18)" />
+              <ellipse className="lensing-depth-lens-disk" rx="12" ry="5.5" transform="rotate(-18)" />
+              <ellipse className="lensing-depth-lens-core" rx="4.8" ry="2.5" transform="rotate(-18)" />
+              <text x="0" y="34" textAnchor="middle">foreground lens</text>
+            </g>
+            <g className="lensing-depth-source" transform={`translate(${depthSourceX} ${depthSourceY})`}>
+              <g transform={`rotate(${sourceRotation})`}>
+                <ellipse rx="18" ry="7" />
+                <path d="M -2 0 C 3 -5 12 -4 14 1 C 16 6 8 9 1 8" />
+                <path d="M 2 0 C -3 5 -12 4 -14 -1 C -16 -6 -8 -9 -1 -8" />
+                <circle r="2.8" />
+              </g>
+              <text x="0" y={depthSourceY > 52 ? -24 : 30} textAnchor="middle">background source</text>
+            </g>
+            <text className="lensing-depth-caption" x="165" y="16" textAnchor="middle">light bends toward the lens</text>
           </svg>
         </div>
 
@@ -1361,7 +1434,7 @@ export function GravitationalLensingSandbox({
       <dl className="simulator-results lensing-results">
         <div>
           <dt>Einstein radius</dt>
-          <dd>{lensModel.einsteinRadius.toFixed(1)} canvas units</dd>
+          <dd>{lensModel.einsteinRadius.toFixed(1)} display units</dd>
         </div>
         <div>
           <dt>Total magnification</dt>
@@ -1369,15 +1442,15 @@ export function GravitationalLensingSandbox({
         </div>
         <div>
           <dt>Image separation</dt>
-          <dd>{lensModel.imageSeparation.toFixed(1)} canvas units</dd>
+          <dd>{lensModel.imageSeparation.toFixed(1)} display units</dd>
         </div>
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: an axisymmetric point-mass lens uses the scalar thin-lens equation to place and
-        magnify two point-source images. Source size, arc shape, and display scale are illustrative.
-        Real galaxies and clusters have extended, asymmetric mass distributions that can produce
-        more complex images.
+        Toy model: An axisymmetric point-mass lens uses the scalar thin-lens equation to calculate
+        the positions and magnifications of two point-source images. The source size and arc shapes
+        are visual aids layered onto those solutions. Extended galaxies and clusters distribute mass
+        unevenly, producing shear, multiple arcs, and other structures that require a full lens model.
       </p>
     </section>
   );
@@ -1557,25 +1630,25 @@ export function OrbitalResonanceToy({
         <p className="simulator-kicker">Experiment 04</p>
         <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
         <p>
-          Choose one to five bodies and compare exact period-ratio chains with a near-resonant
-          setup whose relative positions do not repeat on a short cycle.
+          Choose one to five bodies and compare repeating period-ratio chains with a near-resonant
+          pattern that keeps shifting over time.
         </p>
       </header>
 
       <ExperimentGuide>
         <p>
-          The numbers compare orbital periods, using the innermost body as 1. In a 2:1 pair,
-          the inner body completes two orbits while the next body completes one. In 3:2 and 5:3
-          pairs, the inner body completes three or five orbits while the next completes two or
-          three. Adding bodies extends the same adjacent ratio into a chain, so a 2:1 chain has
-          relative periods 1:2:4:8:16.
+          An orbital period is the time a body takes to complete one orbit, and a period ratio
+          compares that time with a neighbour&apos;s. In a 2:1 pair, the inner body completes two orbits
+          while the outer body completes one; in a 3:2 pair, they complete three and two. Adding more
+          bodies repeats the chosen ratio between neighbours, so a five-body 2:1 chain has relative
+          periods of 1:2:4:8:16.
         </p>
         <p>
-          Exact rational ratios eventually return every body to the same relative alignment. The
-          listed repeat time is the smallest whole number of inner orbits needed for the displayed
-          chain to repeat. Near resonance uses non-matching approximate ratios, so it has no short
-          repeat here. This toy prescribes the periods and shows recurring geometry; it does not
-          simulate gravitational locking or libration, which define a physical orbital resonance.
+          Ratios made from small whole numbers return the entire chain to the same relative alignment
+          after a predictable number of inner orbits, which appears in the repeat readout. The Near
+          resonance preset uses slightly mismatched periods, so its geometry drifts without a short
+          repeat. In a physical resonance, gravity also keeps a particular orbital-angle combination
+          oscillating within a limited range, a behaviour called libration.
         </p>
       </ExperimentGuide>
 
@@ -1725,11 +1798,11 @@ export function OrbitalResonanceToy({
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: non-interacting markers move at constant angular speed on prescribed circular,
-        coplanar tracks. Period ratios are independent of the displayed radii, so the diagram does not
-        enforce Kepler&apos;s third law or gravitational dynamics. Rational-ratio chains repeat; the
-        near-resonance preset has no listed short repeat. It demonstrates repeating alignments, not
-        resonance locking or librating resonant angles.
+        Toy model: Non-interacting markers move at constant angular speeds along fixed, circular,
+        coplanar tracks. The selected period ratios alone determine when their relative positions
+        repeat, while the displayed orbit sizes are chosen for visual clarity. The calculation leaves
+        out Kepler&apos;s third law, gravitational coupling, eccentricity, and the resonant-angle libration
+        used to identify a true dynamical resonance.
       </p>
     </section>
   );
@@ -1992,23 +2065,18 @@ export function StellarEvolutionExplorer({
 
       <ExperimentGuide>
         <p>
-          Initial mass sets the approximate main-sequence lifetime, luminosity, evolutionary stages,
-          and final remnant. Play the sequence, drag the timeline slider, or select a phase below the
-          visual. The timeline begins 5/6ths through the main sequence. Phase markers are evenly
-          spaced for readability, so slider position is not to scale by time. During playback, it moves more slowly
-          through longer toy-model intervals.
-          Playback remains intentionally slowed so each final phase is visible. Surface drift represents
-          rotation and convection, while the stronger giant-phase breathing represents pulsation; their
-          animation speeds are illustrative rather than real-time.
+          A star&apos;s initial mass largely determines how brightly it shines, how quickly it uses its
+          nuclear fuel, and which remnant it leaves behind. Press play, drag the timeline, or select
+          a phase to follow that path. Because the main sequence occupies most of a star&apos;s life, the
+          display begins five-sixths of the way through it; later phase markers are spaced evenly so
+          brief events remain easy to inspect.
         </p>
         <p>
-          Lower-mass stars become red giants, shed planetary nebulae, and leave white dwarfs. More
-          massive stars undergo core-collapse supernovae and leave neutron stars or black holes.
-          The <strong>Sun-like</strong> preset is 1 M☉ and ends as a white dwarf, <strong>Massive</strong> is
-          12 M☉ and ends as a neutron star, and <strong>Very massive</strong> is 30 M☉ and ends as a black
-          hole. The neutron-star endpoint is shown as a rapidly rotating pulsar with twin radiation
-          beams; not every neutron star is observed as a radio pulsar. Boundaries are approximate because
-          composition, rotation, winds, and binary interaction also matter.
+          Sun-like stars swell into red giants, shed their outer layers as planetary nebulae, and
+          leave white dwarfs. More massive stars become supergiants, undergo core-collapse supernovae,
+          and leave neutron stars or black holes. The 1 M☉, 12 M☉, and 30 M☉ presets illustrate these
+          three outcomes. Surface motion and pulsation are visual cues, and the neutron-star stage is
+          shown as a pulsar whose sweeping beams happen to cross our line of sight.
         </p>
       </ExperimentGuide>
 
@@ -2089,7 +2157,7 @@ export function StellarEvolutionExplorer({
 
         <div className="stellar-timeline-panel">
           <p id="stellar-timeline-hint" className="stellar-timeline-hint">
-            Phases are evenly spaced, not to scale by time; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
+            Phases are evenly spaced for easy selection; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
           </p>
           <div
             className="stellar-timeline-control"
@@ -2159,10 +2227,11 @@ export function StellarEvolutionExplorer({
       </dl>
 
       <p className="simulator-method-note">
-        Toy model: single-star evolution at solar-like composition uses piecewise luminosity scaling,
-        an approximate mass-lifetime relation, simplified phase timing, and fixed remnant thresholds.
-        Surface rotation is visual only. It omits detailed nuclear burning, metallicity dependence,
-        winds and mass loss, binaries, and uncertain remnant formation.
+        Toy model: For a single star with Sun-like composition, a few mass ranges set approximate
+        luminosity, main-sequence lifetime, phase duration, and remnant type. Fixed thresholds send
+        lower-mass stars to white dwarfs and higher-mass stars to neutron stars or black holes. Detailed
+        nuclear burning, composition changes, winds, mass loss, rotation, and binary interactions can
+        shift those boundaries in real stars.
       </p>
     </section>
   );

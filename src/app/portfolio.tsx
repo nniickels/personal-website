@@ -420,9 +420,9 @@ function createNightStars(count: number, bottomLeftCount = 0) {
   const starColour = () => {
     const colourRoll = random();
 
-    if (colourRoll < 0.38) return "#f8f9ff";
-    if (colourRoll < 0.62) return "#dceaff";
-    if (colourRoll < 0.83) return "#fff0cf";
+    if (colourRoll < 0.34) return "#f8f9ff";
+    if (colourRoll < 0.7) return "#dceaff";
+    if (colourRoll < 0.84) return "#fff0cf";
     return "#ffd2ad";
   };
 
@@ -463,7 +463,7 @@ function createNightStars(count: number, bottomLeftCount = 0) {
   });
 }
 
-const nightStars = createNightStars(79, 7);
+const nightStars = createNightStars(96, 9);
 
 const shootingStars = [
   { top: "7%", left: "92%", duration: "11s", delay: "2s", colour: "#edf4ff" },

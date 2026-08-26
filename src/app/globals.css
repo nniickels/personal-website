@@ -2854,6 +2854,132 @@ button {
   text-align: right;
 }
 
+.lensing-depth-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 0.55rem;
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lensing-depth-field {
+  fill: url(#lensing-depth-field);
+  stroke: #2a2a2a;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-axis {
+  stroke: #777;
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-plane {
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-plane--lens {
+  stroke: #efc77f;
+}
+
+.lensing-depth-plane--source {
+  stroke: #c8a8ff;
+}
+
+.lensing-light-path {
+  fill: none;
+  stroke: #9bdcff;
+  stroke-width: 1.35;
+  marker-end: url(#lensing-light-arrow);
+  opacity: 0.78;
+  filter: drop-shadow(0 0 3px rgb(155 220 255 / 28%));
+  vector-effect: non-scaling-stroke;
+}
+
+#lensing-light-arrow path {
+  fill: #9bdcff;
+}
+
+.lensing-depth-observer,
+.lensing-depth-lens,
+.lensing-depth-source {
+  font-family: inherit;
+}
+
+.lensing-depth-observer > path {
+  fill: none;
+  stroke: #d7d7d7;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-observer > circle {
+  fill: #d7d7d7;
+}
+
+.lensing-depth-lens-halo {
+  fill: rgb(239 199 127 / 13%);
+  stroke: #efc77f;
+  stroke-width: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-lens-disk {
+  fill: rgb(239 199 127 / 32%);
+  stroke: rgb(255 236 191 / 64%);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-lens-core {
+  fill: #fff1c4;
+  opacity: 0.86;
+}
+
+.lensing-depth-source > g > ellipse {
+  fill: rgb(200 168 255 / 18%);
+  stroke: #c8a8ff;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-source > g > path {
+  fill: none;
+  stroke: #dbcaff;
+  stroke-width: 0.75;
+  opacity: 0.66;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-depth-source > g > circle {
+  fill: #fff1d0;
+  opacity: 0.9;
+}
+
+.lensing-depth-observer text,
+.lensing-depth-lens text,
+.lensing-depth-source text,
+.lensing-depth-caption {
+  fill: #a1a1a1;
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.lensing-depth-caption {
+  fill: #9bdcff;
+  opacity: 0.72;
+}
+
 .lensing-canvas {
   --simulation-background: #121212;
   --simulation-foreground: #d7d7d7;
@@ -2927,7 +3053,15 @@ button {
 
 .lensing-image-core {
   fill: currentColor;
-  opacity: 0.2;
+  opacity: 0.16;
+}
+
+.lensing-image-highlight {
+  fill: none;
+  stroke: #d9f2ff;
+  stroke-width: 0.7;
+  opacity: 0.48;
+  vector-effect: non-scaling-stroke;
 }
 
 .lensing-image--minus {
@@ -2946,21 +3080,45 @@ button {
 
 .lensing-source {
   color: #c8a8ff;
+  opacity: 0.72;
 }
 
-.lensing-lens > circle:first-child {
+.lensing-lens-halo {
   fill: url(#lensing-lens-gradient);
-  stroke: currentColor;
+  stroke: rgb(239 199 127 / 44%);
+  stroke-width: 0.8;
+  filter: url(#lensing-soft-glow);
+  opacity: 0.76;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-lens-disk {
+  fill: url(#lensing-lens-gradient);
+  stroke: rgb(255 227 174 / 72%);
   stroke-width: 1;
-  opacity: 0.8;
+  opacity: 0.88;
+  vector-effect: non-scaling-stroke;
+}
+
+.lensing-lens-isophote {
+  fill: rgb(255 221 158 / 15%);
+  stroke: rgb(255 232 188 / 52%);
+  stroke-width: 0.7;
+  opacity: 0.72;
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-lens-core {
-  fill: var(--simulation-background);
-  stroke: currentColor;
-  stroke-width: 1;
+  fill: #fff0bd;
+  stroke: rgb(255 249 224 / 76%);
+  stroke-width: 0.7;
+  opacity: 0.88;
   vector-effect: non-scaling-stroke;
+}
+
+.lensing-lens-mass-centre {
+  fill: #fffdf1;
+  opacity: 0.9;
 }
 
 .lensing-lens text,
@@ -2981,17 +3139,25 @@ button {
   vector-effect: non-scaling-stroke;
 }
 
-.lensing-source > ellipse:not(.lensing-source-core) {
+.lensing-source-disk {
   fill: url(#lensing-galaxy-gradient);
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1;
   filter: url(#lensing-soft-glow);
   vector-effect: non-scaling-stroke;
 }
 
 .lensing-source-core {
-  fill: currentColor;
-  opacity: 0.72;
+  fill: #fff0d1;
+  opacity: 0.88;
+}
+
+.lensing-source-arms {
+  fill: none;
+  stroke: #e5dcff;
+  stroke-width: 0.9;
+  opacity: 0.62;
+  vector-effect: non-scaling-stroke;
 }
 
 .lensing-results dd {
