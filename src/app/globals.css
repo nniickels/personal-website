@@ -1010,6 +1010,15 @@ button {
   transform: translateY(-7px);
 }
 
+@media (hover: none), (pointer: coarse) {
+  .listening-cover-thumbnail:hover:not(.is-previewing) {
+    border-color: transparent;
+    filter: none;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
 .listening-volume {
   display: grid;
   grid-template-columns: auto 112px auto;

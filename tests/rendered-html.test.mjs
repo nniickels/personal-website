@@ -463,6 +463,10 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.match(css, /\.listening-cover-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.listening-cover-wheel\.is-touch-dragging\s*\{[\s\S]*?scroll-snap-type:\s*none/i);
   assert.match(css, /\.listening-cover-thumbnail:hover[\s\S]*?box-shadow:[\s\S]*?translateY\(-7px\)/i);
+  assert.match(
+    css,
+    /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.listening-cover-thumbnail:hover:not\(\.is-previewing\)\s*\{[\s\S]*?border-color:\s*transparent[\s\S]*?filter:\s*none[\s\S]*?box-shadow:\s*none[\s\S]*?transform:\s*none/i,
+  );
   assert.match(css, /\.listening-cover-thumbnail\s*\{[\s\S]*?touch-action:\s*none[\s\S]*?user-select:\s*none/i);
   assert.match(css, /\.listening-preview-heading \.listening-preview-prompt\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.cover-instruction-hover[\s\S]*?display:\s*none[\s\S]*?\.cover-instruction-tap[\s\S]*?display:\s*inline/i);
