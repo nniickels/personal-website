@@ -2070,10 +2070,13 @@ export function StellarEvolutionExplorer({
           leave white dwarfs. High-mass stars expand into red supergiants: they are substantially
           more massive, larger, and more luminous than ordinary red giants, despite having similarly
           cool, reddish surfaces. They then undergo core-collapse supernovae and leave neutron stars
-          or black holes. The 1 M☉, 12 M☉, and 30 M☉ presets illustrate these three outcomes. Displayed
-          sizes are not to scale; the stronger size, colour, and glow differences identify the two
-          giant phases. Surface motion and pulsation are visual cues, and the neutron-star stage is
-          shown as a pulsar whose sweeping beams happen to cross our line of sight.
+          or black holes. Whether the remnant is a neutron star or black hole depends more directly
+          on the mass of the collapsed core that remains after the supernova; the initial-mass
+          thresholds used here are only a simplified proxy. The 1 M☉, 12 M☉, and 30 M☉ presets
+          illustrate these three outcomes. Displayed sizes are not to scale; the stronger size,
+          colour, and glow differences identify the two giant phases. Surface motion and pulsation
+          are visual cues, and the neutron-star stage is shown as a pulsar whose sweeping beams
+          happen to cross our line of sight.
         </p>
       </ExperimentGuide>
 
