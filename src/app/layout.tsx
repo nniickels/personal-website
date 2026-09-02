@@ -4,6 +4,8 @@ import "./globals.css";
 export const siteDescription =
   "Nicole Jiang is an astronomy and physics undergraduate at the University of Toronto working on black-hole growth and computational astrophysics.";
 
+const socialDescription = "Personal website and portfolio.";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://nicolejiang.com"),
   title: "Nicole Jiang",
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Nicole Jiang",
     title: "Nicole Jiang",
-    description: siteDescription,
+    description: socialDescription,
     images: [
       {
         url: "/og.png?v=8",
@@ -47,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nicole Jiang",
-    description: siteDescription,
+    description: socialDescription,
     images: ["/og.png?v=8"],
   },
 };

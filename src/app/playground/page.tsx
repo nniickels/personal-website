@@ -4,6 +4,8 @@ import { Playground } from "./playground";
 const description =
   "Explore interactive astronomy simulations by Nicole Jiang, including black-hole growth, stellar evolution, gravitational lensing, and orbital resonance.";
 
+const socialDescription = "Personal website and portfolio.";
+
 export const metadata: Metadata = {
   title: "Playground — Nicole Jiang",
   description,
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
     url: "/playground",
     siteName: "Nicole Jiang",
     title: "Nicole Jiang",
-    description,
+    description: socialDescription,
     images: [
       {
         url: "/og.png?v=8",
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nicole Jiang",
-    description,
+    description: socialDescription,
     images: ["/og.png?v=8"],
   },
 };

@@ -4,6 +4,8 @@ import { Portfolio } from "../portfolio";
 const description =
   "Explore Nicole Jiang's photography, music, reading, games, collections, and food through interactive galleries and live listening statistics.";
 
+const socialDescription = "Personal website and portfolio.";
+
 export const metadata: Metadata = {
   title: "Side Quests — Nicole Jiang",
   description,
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
     url: "/side-quests",
     siteName: "Nicole Jiang",
     title: "Nicole Jiang",
-    description,
+    description: socialDescription,
     images: [
       {
         url: "/og.png?v=8",
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Nicole Jiang",
-    description,
+    description: socialDescription,
     images: ["/og.png?v=8"],
   },
 };
