@@ -4,7 +4,8 @@ import "./globals.css";
 export const siteDescription =
   "Nicole Jiang is an astronomy and physics undergraduate at the University of Toronto working on black-hole growth and computational astrophysics.";
 
-const socialDescription = "Personal website and portfolio.";
+// Prevent social crawlers from falling back to the SEO description while keeping the card visual-only.
+const socialDescription = "\u200B";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nicolejiang.com"),
@@ -34,7 +35,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "Nicole Jiang",
     title: "Nicole Jiang",
     description: socialDescription,
     images: [

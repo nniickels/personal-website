@@ -4,7 +4,7 @@ import { Playground } from "./playground";
 const description =
   "Explore interactive astronomy simulations by Nicole Jiang, including black-hole growth, stellar evolution, gravitational lensing, and orbital resonance.";
 
-const socialDescription = "Personal website and portfolio.";
+const socialDescription = "\u200B";
 
 export const metadata: Metadata = {
   title: "Playground — Nicole Jiang",
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/playground",
-    siteName: "Nicole Jiang",
     title: "Nicole Jiang",
     description: socialDescription,
     images: [

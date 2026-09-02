@@ -4,7 +4,7 @@ import { Portfolio } from "../portfolio";
 const description =
   "Explore Nicole Jiang's photography, music, reading, games, collections, and food through interactive galleries and live listening statistics.";
 
-const socialDescription = "Personal website and portfolio.";
+const socialDescription = "\u200B";
 
 export const metadata: Metadata = {
   title: "Side Quests — Nicole Jiang",
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/side-quests",
-    siteName: "Nicole Jiang",
     title: "Nicole Jiang",
     description: socialDescription,
     images: [

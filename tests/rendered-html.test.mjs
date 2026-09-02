@@ -38,14 +38,15 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /name="author"[^>]*content="Nicole Jiang"/i);
   assert.match(html, /name="googlebot"[^>]*max-image-preview:large[^>]*max-snippet:-1/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:description"[^>]*content="Personal website and portfolio\."/i);
+  assert.match(html, /property="og:description"[^>]*content="\u200B"/i);
+  assert.doesNotMatch(html, /property="og:site_name"/i);
   assert.match(html, /property="og:url"[^>]*content="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=8"/i);
   assert.match(html, /property="og:image:width"[^>]*content="1200"/i);
   assert.match(html, /property="og:image:height"[^>]*content="630"/i);
   assert.match(html, /name="twitter:card"[^>]*content="summary_large_image"/i);
   assert.match(html, /name="twitter:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /name="twitter:description"[^>]*content="Personal website and portfolio\."/i);
+  assert.match(html, /name="twitter:description"[^>]*content="\u200B"/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/?"/i);
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
   assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=3"/i);
@@ -531,7 +532,8 @@ test("publishes Side Quests as its own shareable page", async () => {
   );
   assert.doesNotMatch(html, /google\.com\/maps\/contrib/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:description"[^>]*content="Personal website and portfolio\."/i);
+  assert.match(html, /property="og:description"[^>]*content="\u200B"/i);
+  assert.doesNotMatch(html, /property="og:site_name"/i);
   assert.match(html, /property="og:url"[^>]*content="https:\/\/nicolejiang\.com\/side-quests"/i);
   assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=8"/i);
   assert.match(html, /name="twitter:title"[^>]*content="Nicole Jiang"/i);
@@ -551,7 +553,8 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /name="description"[^>]*black-hole growth, stellar evolution, gravitational lensing, and orbital resonance/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/playground"/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:description"[^>]*content="Personal website and portfolio\."/i);
+  assert.match(html, /property="og:description"[^>]*content="\u200B"/i);
+  assert.doesNotMatch(html, /property="og:site_name"/i);
   assert.match(html, /property="og:url"[^>]*content="https:\/\/nicolejiang\.com\/playground"/i);
   assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=8"/i);
   assert.match(html, /name="twitter:title"[^>]*content="Nicole Jiang"/i);
