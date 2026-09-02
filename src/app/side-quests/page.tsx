@@ -4,7 +4,7 @@ import { Portfolio } from "../portfolio";
 const description =
   "Explore Nicole Jiang's photography, music, reading, games, collections, and food through interactive galleries and live listening statistics.";
 
-const socialText = "\u200B";
+const socialDescription = "Personal website and portfolio.";
 
 export const metadata: Metadata = {
   title: "Side Quests — Nicole Jiang",
@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/side-quests",
-    title: socialText,
-    description: socialText,
+    siteName: "Nicole Jiang",
+    title: "Nicole Jiang",
+    description: socialDescription,
     images: [
       {
         url: "/og.png?v=8",
@@ -26,8 +27,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: socialText,
-    description: socialText,
+    title: "Nicole Jiang",
+    description: socialDescription,
     images: ["/og.png?v=8"],
   },
 };

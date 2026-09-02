@@ -4,8 +4,7 @@ import "./globals.css";
 export const siteDescription =
   "Nicole Jiang is an astronomy and physics undergraduate at the University of Toronto working on black-hole growth and computational astrophysics.";
 
-// Prevent social crawlers from falling back to SEO text while keeping the card visual-only.
-const socialText = "\u200B";
+const socialDescription = "Personal website and portfolio.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nicolejiang.com"),
@@ -35,8 +34,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    title: socialText,
-    description: socialText,
+    siteName: "Nicole Jiang",
+    title: "Nicole Jiang",
+    description: socialDescription,
     images: [
       {
         url: "/og.png?v=8",
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: socialText,
-    description: socialText,
+    title: "Nicole Jiang",
+    description: socialDescription,
     images: ["/og.png?v=8"],
   },
 };
