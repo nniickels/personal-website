@@ -1964,27 +1964,29 @@ function FunContent() {
                 No games played in the last {steam.data.windowDays} days.
               </p>
             ) : (
-              <ol className="recently-played-placeholder" aria-label="Steam recently played">
-                {steam?.status === "ok"
-                  ? steam.data.recentlyPlayed.map((game) => (
-                    <li key={game.storeHref}>
-                      <a
-                        className="text-link"
-                        href={game.storeHref}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {game.name}
-                      </a>
-                      {game.playtimeMinutes !== null && (
-                        <small>
-                          {(game.playtimeMinutes / 60).toFixed(1)} h in the last {steam.data.windowDays} days
-                        </small>
-                      )}
-                    </li>
-                  ))
-                  : Array.from({ length: 3 }, (_, index) => <li key={index}>—</li>)}
-              </ol>
+              <>
+                <ol className="recently-played-placeholder" aria-label="Steam recently played">
+                  {steam?.status === "ok"
+                    ? steam.data.recentlyPlayed.map((game) => (
+                      <li key={game.storeHref}>
+                        <a
+                          className="text-link"
+                          href={game.storeHref}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {game.name}
+                        </a>
+                      </li>
+                    ))
+                    : Array.from({ length: 3 }, (_, index) => <li key={index}>—</li>)}
+                </ol>
+                {steam?.status === "ok" && steam.data.recentlyPlayed.length < 3 && (
+                  <p className="steam-empty-state">
+                    No other games played in the past {steam.data.windowDays} days.
+                  </p>
+                )}
+              </>
             )}
             <p className="data-note">
               {steam?.status === "ok"
