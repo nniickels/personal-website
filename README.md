@@ -10,7 +10,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `src/api-stats.ts` combines the public stats.fm feed with secret-backed Clash Royale and Steam data.
 - `src/app/robots.ts` and `src/app/sitemap.ts` provide search-engine discovery files.
 - `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and handles image optimization.
-- `public` contains static images, icons, gallery media, and the résumé PDF.
+- `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
 - `tests` contains rendered-page checks.
 
 
@@ -31,10 +31,12 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | Route | Description |
 |-------|-------------|
 | `/` | Main Quest — résumé-style education, research, projects, and service |
-| `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, gaming, collections, and food |
+| `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, recently played Steam game names, collections, and food |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
 
 All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count. Desktop and tablet layouts show 96 stars; phone widths up to 520px show 64 stars at a smaller size.
+
+The Steam widget lists up to three recently played game names without playtime totals. When fewer than three games were played during the 14-day window, it displays a corresponding no-other-games note.
 
 ## Desktop and mobile differences
 
@@ -71,6 +73,7 @@ Layout responds to available width, so these are the typical orientation differe
 - `GET /sitemap.xml` lists the Main Quest, Side Quests, and Playground pages using their canonical URLs.
 - The homepage publishes `WebSite` data for the preferred site name plus page-specific `ProfilePage` and `Person` data connecting Nicole Jiang with the University of Toronto, LinkedIn, and GitHub.
 - Canonical URLs, concise page titles, unique descriptions, authorship metadata, and explicit crawl and preview directives are included in page metadata.
+- Every public page publishes Open Graph and Twitter large-image metadata using `public/og.png`, the title `Nicole Jiang`, and the embed description `Personal website and portfolio.`
 - The sitemap contains canonical page locations only; ignored `priority` and `changefreq` hints are intentionally omitted.
 
 ## API Routes
