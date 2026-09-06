@@ -186,6 +186,281 @@ body {
   }
 }
 
+.sky-easter-eggs {
+  position: fixed;
+  inset: var(--header-height) 0 var(--footer-height);
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sky-meteors {
+  position: absolute;
+  inset: 0;
+}
+
+.sky-distant-meteors {
+  position: fixed;
+  inset: var(--header-height) 0 var(--footer-height);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sky-distant-meteors .shooting-star-target {
+  pointer-events: none;
+}
+
+.sky-shower-dimmer {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms ease;
+}
+
+.sky-shower-dimmer.is-active {
+  opacity: 0.18;
+}
+
+.layout,
+.bar {
+  transition: opacity 450ms ease;
+}
+
+/* Dim the reading surfaces themselves so the distant layer stays visible
+   through their translucent backgrounds instead of being darkened with them. */
+body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
+  opacity: 0.34;
+}
+
+.sky-easter-eggs--shower {
+  z-index: 90;
+}
+
+:root[data-theme="light"] .sky-meteors {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.shooting-star-target {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  margin: -26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: auto;
+  touch-action: manipulation;
+  cursor: pointer;
+  visibility: hidden;
+  animation: wish-star-flight var(--shoot-duration) linear var(--shoot-delay) infinite both;
+}
+
+.shooting-star-target .shooting-star {
+  top: 47px;
+  left: 47px;
+  animation: none;
+  transform: none;
+  opacity: 1;
+}
+
+.shooting-star-target:focus-visible {
+  outline: 1px solid var(--shoot-color);
+  outline-offset: 3px;
+  animation-play-state: paused;
+}
+
+.shooting-star-target--meteor {
+  animation-name: idle-meteor-flight;
+}
+
+.shooting-star-target--meteor:focus-visible {
+  --meteor-play-state: paused !important;
+}
+
+.shooting-star-target--meteor .shooting-star {
+  top: calc(48px - var(--meteor-size) / 2);
+  left: calc(48px - var(--meteor-size));
+  width: calc(var(--meteor-size) * 2);
+  height: var(--meteor-size);
+  background: #fff;
+  box-shadow:
+    0 0 3px 1px #fff,
+    0 0 9px 2px var(--shoot-color),
+    0 0 18px color-mix(in srgb, var(--shoot-color) 45%, transparent);
+  animation: meteor-burn var(--shoot-duration) linear var(--shoot-delay) infinite both;
+  animation-play-state: var(--meteor-play-state, running);
+}
+
+.shooting-star-target--meteor .shooting-star::after {
+  width: min(var(--meteor-trail), 55vmin);
+  height: max(1px, calc(var(--meteor-size) * 0.65));
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--shoot-color) 25%, transparent) 20%, var(--shoot-color) 78%, #fff);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--shoot-color) 50%, transparent);
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  transform-origin: right center;
+  animation: meteor-train var(--shoot-duration) linear var(--shoot-delay) infinite both;
+  animation-play-state: var(--meteor-play-state, running);
+}
+
+.shooting-star-target--meteor .shooting-star::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: min(var(--meteor-trail), 55vmin);
+  height: calc(var(--meteor-size) * 2);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--shoot-color) 16%, transparent));
+  border-radius: 50%;
+  transform-origin: right center;
+  animation: meteor-train var(--shoot-duration) linear var(--shoot-delay) infinite both;
+  animation-play-state: var(--meteor-play-state, running);
+}
+
+.shooting-star-target--distant .shooting-star {
+  box-shadow: 0 0 3px #fff, 0 0 8px var(--shoot-color);
+}
+
+.sky-wish {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.65rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--foreground);
+  background: var(--background);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.sky-easter-eggs--shower .sky-wish:not(.sky-shower-message) {
+  bottom: 5.5rem;
+}
+
+.sky-constellation {
+  position: absolute;
+  top: 1.5rem;
+  right: 1rem;
+  width: min(240px, 44vw);
+  margin: 0;
+  color: var(--foreground);
+  background: radial-gradient(ellipse, var(--background), transparent 72%);
+  animation: constellation-reveal 4s ease both;
+}
+
+.sky-constellation svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.sky-constellation path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.35;
+  opacity: 0.55;
+}
+
+.sky-constellation polygon {
+  fill: currentColor;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.sky-constellation figcaption {
+  font-size: 0.875rem;
+  text-align: center;
+  text-wrap: balance;
+}
+
+@keyframes wish-star-flight {
+  0%, 78% {
+    visibility: hidden;
+    opacity: 0;
+    transform: rotate(135deg) translateX(0);
+  }
+  78.01% { visibility: visible; opacity: 0; }
+  80% { opacity: 0.9; }
+  91% { opacity: 0.82; }
+  99.99% { visibility: visible; }
+  100% {
+    visibility: hidden;
+    opacity: 0;
+    transform: rotate(135deg) translateX(82vw);
+  }
+}
+
+@keyframes idle-meteor-flight {
+  0% { visibility: hidden; opacity: 0; transform: rotate(var(--meteor-angle)) translateX(0); }
+  0.01% { visibility: visible; }
+  2% { opacity: 0.8; }
+  5%, 12% { opacity: 1; }
+  18% { opacity: 0.6; }
+  21.99% { visibility: visible; opacity: 0; }
+  22%, 100% { visibility: hidden; opacity: 0; transform: rotate(var(--meteor-angle)) translateX(var(--meteor-travel)); }
+}
+
+@keyframes meteor-burn {
+  0%, 22%, 100% { opacity: 0; }
+  2% { opacity: 0.65; }
+  5%, 11% { opacity: 1; }
+  16% { opacity: 0.85; }
+  19% { opacity: 0.25; }
+}
+
+@keyframes meteor-train {
+  0%, 100% { opacity: 0; transform: translateY(-50%) scaleX(0.05); }
+  3% { opacity: 0.65; transform: translateY(-50%) scaleX(0.3); }
+  8% { opacity: 1; transform: translateY(-50%) scaleX(0.85); }
+  13% { opacity: 0.8; transform: translateY(-50%) scaleX(1); }
+  19% { opacity: 0.2; transform: translateY(-50%) scaleX(0.65); }
+  22% { opacity: 0; transform: translateY(-50%) scaleX(0.4); }
+}
+
+@keyframes constellation-reveal {
+  0%, 100% { opacity: 0; }
+  12%, 82% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-meteors { display: none; }
+  .sky-shower-dimmer { display: none; }
+  .sky-distant-meteors { display: none; }
+  .sky-constellation { animation: none; }
+}
+
+@media (max-width: 700px), (hover: none), (pointer: coarse) {
+  .sky-shower-dimmer,
+  .sky-distant-meteors,
+  .shooting-star-target--meteor,
+  .sky-shower-message {
+    display: none;
+  }
+}
+
+:root[data-theme="light"] .sky-shower-dimmer,
+:root[data-theme="light"] .sky-distant-meteors,
+:root.touch-playground-disclosure-open .sky-distant-meteors {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .sky-easter-eggs--playground .shooting-star-target:not(.shooting-star-target--meteor) {
+    display: none;
+  }
+}
+
+:root.touch-playground-disclosure-open .sky-meteors {
+  display: none;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 280ms;

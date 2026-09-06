@@ -8,6 +8,7 @@ import type {
 import { useEffect, useRef, useState } from "react";
 import type { PublicStatsResponse } from "../api-stats";
 import { ThemeToggle } from "./theme-toggle";
+import { SkyEasterEggs, useCalligraphyEasterEgg } from "./sky-easter-eggs";
 
 type Mode = "serious" | "fun";
 export type SitePage = Mode | "playground";
@@ -388,7 +389,7 @@ const naturalThingsPhotos = naturalThingsPhotoOrder.map((photoNumber, index) => 
   alt: `Natural things collection photo ${index + 1} of ${naturalThingsPhotoOrder.length}`,
 }));
 
-const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 2, 5, 8, 9, 10] as const;
+const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 5, 8, 9, 10] as const;
 
 const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => ({
   src: `/scrapbook/scrapbook-${String(photoNumber).padStart(2, "0")}.jpg`,
@@ -615,6 +616,7 @@ const shootingStars = [
 
 export function NightSky({ className = "" }: { className?: string } = {}) {
   return (
+    <>
     <div className={`night-sky${className ? ` ${className}` : ""}`} aria-hidden="true">
       <div className="night-sky__stars">
         {nightStars.map((star, index) => (
@@ -645,28 +647,9 @@ export function NightSky({ className = "" }: { className?: string } = {}) {
           />
         ))}
       </div>
-      <div className="night-sky__shooting-stars">
-        {shootingStars.map((star, index) => (
-          <span
-            className="shooting-star"
-            key={index}
-            style={
-              {
-                top: star.top,
-                left: star.left,
-                "--shoot-color": star.colour,
-                "--shoot-duration": star.duration,
-                "--shoot-steps": Math.max(
-                  1,
-                  Math.round(Number.parseFloat(star.duration) * 60),
-                ),
-                "--shoot-delay": star.delay,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </div>
     </div>
+    <SkyEasterEggs stars={shootingStars} playground={className.includes("night-sky--playground")} />
+    </>
   );
 }
 
@@ -2118,10 +2101,11 @@ function ViewCounter() {
 }
 
 export function SiteHeader({ page }: { page: SitePage }) {
+  const handleCalligraphyClick = useCalligraphyEasterEgg();
   return (
     <header className="bar topbar">
       <div className="container topbar-content">
-        <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home">
+        <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home" onClick={handleCalligraphyClick}>
           <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
           <img src="/tong-calligraphy.png" alt="" aria-hidden="true" />
         </a>

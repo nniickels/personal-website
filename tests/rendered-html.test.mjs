@@ -118,7 +118,8 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   assert.match(source, /colourRoll < 0\.34[\s\S]*colourRoll < 0\.7[\s\S]*colourRoll < 0\.84/i);
   assert.match(source, /sizeRoll\s*<\s*0\.82[\s\S]*sizeRoll\s*<\s*0\.96/i);
   assert.match(source, /3\.4 \+ random\(\) \* 3\.4[\s\S]*7\.5 \+ random\(\) \* 4\.5[\s\S]*12\.5 \+ random\(\) \* 5\.5/i);
-  assert.match(source, /"--shoot-color":\s*star\.colour/i);
+  const easterEggSource = await readFile(new URL("../src/app/sky-easter-eggs.tsx", import.meta.url), "utf8");
+  assert.match(easterEggSource, /"--shoot-color":\s*star\.colour/i);
   assert.match(source, /#edf4ff[\s\S]*#ffe5bb[\s\S]*#d6ffe1/i);
   assert.match(css, /background:\s*var\(--shoot-color/i);
   assert.match(css, /@keyframes night-star-twinkle/i);
