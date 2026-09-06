@@ -440,6 +440,7 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
   .sky-shower-dimmer,
   .sky-distant-meteors,
   .shooting-star-target--meteor,
+  .sky-constellation,
   .sky-shower-message {
     display: none;
   }

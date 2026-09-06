@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 const CONSTELLATION_EVENT = "nicole:constellation";
 const IDLE_DELAY = 10_000;
+const MOBILE_QUERY = "(max-width: 700px), (hover: none), (pointer: coarse)";
 
 type Star = {
   top: string;
@@ -66,6 +67,11 @@ export function useCalligraphyEasterEgg() {
   useEffect(() => () => clearTimeout(navigationTimer.current), []);
 
   return (event: MouseEvent<HTMLAnchorElement>) => {
+    if (window.matchMedia(MOBILE_QUERY).matches) {
+      clearTimeout(navigationTimer.current);
+      clicks.current = 0;
+      return;
+    }
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     clearTimeout(navigationTimer.current);
@@ -141,7 +147,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
     let idleStarted = false;
     let lastActivity = Date.now();
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const mobile = window.matchMedia("(max-width: 700px), (hover: none), (pointer: coarse)");
+    const mobile = window.matchMedia(MOBILE_QUERY);
     const root = document.documentElement;
     const allowed = () => !document.hidden && !motion.matches && !mobile.matches
       && root.dataset.theme !== "light"
@@ -196,15 +202,24 @@ export function SkyEasterEggs({ stars, playground = false }: {
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const mobile = window.matchMedia(MOBILE_QUERY);
+    const dismissOnMobile = () => {
+      if (!mobile.matches) return;
+      clearTimeout(timer);
+      setConstellation(false);
+    };
     const reveal = () => {
+      if (mobile.matches) return;
       clearTimeout(timer);
       setConstellation(true);
       timer = setTimeout(() => setConstellation(false), 4_000);
     };
     window.addEventListener(CONSTELLATION_EVENT, reveal);
+    mobile.addEventListener("change", dismissOnMobile);
     return () => {
       clearTimeout(timer);
       window.removeEventListener(CONSTELLATION_EVENT, reveal);
+      mobile.removeEventListener("change", dismissOnMobile);
     };
   }, []);
 
