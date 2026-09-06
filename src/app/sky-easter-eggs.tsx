@@ -58,7 +58,7 @@ function meteorStyle(star: Star): CSSProperties {
 }
 
 // Delay normal navigation briefly to recognize repeated clicks on every route.
-// Modified clicks and the no-JavaScript home link retain native behavior.
+// Mobile and modified clicks retain native navigation behavior.
 export function useCalligraphyEasterEgg() {
   const clicks = useRef(0);
   const lastClick = useRef(0);
@@ -88,7 +88,7 @@ export function useCalligraphyEasterEgg() {
     navigationTimer.current = setTimeout(() => {
       if (window.location.pathname === "/") window.scrollTo({ top: 0 });
       else window.location.assign("/");
-    }, 500);
+    }, 300);
   };
 }
 
@@ -141,6 +141,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
 }) {
   const [idle, setIdle] = useState(false);
   const [constellation, setConstellation] = useState(false);
+  const [constellationRun, setConstellationRun] = useState(0);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -211,6 +212,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
     const reveal = () => {
       if (mobile.matches) return;
       clearTimeout(timer);
+      setConstellationRun(run => run + 1);
       setConstellation(true);
       timer = setTimeout(() => setConstellation(false), 4_000);
     };
@@ -242,7 +244,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
         {idle && <p className="sky-wish sky-shower-message" role="status">Meteor shower!</p>}
       </div>
       {constellation && (
-        <figure className="sky-constellation" role="status">
+        <figure key={constellationRun} className="sky-constellation" role="status">
           <svg viewBox="0 0 100 100" aria-hidden="true">
             <path d="M20 82V18L80 82V18" />
             {[[20, 82], [20, 50], [20, 18], [40, 39], [60, 61], [80, 82], [80, 50], [80, 18]].map(([x, y]) => (
