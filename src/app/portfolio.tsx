@@ -388,7 +388,7 @@ const naturalThingsPhotos = naturalThingsPhotoOrder.map((photoNumber, index) => 
   alt: `Natural things collection photo ${index + 1} of ${naturalThingsPhotoOrder.length}`,
 }));
 
-const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 2, 5] as const;
+const scrapbookPhotoOrder = [4, 1, 6, 3, 7, 2, 5, 8, 9, 10] as const;
 
 const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => ({
   src: `/scrapbook/scrapbook-${String(photoNumber).padStart(2, "0")}.jpg`,
