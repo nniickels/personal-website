@@ -14,7 +14,8 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `src/app/robots.ts` and `src/app/sitemap.ts` provide search-engine discovery files.
 - `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and uses `src/stats-cache.ts` for stale-while-revalidate stats caching.
 - `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
-- `tests` contains rendered-page checks.
+- `tests/rendered-html.test.mjs` checks rendered-page contracts; `tests/performance.test.mjs` checks generated images, provider deadlines, and stats caching.
+- `tests/browser/performance.spec.ts` checks desktop and mobile interactions against a production build using Playwright.
 - `docs/easter-eggs.md` documents the sky interactions, timing, layers, mobile rules, and verification checklist.
 
 
@@ -80,10 +81,12 @@ Layout responds to available width, so these are the typical orientation differe
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
 | Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
-| Playground animation rate | Smooth CSS easing; autonomous JavaScript playback updates up to 60 times per second. Offscreen and hidden-tab work pauses. | The same policy, with playback backing off to 30 updates per second for Save-Data or observed frame delays. Direct dragging follows display frames; touch capability alone does not lower quality. |
+| Playground animation rate | Smooth CSS easing; autonomous JavaScript playback updates up to 60 times per second, backing off to 30 for Save-Data or observed frame delays. Offscreen and hidden-tab experiment motion pauses. | The same playback policy. Direct dragging follows display frames; touch capability alone does not lower quality. |
 | Black Hole experiment | Includes the Variables Guide, all variable sliders, growth playback, the draggable mass-growth plot, presets, results, and 3D rotation. | Includes the same complete feature set in the mobile accordion. |
 | Playground loading feedback | A loading indicator appears while an experiment chunk is loading. | The same contextual indicator replaces the permanent desktop recommendation. |
-| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open; the starfield continues while reading. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly, half remain static, and shooting stars are hidden. |
+| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Black Hole defers Variables Guide and Advanced Settings content until open; its Explanation and Variables Guide are mutually exclusive. The starfield continues while reading. Accordion layouts disable Advanced Settings expansion transitions. Playground stars twinkle more slowly, half remain static, and shooting stars are hidden. |
+
+The Playground accordion applies at widths up to 700px in portrait, or heights up to 520px in landscape with a coarse pointer. Other viewports use the full experiment layout, including larger portrait tablets. Touch-specific controls and starfield adjustments separately use `(hover: none), (pointer: coarse)`; these checks do not impose a blanket playback-rate reduction.
 
 ## Search discovery
 
@@ -118,16 +121,21 @@ and non-sensitive configuration can remain ordinary variables.
 ```bash
 npm install
 npm run dev
+```
+
+Production build and validation (Node.js 22.13.0 or newer):
+
+```bash
 npm run build
 npm run typecheck
-npm run start
-npm run privacy:strip-gallery-metadata
 npm test
 npx playwright install chromium
 npm run test:browser
 ```
 
-Run the privacy command after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
+`npm test` rebuilds the site. Browser tests use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
+
+Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
 
 ## Design references and inspiration
 
@@ -141,8 +149,12 @@ Run the privacy command after adding gallery JPEGs. It losslessly removes EXIF, 
 
 `predev` and `prebuild` generate images automatically. `npm run images:build` also runs independently. Original photos stay unchanged in `public`; generated `public/media` files and `src/generated/media` manifests are ignored by Git and reproducible from those originals. WebP thumbnails use widths up to 480px, and lightboxes can select larger candidates up to each original's native width. The image recipe and source hash are included in URLs. `public/_headers` marks only those fingerprinted assets immutable. No Cloudflare Images binding is needed.
 
+When adding or replacing media, update the originals and their entries in `src/app/side-quests/data.ts`, then regenerate images (restart an already running dev server if needed). The generator handles the six gallery/shelf directories and three education/service logos listed in `scripts/build-images.mjs`; other assets, including the social preview and résumé, are unchanged. It auto-orients images, strips metadata from generated WebPs, and removes obsolete generated variants. Originals remain publicly accessible, so keep using the privacy command for source JPEGs. Commit source assets and code, not generated outputs.
+
+Non-icon candidates are 160, 320, 480, 960, and native-width pixels where available, without enlargement. Small variants use WebP quality 78 and larger/native variants use quality 86. Logos use a single 128px variant, except the Science Centre wordmark at 280px to retain detail in its existing crop. The generator's byte summary compares one roughly 320px variant per source against originals; it is an asset-size comparison, not a measured page-load or Core Web Vitals result. Bump the recipe identifier whenever changing generation settings so immutable URLs cannot reuse an older encoding.
+
 The homepage keeps résumé markup on the server and loads only shared interactive controls. Playground CSS is route-specific, its simulation modules load on demand, and gallery metadata/viewers stay outside the homepage's client dependency graph. Gallery dimensions reserve layout space before decoding. The black-hole curve is calculated independently of playback progress; lens dragging coalesces pointer updates once per frame; static simulation stars are memoized.
 
-Stats use a four-second upstream deadline. The Workers Cache API stores a snapshot for up to 75 minutes, serves it fresh for 15 minutes, then returns stale data immediately while `waitUntil` refreshes it. Partial failures retain the affected provider's last successful data only within its original retention window, with a one-minute retry interval. Cache failures fall back to direct fetching. `X-Stats-Cache` reports `hit`, `stale`, or `miss`; production edge hit behavior must be verified after deployment.
+Stats use a four-second deadline per upstream request. The Workers Cache API stores a snapshot for up to 75 minutes, serves it fresh for 15 minutes, then returns stale data immediately while `waitUntil` refreshes it. Partial failures retain the affected provider's last successful data only within its original retention window, with a one-minute freshness interval before another request triggers a retry. Cache read failures fall back to direct fetching; write failures still return the fetched data. Public responses separately allow five minutes of HTTP caching. `X-Stats-Cache` reports `hit`, `stale`, or `miss`; production edge hit behavior must be verified after deployment.
 
-`npm test` checks rendered page contracts, actual image dimensions/metadata/byte budgets, provider deadlines, and cache behavior. `npm run test:browser` uses a local production server to check desktop and mobile loading, gallery navigation, deep links, retained experiment state, and offscreen playback. Run `npm run build` before browser tests. Browser tests stub external services and do not record analytics visits.
+`npm test` checks rendered page contracts, actual image dimensions/metadata/byte budgets, provider deadlines, and cache behavior. `npm run test:browser` uses a local production server to check desktop and mobile loading, gallery navigation, deep links, retained experiment state across closing and rotation, offscreen playback, shelf proportions, and mobile interaction under CPU throttling. Run `npm run build` before browser tests. Browser tests stub external services and do not record analytics visits. These regression checks do not establish production Core Web Vitals or real-device performance.

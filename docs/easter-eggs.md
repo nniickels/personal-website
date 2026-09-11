@@ -5,8 +5,11 @@ The three effects share the site shell and are available through `NightSky` and 
 ## Source map
 
 - `src/app/sky-easter-eggs.tsx`: effects, timers, device checks, meteor configurations, and logo click handling.
-- `src/app/portfolio.tsx`: regular shooting-star data and integration with the sky and header.
+- `src/app/night-sky.tsx`: seeded background stars, regular shooting-star data, and integration with the Easter egg effects.
+- `src/app/site-header.tsx`: home logo and constellation click handler integration.
+- `src/app/portfolio.tsx` and `src/app/playground/page.tsx`: shared sky and header placement on the three routes.
 - `src/app/globals.css`: click targets, glow and trail styling, layering, dimming, and animations.
+- `src/app/playground/playground.css`: route-specific touchscreen starfield adjustments.
 - `tests/rendered-html.test.mjs`: existing rendering and source/style checks; these do not exercise real browser interactions.
 
 ## Shooting-star wish
@@ -19,7 +22,7 @@ Targets are hidden during the invisible portion of each flight. Keyboard focus p
 
 ## Idle meteor shower
 
-`IDLE_DELAY` is 10,000 ms. The timer is eligible only while the document is visible, dark mode is active, reduced motion is off, the device is supported, and a touchscreen Playground disclosure is not open.
+`IDLE_DELAY` is 10,000 ms. The timer is eligible only while the document is visible, dark mode is active, reduced motion is off, and the device is supported. Playground disclosures do not affect sky eligibility or pause the background stars.
 
 Pointer movement, pointer presses, keyboard activity, scrolling, wheel events, and touch movement reset inactivity. Input directly on a shooting-star target is exempt so it can receive a click. Visibility, theme, relevant root-class, reduced-motion, and mobile-query changes reset the shower. Becoming eligible again starts a fresh idle period.
 
@@ -64,13 +67,17 @@ JavaScript guards prevent activation and respond to media-query changes. Matchin
 
 The ordinary background stars and eligible shooting-star wishes are separate from this desktop-only rule. Reduced-motion rules hide moving meteors, and status messages use `role="status"`. Timers, observers, and listeners are cleaned up when their components unmount.
 
+The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation. In the touchscreen Playground, twinkle durations are 2.4 times longer and half the stars are static; regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
+
 ## Known limitation
 
 Moving the cursor toward an idle-shower meteor ends the shower before it can usually be caught. Only events already targeting the shooting-star button bypass the activity reset. Moving away from a caught shower meteor can also remove its wish message early. Ordinary shooting-star wishes are independent of the idle state.
 
 ## Verification
 
-Run `npm test` for the production build and existing rendered-page checks. Run `npx tsc --noEmit --incremental false` for a separate TypeScript check.
+Run `npm test` for the production build, rendered-page checks, and image/cache performance checks. Run `npm run typecheck` for a separate TypeScript check; it also generates the image manifests required by a fresh checkout.
+
+After building and installing Chromium with `npx playwright install chromium`, run `npm run test:browser` for desktop and mobile regression checks. These cover theme controls, navigation, galleries, experiment lifecycle, and the absence of disclosure-triggered sky pausing. They stub external services and analytics. They do not automate the timed meteor shower, wish, or constellation sequences below.
 
 Passing these checks does not establish browser visual or interaction correctness. A browser release check should cover:
 
