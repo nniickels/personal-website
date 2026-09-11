@@ -54,7 +54,7 @@ const projects = [
     dates: "Feb 2026 - Present",
     href: "https://github.com/nniickels/highz-accretion-atlas",
     description:
-      "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes at high redshift to evaluate objects against different growth scenarios. Supervised by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
+      "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes and candidates at high redshift to evaluate objects against different growth scenarios. Supervised by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
   },
   {
     title: "Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations",

@@ -1,0 +1,73 @@
+\documentclass[letterpaper,10pt]{article}
+\usepackage[left=0.48in,right=0.48in,top=0.65in,bottom=0.31in]{geometry}
+\usepackage{titlesec,enumitem,tabularx,hyperref}
+\hypersetup{hidelinks,pdftitle={Nicole Jiang Resume},pdfauthor={Nicole Jiang}}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0pt}
+\raggedright
+\raggedbottom
+\titleformat{\section}{\scshape\large}{}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{10pt}{5pt}
+\setlist[itemize]{leftmargin=17pt,itemsep=0pt,topsep=2pt,parsep=0pt,partopsep=0pt}
+\newcommand{\heading}[2]{\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}\textbf{#1} & #2\end{tabular*}}
+\begin{document}
+\begin{center}
+{\Huge\scshape Nicole Jiang}\\[8pt]
+\small \href{mailto:nicolejitong.jiang@mail.utoronto.ca}{\underline{nicolejitong.jiang@mail.utoronto.ca}} $|$ \href{https://www.linkedin.com/in/nicolejitong-jiang/}{\underline{LinkedIn}} $|$ \href{https://nicolejiang.com}{\underline{nicolejiang.com}} $|$ Toronto, ON
+\end{center}
+\vspace{-9pt}
+
+\section{Education}
+\heading{University of Toronto}{2024 -- 2029}\\[-1pt]
+{\small\textit{HBSc, Astronomy \& Physics Specialist, Statistics Minor, Philosophy Minor}}\\[2pt]
+{\small\textbf{Relevant Coursework:} Computational Astrophysics, Stars and Planets, Galaxies and Cosmology, Introduction to Computer Programming, Practical Physics I, Multivariable Calculus with Proofs, Thermal Physics, Probability and Statistics I}\\[1pt]
+\section{Technical Skills}
+{\small\textbf{Programming:} Python (NumPy, SciPy, pandas, astropy, Matplotlib), TypeScript, SQL, Bash; Git; SSH}\\[1pt]
+{\small\textbf{Data/ML:} scikit-learn; PyTorch; Transformers}\\[1pt]
+{\small\textbf{Web/Tools:} React, HTML/CSS, Vite; LaTeX, Overleaf, Jupyter, VS Code, Microsoft Office, Google Workspace}\\[1pt]
+\section{Research \& Technical Projects}
+\vspace{5pt}\heading{Early Black-Hole Growth Constraints from JWST \href{https://github.com/nniickels/highz-accretion-atlas}{\underline{[GitHub]}}}{February 2026 -- Present}\\[-1pt]
+{\small\textit{Undergraduate Researcher, University of Toronto}}
+\begin{itemize}\small
+\item Built a provenance-tracked catalogue of 350 literature measurement records from 32 source families for accreting black holes and candidates at z $\geq$ 4, preserving uncertainties, inference methods, assumptions, and quality flags
+\item Implemented vectorized NumPy growth diagnostics across seed masses, formation redshifts, Eddington ratios, spin-dependent efficiencies, and merger mass boosts
+\item Quantified probabilities that required lifetime-average Eddington ratios exceed one under fixed growth histories, using 10,000 Monte Carlo draws per object with reported mass errors and mass-scale shifts of up to $\pm$0.5 dex
+\item Identified 12 of 224 analysis objects requiring lifetime-average Eddington ratios above one for 100-solar-mass seeds formed at z=30, efficiency 0.1, and no merger boost; tested sensitivity to mass uncertainties and growth assumptions
+\item Led catalogue development and analysis under Prof. Pratika Dayal's supervision (CITA, DAA-Dunlap)
+\end{itemize}
+
+\vspace{5pt}\heading{Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations}{May 2025}
+\begin{itemize}\small
+\item Queried 11,000,000+ galaxy records from public cosmological simulation databases (EAGLE, IllustrisTNG) and processed catalogues using Python, SSH sessions, and pickle serialization
+\item Visualized SFR--M* trends across simulation snapshots (redshifts 0 $\leq$ z < 0.5) using scatterplots and 2D histograms
+\item Compared single- vs multi-snapshot datasets to explore redshift-dependent trends in galaxy evolution
+\item Drafted an AAS-style scientific paper in LaTeX using the AAS journal submission Overleaf template
+\end{itemize}
+\vspace{5pt}\heading{Predicting APA Site Choice from mRNA Sequences (ML) \href{https://devpost.com/software/predicting-apa-site-choice-from-mrna-sequences}{\underline{[Devpost]}}}{September 2025}
+\begin{itemize}\small
+\item Runner-up in the Toronto Bioinformatics Hackathon as a five-member undergraduate team, placing 2/23 (\$500 prize) out of 115+ individual contestants, including many graduate students, postdocs, and industry researchers
+\item Built the data preprocessing pipeline to clean and format raw RNA sequences for the DNABERT-2-117M transformer genome foundation model. Scaled the pipeline and batched inputs to train the model on a curated dataset of \textasciitilde{}800,000 sequences
+\item Codified and enforced data-format standards for training; blocked non-conforming samples and implemented checks
+\item Co-developed project strategy and presented results to judges; model achieved 86\% poly(A) site prediction accuracy
+\end{itemize}
+\vspace{5pt}\heading{Saturn and Moons Observation with HDR Imaging}{October -- December 2024}
+\begin{itemize}\small
+\item Captured and compiled photos of Saturn and its moons, calibrating a pixel-to-kilometre conversion to measure distances
+\item Validated measurements by cross-referencing with 189 images taken over the span of two months, and comparing measurements over time to accurately evaluate Titan's orbital period
+\end{itemize}
+\section{Service \& Leadership}\vspace{5pt}\heading{Journal Contributor \href{https://www.rasc.ca/node/47054}{\underline{[Journal]}}}{September 2025 -- Present}\\[-1pt]
+{\small\textit{Royal Astronomical Society of Canada (RASC)}}
+\begin{itemize}\small
+\item Producing planet ephemerides for the Royal Astronomical Society of Canada's bimonthly Journal using Stellarium software
+\item Curating tables of noteworthy observational astronomy events for the Journal centrespread
+\item Also assisting with observatory maintenance on work trips to the E.C. Carr Astronomical Observatory
+\end{itemize}
+\vspace{5pt}\heading{Student Host}{February -- June 2024}\\[-1pt]
+{\small\textit{Ontario Science Centre}}
+\begin{itemize}\small
+\item Designed and prototyped an interactive exhibition about the chemistry of art restoration, successfully pitching it to Science Centre staff to ultimately engage 100+ visitors with the final installation
+\item Created and presented a puppet show to elementary school classrooms across Toronto, teaching solar-eclipse concepts
+\end{itemize}
+
+\end{document}
