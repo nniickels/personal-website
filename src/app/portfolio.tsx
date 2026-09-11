@@ -50,7 +50,7 @@ const funLinks: readonly SocialLink[] = [
 
 const projects = [
   {
-    title: "Mapping Black-Hole Growth Scenarios for Early Giants",
+    title: "Early Black-Hole Growth Constraints from JWST",
     dates: "Feb 2026 - Present",
     href: "https://github.com/nniickels/highz-accretion-atlas",
     description:
