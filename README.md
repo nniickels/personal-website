@@ -7,10 +7,12 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 
 - `src/app` contains the pages, shared portfolio shell, theme controls, and styles.
 - `src/app/sky-easter-eggs.tsx` contains shooting-star wishes, the idle meteor shower, and the calligraphy constellation trigger.
-- `src/app/playground/playground.tsx` contains the four interactive astronomy experiments.
+- `src/app/playground/playground.tsx` loads the four independent experiment modules as needed and preserves their state between layouts.
+- `src/app/side-quests` contains the music and card shelves, deferred galleries, and separately loaded viewers.
+- `scripts/build-images.mjs` generates responsive WebP assets and dimension manifests from the original images.
 - `src/api-stats.ts` combines the public stats.fm feed with secret-backed Clash Royale and Steam data.
 - `src/app/robots.ts` and `src/app/sitemap.ts` provide search-engine discovery files.
-- `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and handles image optimization.
+- `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and uses `src/stats-cache.ts` for stale-while-revalidate stats caching.
 - `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
 - `tests` contains rendered-page checks.
 - `docs/easter-eggs.md` documents the sky interactions, timing, layers, mobile rules, and verification checklist.
@@ -20,7 +22,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 
 - **React 19 + TypeScript** — interface and client-side interactions
 - **Vinext + Vite** — Next.js-compatible routing and production builds
-- **Cloudflare Workers** — edge hosting, API proxying, and image optimization
+- **Cloudflare Workers** — edge hosting, API proxying, and stats caching
 - **CSS + SVG** — responsive galleries, theme-aware animation, and interactive astronomy visuals
 - **stats.fm API** — lifetime listening-time rankings
 - **Steam Web API** — recently played games
@@ -62,10 +64,10 @@ Layout responds to available width, so these are the typical orientation differe
 |---------|-----------|----------|
 | Layout and navigation | Uses wider gutters, larger type and media, and single-row header controls when space permits. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
 | Side Quests section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
-| Side Quests lifecycle | Sections remain active throughout the page. | `IntersectionObserver` pauses CSS motion in distant sections and resumes it shortly before they return to view. |
+| Side Quests lifecycle | Galleries initialize on first disclosure opening; viewers load on demand. | Same lifecycle, with smaller responsive image candidates selected for the displayed size and screen density. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
 | Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | Stacks experiment visuals and controls into one column on narrow screens. |
-| Playground lifecycle | Desktop and landscape-tablet layouts show all four experiments. `IntersectionObserver` pauses offscreen motion and resumes it shortly before re-entry. Short touchscreen phone landscapes use the accordion instead. | Phone-width portraits use a collapsed single-open accordion. Only the expanded experiment is mounted, and opening one jumps immediately to its heading. |
+| Playground lifecycle | All four experiment slots remain available; each experiment loads shortly before entering view. Offscreen motion pauses. | A single-open accordion initializes only requested experiments. React Activity retains visited experiments’ state while hiding their DOM and stopping effects. Rotation preserves settings and the selected panel. |
 
 ### Cursor and touchscreen
 
@@ -78,10 +80,10 @@ Layout responds to available width, so these are the typical orientation differe
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
 | Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
-| Playground animation rate | JavaScript experiment updates and continuous CSS visual steps are capped at approximately 60 FPS. Offscreen experiments are still paused by `IntersectionObserver`. | JavaScript experiment updates and continuous CSS visual steps are capped at approximately 30 FPS to reduce mobile CPU and GPU load. |
+| Playground animation rate | Smooth CSS easing; autonomous JavaScript playback updates up to 60 times per second. Offscreen and hidden-tab work pauses. | The same policy, with playback backing off to 30 updates per second for Save-Data or observed frame delays. Direct dragging follows display frames; touch capability alone does not lower quality. |
 | Black Hole experiment | Includes the Variables Guide, all variable sliders, growth playback, the draggable mass-growth plot, presets, results, and 3D rotation. | Includes the same complete feature set in the mobile accordion. |
-| Playground performance notice | Hidden. | Shown beneath the page description to recommend desktop for the best performance and allow time for experiments to load. |
-| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open, and the starfield pauses while it is displayed. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly and shooting stars are hidden. |
+| Playground loading feedback | A loading indicator appears while an experiment chunk is loading. | The same contextual indicator replaces the permanent desktop recommendation. |
+| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Disclosure content is mounted only while open; the starfield continues while reading. Explanation and Variables Guide are mutually exclusive. Tablets retain animated expansion; phone accordion layouts reveal content instantly. Playground stars twinkle more slowly, half remain static, and shooting stars are hidden. |
 
 ## Search discovery
 
@@ -97,7 +99,7 @@ Layout responds to available width, so these are the typical orientation differe
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/stats` | Combines stats.fm listening data, Clash Royale trophies, and Steam activity |
-| `GET /_vinext/image` | Serves Cloudflare-optimized raster images at responsive sizes |
+| `GET /media/*` | Serves content-hashed WebP thumbnails and enlarged images with immutable caching |
 | `GET /gc/count.js` | Proxies the GoatCounter browser tracker |
 | `POST /gc/count` | Records page visits without exposing the GoatCounter site code in source URLs |
 | `GET /gc/counter/TOTAL.json` | Returns the combined view count for every page |
@@ -117,9 +119,12 @@ and non-sensitive configuration can remain ordinary variables.
 npm install
 npm run dev
 npm run build
+npm run typecheck
 npm run start
 npm run privacy:strip-gallery-metadata
 npm test
+npx playwright install chromium
+npm run test:browser
 ```
 
 Run the privacy command after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
@@ -131,3 +136,13 @@ Run the privacy command after adding gallery JPEGs. It losslessly removes EXIF, 
 - [Stanley Pang](https://stanleyp.dev/) — photo galleries and visual details
 - [Ryan Alumkal](https://ryanalumkal.github.io/) — horizontal media shelf
 - [Alvina Yang](https://www.alvinayang.com/blogs) — interactive simulation widgets
+
+## Performance workflow
+
+`predev` and `prebuild` generate images automatically. `npm run images:build` also runs independently. Original photos stay unchanged in `public`; generated `public/media` files and `src/generated/media` manifests are ignored by Git and reproducible from those originals. WebP thumbnails use widths up to 480px, and lightboxes can select larger candidates up to each original's native width. The image recipe and source hash are included in URLs. `public/_headers` marks only those fingerprinted assets immutable. No Cloudflare Images binding is needed.
+
+The homepage keeps résumé markup on the server and loads only shared interactive controls. Playground CSS is route-specific, its simulation modules load on demand, and gallery metadata/viewers stay outside the homepage's client dependency graph. Gallery dimensions reserve layout space before decoding. The black-hole curve is calculated independently of playback progress; lens dragging coalesces pointer updates once per frame; static simulation stars are memoized.
+
+Stats use a four-second upstream deadline. The Workers Cache API stores a snapshot for up to 75 minutes, serves it fresh for 15 minutes, then returns stale data immediately while `waitUntil` refreshes it. Partial failures retain the affected provider's last successful data only within its original retention window, with a one-minute retry interval. Cache failures fall back to direct fetching. `X-Stats-Cache` reports `hit`, `stale`, or `miss`; production edge hit behavior must be verified after deployment.
+
+`npm test` checks rendered page contracts, actual image dimensions/metadata/byte budgets, provider deadlines, and cache behavior. `npm run test:browser` uses a local production server to check desktop and mobile loading, gallery navigation, deep links, retained experiment state, and offscreen playback. Run `npm run build` before browser tests. Browser tests stub external services and do not record analytics visits.

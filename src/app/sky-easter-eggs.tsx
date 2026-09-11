@@ -151,8 +151,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
     const mobile = window.matchMedia(MOBILE_QUERY);
     const root = document.documentElement;
     const allowed = () => !document.hidden && !motion.matches && !mobile.matches
-      && root.dataset.theme !== "light"
-      && !root.classList.contains("touch-playground-disclosure-open");
+      && root.dataset.theme !== "light";
 
     const checkIdle = () => {
       timer = undefined;

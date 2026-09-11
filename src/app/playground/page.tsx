@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import "./playground.css";
+import { SiteHeader } from "../site-header";
+import { SiteFooter } from "../site-footer";
+import { NightSky } from "../night-sky";
 import { Playground } from "./playground";
 
 const description =
@@ -34,5 +38,5 @@ export const metadata: Metadata = {
 };
 
 export default function PlaygroundPage() {
-  return <Playground />;
+  return <><SiteHeader page="playground" /><NightSky className="night-sky--playground" /><Playground /><SiteFooter /></>;
 }

@@ -71,7 +71,7 @@ function getArray(value: unknown): unknown[] {
 }
 
 async function fetchJson(provider: string, url: string, init?: RequestInit): Promise<unknown> {
-  const response = await fetch(url, init);
+  const response = await fetch(url, { ...init, signal: AbortSignal.timeout(4_000) });
   if (!response.ok) {
     throw new UpstreamError(provider, response.status);
   }
