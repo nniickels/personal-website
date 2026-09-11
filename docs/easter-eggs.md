@@ -77,7 +77,7 @@ Moving the cursor toward an idle-shower meteor ends the shower before it can usu
 
 Run `npm test` for the production build, rendered-page checks, and image/cache performance checks. Run `npm run typecheck` for a separate TypeScript check; it also generates the image manifests required by a fresh checkout.
 
-After building and installing Chromium with `npx playwright install chromium`, run `npm run test:browser` for desktop and mobile regression checks. These cover theme controls, navigation, galleries, experiment lifecycle, and the absence of disclosure-triggered sky pausing. They stub external services and analytics. They do not automate the timed meteor shower, wish, or constellation sequences below.
+After building and installing the browsers with `npx playwright install chromium webkit`, run `npm run test:browser` for desktop and mobile regression checks, including WebKit layout checks. These cover theme controls, navigation, galleries, experiment lifecycle, and the absence of disclosure-triggered sky pausing. They stub external services and analytics. They do not automate the timed meteor shower, wish, or constellation sequences below.
 
 Passing these checks does not establish browser visual or interaction correctness. A browser release check should cover:
 

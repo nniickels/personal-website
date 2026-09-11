@@ -15,7 +15,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `src/worker.ts` connects the app to Cloudflare, serves the stats endpoint, proxies GoatCounter, and uses `src/stats-cache.ts` for stale-while-revalidate stats caching.
 - `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
 - `tests/rendered-html.test.mjs` checks rendered-page contracts; `tests/performance.test.mjs` checks generated images, provider deadlines, and stats caching.
-- `tests/browser/performance.spec.ts` checks desktop and mobile interactions against a production build using Playwright.
+- `tests/browser/performance.spec.ts` checks desktop and mobile interactions against a production build using Playwright; `responsive.spec.ts` checks viewport overflow in WebKit.
 - `docs/easter-eggs.md` documents the sky interactions, timing, layers, mobile rules, and verification checklist.
 
 
@@ -129,11 +129,11 @@ Production build and validation (Node.js 22.13.0 or newer):
 npm run build
 npm run typecheck
 npm test
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run test:browser
 ```
 
-`npm test` rebuilds the site. Browser tests use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
+`npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
 
 Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
 

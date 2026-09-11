@@ -750,7 +750,8 @@ button {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: var(--header-height) -2.75rem 0;
+  /* Keep the reading backdrop within the viewport on intermediate widths. */
+  inset: var(--header-height) max(-2.75rem, calc(50% - 50vw)) 0;
   pointer-events: none;
   background: linear-gradient(
     90deg,
