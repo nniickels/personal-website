@@ -2113,4 +2113,3 @@ button {
 
 
 :root[data-theme="light"] .night-star { animation-play-state: paused; }
-.viewer-loading { position: fixed; inset: 45% 20% auto; z-index: 90; padding: 1rem; background: var(--background); text-align: center; }

@@ -492,7 +492,7 @@ export default function ListeningCoverWheel() {
       </div>
 
       {selectedTrack && selectedIndex !== null && (
-        <Suspense fallback={<p className="viewer-loading" role="status">Loading viewer…</p>}>
+        <Suspense fallback={null}>
           <Viewer selectedTrack={selectedTrack} selectedIndex={selectedIndex} openTrack={openTrack} closeTrack={closeTrack} closeButtonRef={closeButtonRef} />
         </Suspense>
       )}
