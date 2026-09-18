@@ -269,9 +269,8 @@ export function FunContent() {
               </a>
             </cite>
           </strong>.{" "}
-          If you like video essays about video games and/or philosophy and psychology, I highly recommend! I also really like the 2007 anime
-          <strong><cite> Mononoke</cite></strong>, and am currently watching <strong><cite>Steins;Gate</cite></strong>. Regarding Western media, I like <strong><cite>Superbad</cite></strong>, <strong><cite>BoJack Horseman </cite></strong>
-          and <strong><cite> Dead Poets Society</cite></strong>.
+          If you like video essays about video games and/or philosophy and psychology, I highly recommend! I also really like{" "}
+          <strong><cite>BoJack Horseman</cite></strong> and the 2007 anime <strong><cite>Mononoke</cite></strong>.
         </p>
       </section>
 
@@ -398,20 +397,6 @@ export function FunContent() {
           However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare!
 
         </p>
-        <p className="placeholder-copy">
-          I like contributing to Google Maps too! Find me{""}
-              <a
-                className="text-link"
-                href="https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <strong> here</strong>
-                <ExternalLinkIcon />
-
-              </a>
-        </p>
-
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
           <div className="dropdown-content">
