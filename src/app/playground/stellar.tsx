@@ -1,7 +1,7 @@
 "use client";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { createFrameGate, useExperimentVisibility, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
+import { createFrameGate, useFrameValue, FrameRange, useExperimentVisibility, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
 const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
 type StellarPhase = {
@@ -138,6 +138,7 @@ export default function StellarEvolutionExplorer({
   const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
   const [playing, setPlaying] = useState(false);
   const animationFrame = useRef<number | null>(null);
+  const timelineFrame = useFrameValue(setProgress);
   const timelineDragPointer = useRef<number | null>(null);
   const stages = useMemo(() => stellarEvolutionTrack(mass), [mass]);
   const currentStage = stages.find((stage, index) =>
@@ -212,7 +213,7 @@ export default function StellarEvolutionExplorer({
       100,
     );
     setPlaying(false);
-    setProgress(stellarTimelinePositionToProgress(stages, timelinePosition));
+    timelineFrame.push(stellarTimelinePositionToProgress(stages, timelinePosition));
   };
 
   const beginTimelineDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -232,72 +233,15 @@ export default function StellarEvolutionExplorer({
 
   const endTimelineDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (timelineDragPointer.current !== event.pointerId) return;
+    timelineFrame.flush();
     timelineDragPointer.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
   };
 
-  return (
-    <section
-      ref={sectionRef}
-      id="stellar-evolution"
-      className={`stellar-evolution-explorer${isExperimentVisible ? "" : " experiment-is-paused"}`}
-      aria-labelledby="stellar-evolution-title"
-    >
-      <header className="simulator-heading">
-        <p className="simulator-kicker">Experiment 02</p>
-        <h2 id="stellar-evolution-title">Stellar Evolution Explorer</h2>
-        <p>
-          Change a star&apos;s initial mass and follow its simplified path from the main sequence to its final remnant.
-        </p>
-      </header>
-
-      <ExperimentGuide>
-        <p>
-          A star&apos;s initial mass largely determines how brightly it shines, how quickly it uses its
-          nuclear fuel, and which remnant it leaves behind. Press play, drag the timeline, or select
-          a phase to follow that path. Because the main sequence occupies most of a star&apos;s life, the
-          display begins five-sixths of the way through it; later phase markers are spaced evenly so
-          brief events remain easy to inspect.
-        </p>
-        <p>
-          Sun-like stars swell into red giants, shed their outer layers as planetary nebulae, and
-          leave white dwarfs. High-mass stars expand into red supergiants: they are substantially
-          more massive, larger, and more luminous than ordinary red giants, despite having similarly
-          cool, reddish surfaces. They then undergo core-collapse supernovae and leave neutron stars
-          or black holes. Whether the remnant is a neutron star or black hole depends more directly
-          on the mass of the collapsed core that remains after the supernova; the initial-mass
-          thresholds used here are only a simplified proxy. The 1 M☉, 12 M☉, and 30 M☉ presets
-          illustrate these three outcomes. Displayed sizes are not to scale; the stronger size,
-          colour, and glow differences identify the two giant phases. Surface motion and pulsation
-          are visual cues, and the neutron-star stage is shown as a pulsar whose sweeping beams
-          happen to cross our line of sight.
-        </p>
-      </ExperimentGuide>
-
-      <div className="simulator-presets" aria-label="Stellar mass presets">
-        <span className="simulator-presets-label">Mass presets:</span>
-        {stellarPresets.map((preset) => (
-          <button
-            type="button"
-            className={activePreset === preset.name ? "is-active" : undefined}
-            aria-pressed={activePreset === preset.name}
-            key={preset.name}
-            onClick={() => updateMass(preset.mass)}
-          >
-            {preset.name}
-          </button>
-        ))}
-      </div>
-
-      <div className="stellar-workspace">
-        <div className="stellar-visual-panel">
-          <div className="stellar-status" aria-live="polite">
-            <span>{mass.toFixed(1)} M☉ · {Math.round(progress * 100)}%</span>
-            <strong>{currentStage.label}</strong>
-          </div>
-          <div
+  // Reuse unchanged JSX regions so input/playback updates skip their subtrees.
+  const scene = useMemo(() => (<div
             className={`stellar-canvas stellar-canvas--${currentStage.key}`}
             style={stellarStyle}
             role="img"
@@ -313,11 +257,9 @@ export default function StellarEvolutionExplorer({
             </span>
             <span className="stellar-glow" aria-hidden="true" />
             <span className="stellar-object" aria-hidden="true"><span /></span>
-          </div>
+          </div>), [currentStage, mass]);
 
-        </div>
-
-        <div className="stellar-controls simulator-controls">
+  const controls = useMemo(() => (<div className="stellar-controls simulator-controls">
           <SimulatorSlider
             label="Initial mass"
             value={mass}
@@ -337,34 +279,24 @@ export default function StellarEvolutionExplorer({
             </button>
             <button type="button" onClick={resetEvolution}>Reset</button>
           </div>
-        </div>
+        </div>), [mass, playing]);
 
-        <div className="stellar-timeline-panel">
-          <p id="stellar-timeline-hint" className="stellar-timeline-hint">
-            Phases are evenly spaced for easy selection; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
-          </p>
-          <div
-            className="stellar-timeline-control"
-            onPointerDown={beginTimelineDrag}
-            onPointerMove={scrubTimeline}
-            onPointerUp={endTimelineDrag}
-            onPointerCancel={endTimelineDrag}
-          >
-            <input
-              className="stellar-timeline-scrubber"
-              type="range"
-              min={0}
-              max={100}
-              step={0.1}
-              value={timelineSliderPosition}
-              aria-label="Evolution progress"
-              aria-describedby="stellar-timeline-hint"
-              onChange={(event) => {
-                setPlaying(false);
-                setProgress(stellarTimelinePositionToProgress(stages, Number(event.currentTarget.value)));
-              }}
-            />
-            <ol className="stellar-timeline" aria-label="Evolutionary phases">
+  const results = useMemo(() => (<dl className="simulator-results stellar-results">
+        <div>
+          <dt>Main-sequence lifetime</dt>
+          <dd>{formatStellarLifetime(mainSequenceLifetime)}</dd>
+        </div>
+        <div>
+          <dt>Main-sequence luminosity</dt>
+          <dd>{formatSolarLuminosity(luminosity)}</dd>
+        </div>
+        <div>
+          <dt>Final remnant</dt>
+          <dd>{finalRemnant}</dd>
+        </div>
+      </dl>), [mass]);
+
+    const phaseButtons = useMemo(() => (<ol className="stellar-timeline" aria-label="Evolutionary phases">
               {stages.map((stage, index) => (
                 <li
                   key={stage.key}
@@ -390,33 +322,79 @@ export default function StellarEvolutionExplorer({
                   </button>
                 </li>
               ))}
-            </ol>
+            </ol>), [stages, currentStage.key, mass]);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="stellar-evolution"
+      className={`stellar-evolution-explorer${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="stellar-evolution-title"
+    >
+      {heading}
+
+      {explanation}
+
+      <div className="simulator-presets" aria-label="Stellar mass presets">
+        <span className="simulator-presets-label">Mass presets:</span>
+        {stellarPresets.map((preset) => (
+          <button
+            type="button"
+            className={activePreset === preset.name ? "is-active" : undefined}
+            aria-pressed={activePreset === preset.name}
+            key={preset.name}
+            onClick={() => updateMass(preset.mass)}
+          >
+            {preset.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="stellar-workspace">
+        <div className="stellar-visual-panel">
+          <div className="stellar-status" aria-live="polite">
+            <span>{mass.toFixed(1)} M☉ · {Math.round(progress * 100)}%</span>
+            <strong>{currentStage.label}</strong>
+          </div>
+          {scene}
+
+        </div>
+
+        {controls}
+
+        <div className="stellar-timeline-panel">
+          <p id="stellar-timeline-hint" className="stellar-timeline-hint">
+            Phases are evenly spaced for easy selection; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
+          </p>
+          <div
+            className="stellar-timeline-control"
+            onPointerDown={beginTimelineDrag}
+            onPointerMove={scrubTimeline}
+            onPointerUp={endTimelineDrag}
+            onPointerCancel={endTimelineDrag}
+            onLostPointerCapture={endTimelineDrag}
+          >
+            <FrameRange
+              className="stellar-timeline-scrubber"
+              min={0}
+              max={100}
+              step={0.1}
+              value={timelineSliderPosition}
+              aria-label="Evolution progress"
+              aria-describedby="stellar-timeline-hint"
+              onValueChange={(value) => {
+                setPlaying(false);
+                setProgress(stellarTimelinePositionToProgress(stages, value));
+              }}
+            />
+            {phaseButtons}
           </div>
         </div>
       </div>
 
-      <dl className="simulator-results stellar-results">
-        <div>
-          <dt>Main-sequence lifetime</dt>
-          <dd>{formatStellarLifetime(mainSequenceLifetime)}</dd>
-        </div>
-        <div>
-          <dt>Main-sequence luminosity</dt>
-          <dd>{formatSolarLuminosity(luminosity)}</dd>
-        </div>
-        <div>
-          <dt>Final remnant</dt>
-          <dd>{finalRemnant}</dd>
-        </div>
-      </dl>
+      {results}
 
-      <p className="simulator-method-note">
-        Toy model: For a single star with Sun-like composition, a few mass ranges set approximate
-        luminosity, main-sequence lifetime, phase duration, and remnant type. Fixed thresholds send
-        lower-mass stars to white dwarfs and higher-mass stars to neutron stars or black holes. Detailed
-        nuclear burning, composition changes, winds, mass loss, rotation, and binary interactions can
-        shift those boundaries in real stars.
-      </p>
+      {methodNote}
     </section>
   );
 }
@@ -438,3 +416,42 @@ const FieldStars = memo(function FieldStars() {
             ))}
   </>;
 });
+
+const heading = (<header className="simulator-heading">
+        <p className="simulator-kicker">Experiment 02</p>
+        <h2 id="stellar-evolution-title">Stellar Evolution Explorer</h2>
+        <p>
+          Change a star&apos;s initial mass and follow its simplified path from the main sequence to its final remnant.
+        </p>
+      </header>);
+
+const explanation = (<ExperimentGuide>
+        <p>
+          A star&apos;s initial mass largely determines how brightly it shines, how quickly it uses its
+          nuclear fuel, and which remnant it leaves behind. Press play, drag the timeline, or select
+          a phase to follow that path. Because the main sequence occupies most of a star&apos;s life, the
+          display begins five-sixths of the way through it; later phase markers are spaced evenly so
+          brief events remain easy to inspect.
+        </p>
+        <p>
+          Sun-like stars swell into red giants, shed their outer layers as planetary nebulae, and
+          leave white dwarfs. High-mass stars expand into red supergiants: they are substantially
+          more massive, larger, and more luminous than ordinary red giants, despite having similarly
+          cool, reddish surfaces. They then undergo core-collapse supernovae and leave neutron stars
+          or black holes. Whether the remnant is a neutron star or black hole depends more directly
+          on the mass of the collapsed core that remains after the supernova; the initial-mass
+          thresholds used here are only a simplified proxy. The 1 M☉, 12 M☉, and 30 M☉ presets
+          illustrate these three outcomes. Displayed sizes are not to scale; the stronger size,
+          colour, and glow differences identify the two giant phases. Surface motion and pulsation
+          are visual cues, and the neutron-star stage is shown as a pulsar whose sweeping beams
+          happen to cross our line of sight.
+        </p>
+      </ExperimentGuide>);
+
+const methodNote = (<p className="simulator-method-note">
+        Toy model: For a single star with Sun-like composition, a few mass ranges set approximate
+        luminosity, main-sequence lifetime, phase duration, and remnant type. Fixed thresholds send
+        lower-mass stars to white dwarfs and higher-mass stars to neutron stars or black holes. Detailed
+        nuclear burning, composition changes, winds, mass loss, rotation, and binary interactions can
+        shift those boundaries in real stars.
+      </p>);

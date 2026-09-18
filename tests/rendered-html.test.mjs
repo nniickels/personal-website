@@ -598,7 +598,6 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /requestAnimationFrame\(animate\)/);
   assert.match(source, /8_500 \* \(1 - initialProgress\)/);
   assert.match(source, /progress >= 1 \? 0\.02 : progress/);
-  assert.match(source, /if \(progress >= 1\) setProgress\(0\.02\)/);
   assert.match(source, /1 - \(1 - elapsed\) \*\* 1\.7/);
   assert.match(source, /VISUAL_LOG_MASS_MIN = 1/);
   assert.match(source, /VISUAL_LOG_MASS_REFERENCE_MAX = 15/);

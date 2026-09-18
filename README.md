@@ -16,6 +16,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
 - `tests/rendered-html.test.mjs` checks rendered-page contracts; `tests/performance.test.mjs` checks generated images, provider deadlines, and stats caching.
 - `tests/browser/performance.spec.ts` checks desktop and mobile interactions against a production build using Playwright; `responsive.spec.ts` checks viewport overflow in WebKit.
+- `tests/browser/interaction.spec.ts` checks continuous slider/drag updates, final-value flushing, and keyboard input.
 - `docs/easter-eggs.md` documents the sky interactions, timing, layers, mobile rules, and verification checklist.
 
 
@@ -133,7 +134,7 @@ npx playwright install chromium webkit
 npm run test:browser
 ```
 
-`npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
+`npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout and phone slider/drag checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
 
 Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
 
@@ -154,6 +155,8 @@ When adding or replacing media, update the originals and their entries in `src/a
 Non-icon candidates are 160, 320, 480, 960, and native-width pixels where available, without enlargement. Small variants use WebP quality 78 and larger/native variants use quality 86. Logos use a single 128px variant, except the Science Centre wordmark at 280px to retain detail in its existing crop. The generator's byte summary compares one roughly 320px variant per source against originals; it is an asset-size comparison, not a measured page-load or Core Web Vitals result. Bump the recipe identifier whenever changing generation settings so immutable URLs cannot reuse an older encoding.
 
 The homepage keeps résumé markup on the server and loads only shared interactive controls. Playground CSS is route-specific, its simulation modules load on demand, and gallery metadata/viewers stay outside the homepage's client dependency graph. Gallery dimensions reserve layout space before decoding. The black-hole curve is calculated independently of playback progress; lens dragging coalesces pointer updates once per frame; static simulation stars are memoized.
+
+Experiment rendering reuses unchanged JSX regions for scenes, controls, explanations, chart geometry, and result panels. Shared sliders move their native thumb immediately and publish the latest value to the experiment each display frame; black-hole rotation/chart dragging, stellar timeline scrubbing, and orbit dragging also combine intermediate samples per frame. Rotation accumulates every movement before publishing so direction changes and clamping retain their existing behavior. Release, cancellation, and lost pointer capture flush the final sample; queued work is cancelled when its component is hidden or unmounted. These changes do not alter visual effects, CSS easing, scientific formulas, or playback frame-rate policy.
 
 Stats use a four-second deadline per upstream request. The Workers Cache API stores a snapshot for up to 75 minutes, serves it fresh for 15 minutes, then returns stale data immediately while `waitUntil` refreshes it. Partial failures retain the affected provider's last successful data only within its original retention window, with a one-minute freshness interval before another request triggers a retry. Cache read failures fall back to direct fetching; write failures still return the fetched data. Public responses separately allow five minutes of HTTP caching. `X-Stats-Cache` reports `hit`, `stale`, or `miss`; production edge hit behavior must be verified after deployment.
 

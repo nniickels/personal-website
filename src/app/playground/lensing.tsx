@@ -202,6 +202,50 @@ export default function GravitationalLensingSandbox({
     20,
   );
 
+  // Reuse unchanged JSX regions so input/playback updates skip their subtrees.
+  const controls = useMemo(() => (<div className="lensing-controls simulator-controls">
+          <SimulatorSlider
+            label="Lens mass"
+            value={lensLogMass}
+            min={10}
+            max={13.5}
+            step={0.1}
+            displayValue={formatMass(lensLogMass)}
+            onChange={setLensLogMass}
+          />
+          <SimulatorSlider
+            label="Distance factor"
+            value={distanceRatio}
+            min={0.1}
+            max={0.9}
+            step={0.05}
+            displayValue={`Dₗₛ / Dₛ = ${distanceRatio.toFixed(2)}`}
+            onChange={setDistanceRatio}
+          />
+          <SimulatorSlider
+            label="Source size"
+            value={sourceSize}
+            min={5}
+            max={18}
+            step={1}
+            displayValue={`${sourceSize.toFixed(0)} px`}
+            onChange={setSourceSize}
+          />
+
+          <div className="simulator-actions lensing-actions">
+            <button
+              type="button"
+              className="simulator-primary-action"
+              onClick={() => setSourcePosition({ ...LENS_CENTER })}
+            >
+              Perfect alignment
+            </button>
+            <button type="button" onClick={resetLensing}>Reset</button>
+          </div>
+        </div>), [lensLogMass, distanceRatio, sourceSize]);
+
+
+
   return (
     <section
       ref={sectionRef}
@@ -209,33 +253,9 @@ export default function GravitationalLensingSandbox({
       className={`gravitational-lensing-sandbox${isExperimentVisible ? "" : " experiment-is-paused"}`}
       aria-labelledby="lensing-sandbox-title"
     >
-      <header className="simulator-heading">
-        <p className="simulator-kicker">Experiment 03</p>
-        <h2 id="lensing-sandbox-title">Gravitational Lensing Sandbox</h2>
-        <p>
-          Drag the background galaxy around a foreground lens and watch gravity split, stretch,
-          and magnify its apparent image.
-        </p>
-      </header>
+      {heading}
 
-      <ExperimentGuide>
-        <p>
-          Gravity from a foreground galaxy or cluster bends light from a more distant source galaxy.
-          This sandbox gathers the foreground mass into the central marker, then shows the source&apos;s
-          true position and the two places where its light appears to an observer. The dashed circle
-          is the Einstein radius, the natural angular scale set by the lens mass and the distances
-          between observer, lens, and source. Display units are arbitrary distances within this
-          diagram, useful for comparing how the results change. The side view shows the line-of-sight
-          order; its distances and light paths are schematic and unscaled.
-        </p>
-        <p>
-          Dragging the source toward the centre moves both images toward the Einstein radius, where
-          they brighten and stretch into arcs; perfect alignment joins them into an Einstein ring.
-          Increasing lens mass or the distance factor enlarges this bending scale, while source size
-          changes the width of the drawn arcs. The point-source equation predicts unlimited
-          magnification at exact alignment, so the display caps the readout at “&gt; 40×.”
-        </p>
-      </ExperimentGuide>
+      {explanation}
 
       <div className="lensing-workspace">
         <div className="lensing-visual-panel">
@@ -254,27 +274,7 @@ export default function GravitationalLensingSandbox({
             onPointerUp={handlePointerEnd}
             onPointerCancel={handlePointerEnd}
           >
-            <defs>
-              <radialGradient id="lensing-galaxy-gradient">
-                <stop offset="0" stopColor="#fff4dc" stopOpacity="0.98" />
-                <stop offset="0.18" stopColor="#d8c7ff" stopOpacity="0.88" />
-                <stop offset="0.52" stopColor="#9675dc" stopOpacity="0.48" />
-                <stop offset="1" stopColor="#513d91" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="lensing-lens-gradient">
-                <stop offset="0" stopColor="#fff4cd" stopOpacity="0.94" />
-                <stop offset="0.2" stopColor="#efc77f" stopOpacity="0.76" />
-                <stop offset="0.58" stopColor="#c68245" stopOpacity="0.3" />
-                <stop offset="1" stopColor="#7a4328" stopOpacity="0" />
-              </radialGradient>
-              <filter id="lensing-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
-                <feGaussianBlur stdDeviation="3.2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+            {drawingDefinitions0}
 
             <rect className="lensing-field" width="620" height="370" rx="10" />
             <g className="lensing-angular-grid" aria-hidden="true">
@@ -336,24 +336,7 @@ export default function GravitationalLensingSandbox({
             role="img"
             aria-label="Schematic unscaled side view showing the observer, foreground lens, and background source with two bent light paths"
           >
-            <defs>
-              <linearGradient id="lensing-depth-field" x1="0" x2="1">
-                <stop offset="0" stopColor="#151515" />
-                <stop offset="0.55" stopColor="#171614" />
-                <stop offset="1" stopColor="#17141d" />
-              </linearGradient>
-              <marker
-                id="lensing-light-arrow"
-                viewBox="0 0 8 8"
-                refX="7"
-                refY="4"
-                markerWidth="5"
-                markerHeight="5"
-                orient="auto-start-reverse"
-              >
-                <path d="M 0 0 L 8 4 L 0 8 z" />
-              </marker>
-            </defs>
+            {drawingDefinitions1}
             <rect className="lensing-depth-field" width="620" height="92" rx="10" />
             <line className="lensing-depth-axis" x1="58" y1="46" x2={depthSourceX} y2="46" />
             <line className="lensing-depth-plane lensing-depth-plane--lens" x1={depthLensX} y1="10" x2={depthLensX} y2="80" />
@@ -391,46 +374,7 @@ export default function GravitationalLensingSandbox({
           </svg>
         </div>
 
-        <div className="lensing-controls simulator-controls">
-          <SimulatorSlider
-            label="Lens mass"
-            value={lensLogMass}
-            min={10}
-            max={13.5}
-            step={0.1}
-            displayValue={formatMass(lensLogMass)}
-            onChange={setLensLogMass}
-          />
-          <SimulatorSlider
-            label="Distance factor"
-            value={distanceRatio}
-            min={0.1}
-            max={0.9}
-            step={0.05}
-            displayValue={`Dₗₛ / Dₛ = ${distanceRatio.toFixed(2)}`}
-            onChange={setDistanceRatio}
-          />
-          <SimulatorSlider
-            label="Source size"
-            value={sourceSize}
-            min={5}
-            max={18}
-            step={1}
-            displayValue={`${sourceSize.toFixed(0)} px`}
-            onChange={setSourceSize}
-          />
-
-          <div className="simulator-actions lensing-actions">
-            <button
-              type="button"
-              className="simulator-primary-action"
-              onClick={() => setSourcePosition({ ...LENS_CENTER })}
-            >
-              Perfect alignment
-            </button>
-            <button type="button" onClick={resetLensing}>Reset</button>
-          </div>
-        </div>
+        {controls}
       </div>
 
       <dl className="simulator-results lensing-results">
@@ -448,12 +392,7 @@ export default function GravitationalLensingSandbox({
         </div>
       </dl>
 
-      <p className="simulator-method-note">
-        Toy model: An axisymmetric point-mass lens uses the scalar thin-lens equation to calculate
-        the positions and magnifications of two point-source images. The source size and arc shapes
-        are visual aids layered onto those solutions. Extended galaxies and clusters distribute mass
-        unevenly, producing shear, multiple arcs, and other structures that require a full lens model.
-      </p>
+      {methodNote}
     </section>
   );
 }
@@ -472,3 +411,79 @@ const FieldStars = memo(function FieldStars() {
             ))}
   </>;
 });
+
+const heading = (<header className="simulator-heading">
+        <p className="simulator-kicker">Experiment 03</p>
+        <h2 id="lensing-sandbox-title">Gravitational Lensing Sandbox</h2>
+        <p>
+          Drag the background galaxy around a foreground lens and watch gravity split, stretch,
+          and magnify its apparent image.
+        </p>
+      </header>);
+
+const explanation = (<ExperimentGuide>
+        <p>
+          Gravity from a foreground galaxy or cluster bends light from a more distant source galaxy.
+          This sandbox gathers the foreground mass into the central marker, then shows the source&apos;s
+          true position and the two places where its light appears to an observer. The dashed circle
+          is the Einstein radius, the natural angular scale set by the lens mass and the distances
+          between observer, lens, and source. Display units are arbitrary distances within this
+          diagram, useful for comparing how the results change. The side view shows the line-of-sight
+          order; its distances and light paths are schematic and unscaled.
+        </p>
+        <p>
+          Dragging the source toward the centre moves both images toward the Einstein radius, where
+          they brighten and stretch into arcs; perfect alignment joins them into an Einstein ring.
+          Increasing lens mass or the distance factor enlarges this bending scale, while source size
+          changes the width of the drawn arcs. The point-source equation predicts unlimited
+          magnification at exact alignment, so the display caps the readout at “&gt; 40×.”
+        </p>
+      </ExperimentGuide>);
+
+const methodNote = (<p className="simulator-method-note">
+        Toy model: An axisymmetric point-mass lens uses the scalar thin-lens equation to calculate
+        the positions and magnifications of two point-source images. The source size and arc shapes
+        are visual aids layered onto those solutions. Extended galaxies and clusters distribute mass
+        unevenly, producing shear, multiple arcs, and other structures that require a full lens model.
+      </p>);
+
+const drawingDefinitions0 = (<defs>
+              <radialGradient id="lensing-galaxy-gradient">
+                <stop offset="0" stopColor="#fff4dc" stopOpacity="0.98" />
+                <stop offset="0.18" stopColor="#d8c7ff" stopOpacity="0.88" />
+                <stop offset="0.52" stopColor="#9675dc" stopOpacity="0.48" />
+                <stop offset="1" stopColor="#513d91" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="lensing-lens-gradient">
+                <stop offset="0" stopColor="#fff4cd" stopOpacity="0.94" />
+                <stop offset="0.2" stopColor="#efc77f" stopOpacity="0.76" />
+                <stop offset="0.58" stopColor="#c68245" stopOpacity="0.3" />
+                <stop offset="1" stopColor="#7a4328" stopOpacity="0" />
+              </radialGradient>
+              <filter id="lensing-soft-glow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur stdDeviation="3.2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>);
+
+const drawingDefinitions1 = (<defs>
+              <linearGradient id="lensing-depth-field" x1="0" x2="1">
+                <stop offset="0" stopColor="#151515" />
+                <stop offset="0.55" stopColor="#171614" />
+                <stop offset="1" stopColor="#17141d" />
+              </linearGradient>
+              <marker
+                id="lensing-light-arrow"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 8 4 L 0 8 z" />
+              </marker>
+            </defs>);

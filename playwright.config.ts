@@ -10,6 +10,7 @@ export default defineConfig({
     { name: "desktop", testIgnore: "**/responsive.spec.ts", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } } },
     { name: "mobile", testIgnore: "**/responsive.spec.ts", use: { ...devices["Pixel 7"] } },
     { name: "tablet-webkit", testMatch: "**/responsive.spec.ts", use: { ...devices["iPad Air"] } },
+    { name: "phone-webkit", testMatch: "**/interaction.spec.ts", use: { ...devices["iPhone 13"] } },
   ],
   webServer: {
     command: "npm run start -- --port 4173 --hostname 127.0.0.1",

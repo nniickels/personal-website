@@ -1,6 +1,6 @@
 "use client";
-import type { ChangeEvent, ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { InputHTMLAttributes, ReactNode } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 type SliderProps = {
   label: string;
   value: number;
@@ -52,7 +52,65 @@ export function useExperimentVisibility<T extends HTMLElement>() {
   return [elementRef, isVisible] as const;
 }
 
-export function SimulatorSlider({
+// Only the latest sample needs rendering. Flush at the end of a gesture so a
+// release before the next frame cannot lose its final value. Activity hiding
+// also cancels pending work instead of applying it when the panel is reopened.
+export function useFrameValue<T>(commit: (value: T) => void) {
+  const latestCommit = useRef(commit);
+  useLayoutEffect(() => { latestCommit.current = commit; });
+  const queue = useMemo(() => {
+    let frame: number | null = null;
+    let pending: { value: T } | null = null;
+    const cancel = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = null;
+      pending = null;
+    };
+    const flush = () => {
+      const sample = pending;
+      cancel();
+      if (sample) latestCommit.current(sample.value);
+    };
+    return {
+      push(value: T) {
+        pending = { value };
+        if (frame === null) frame = requestAnimationFrame(flush);
+      },
+      flush,
+      cancel,
+      hasPending: () => pending !== null,
+    };
+  }, []);
+  useLayoutEffect(() => queue.cancel, [queue]);
+  return queue;
+}
+
+// The native thumb responds immediately; experiment state follows the latest
+// value each display frame. No debounce, reduced frame rate, or deferred scene.
+export const FrameRange = memo(function FrameRange({ value, onValueChange, ...props }:
+  Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "type"> & {
+    value: number; onValueChange: (value: number) => void;
+  }) {
+  const [draft, setDraft] = useState(value);
+  const queue = useFrameValue(onValueChange);
+  useLayoutEffect(() => {
+    if (!queue.hasPending()) setDraft(value);
+  }, [value, queue]);
+  return <input {...props} type="range" value={draft}
+    onChange={(event) => {
+      const next = Number(event.currentTarget.value);
+      setDraft(next);
+      queue.push(next);
+    }}
+    onPointerUp={(event) => { queue.flush(); props.onPointerUp?.(event); }}
+    onPointerCancel={(event) => { queue.flush(); props.onPointerCancel?.(event); }}
+    onLostPointerCapture={(event) => { queue.flush(); props.onLostPointerCapture?.(event); }}
+    onKeyUp={(event) => { queue.flush(); props.onKeyUp?.(event); }}
+    onBlur={(event) => { queue.flush(); props.onBlur?.(event); }}
+  />;
+});
+
+export const SimulatorSlider = memo(function SimulatorSlider({
   label,
   value,
   min,
@@ -61,28 +119,23 @@ export function SimulatorSlider({
   displayValue,
   onChange,
 }: SliderProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(Number(event.currentTarget.value));
-  };
-
   return (
     <label className="simulator-slider">
       <span>
         {label}
         <output>{displayValue}</output>
       </span>
-      <input
-        type="range"
+      <FrameRange
         min={min}
         max={max}
         step={step}
         value={value}
-        onChange={handleChange}
+        onValueChange={onChange}
         aria-label={label}
       />
     </label>
   );
-}
+});
 
 export function ExperimentGuide({
   children,

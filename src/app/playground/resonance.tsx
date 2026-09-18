@@ -1,7 +1,7 @@
 "use client";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { createFrameGate, useExperimentVisibility, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
+import { createFrameGate, useFrameValue, useExperimentVisibility, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
 const resonancePresets = {
   "2:1": {
     label: "2:1 chain",
@@ -48,8 +48,10 @@ export default function OrbitalResonanceToy({
   const resonanceDrag = useRef<{
     pointerId: number;
     lastAngle: number;
+    phase: number;
     resumeAfterDrag: boolean;
   } | null>(null);
+  const orbitFrame = useFrameValue(setPhase);
   const [dragging, setDragging] = useState(false);
   const preset = resonancePresets[resonance];
 
@@ -126,6 +128,7 @@ export default function OrbitalResonanceToy({
     resonanceDrag.current = {
       pointerId: event.pointerId,
       lastAngle: pointerAngle(event),
+      phase,
       resumeAfterDrag: playing,
     };
     setPlaying(false);
@@ -141,15 +144,15 @@ export default function OrbitalResonanceToy({
     if (angleDelta > Math.PI) angleDelta -= Math.PI * 2;
     if (angleDelta < -Math.PI) angleDelta += Math.PI * 2;
     drag.lastAngle = nextAngle;
-    setPhase((current) => {
-      const next = current + angleDelta / (Math.PI * 2);
-      return ((next % 100) + 100) % 100;
-    });
+    const next = drag.phase + angleDelta / (Math.PI * 2);
+    drag.phase = ((next % 100) + 100) % 100;
+    orbitFrame.push(drag.phase);
   };
 
   const endOrbitDrag = (event: ReactPointerEvent<SVGSVGElement>) => {
     const drag = resonanceDrag.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+    orbitFrame.flush();
     resonanceDrag.current = null;
     setDragging(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -165,108 +168,8 @@ export default function OrbitalResonanceToy({
         .map((period) => period.toFixed(2).replace(/\.00$/, ""))
         .join(" : ");
 
-  return (
-    <section
-      ref={sectionRef}
-      id="orbital-resonance"
-      className={`orbital-resonance-toy${isExperimentVisible ? "" : " experiment-is-paused"}`}
-      aria-labelledby="orbital-resonance-title"
-    >
-      <header className="simulator-heading">
-        <p className="simulator-kicker">Experiment 04</p>
-        <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
-        <p>
-          Choose one to five bodies and compare repeating period-ratio chains with a near-resonant
-          pattern that keeps shifting over time.
-        </p>
-      </header>
-
-      <ExperimentGuide>
-        <p>
-          An orbital period is the time a body takes to complete one orbit, and a period ratio
-          compares that time with a neighbour&apos;s. In a 2:1 pair, the inner body completes two orbits
-          while the outer body completes one; in a 3:2 pair, they complete three and two. Adding more
-          bodies repeats the chosen ratio between neighbours, so a five-body 2:1 chain has relative
-          periods of 1:2:4:8:16.
-        </p>
-        <p>
-          Ratios made from small whole numbers return the entire chain to the same relative alignment
-          after a predictable number of inner orbits, which appears in the repeat readout. The Near
-          resonance preset uses slightly mismatched periods, so its geometry drifts without a short
-          repeat. In a physical resonance, gravity also keeps a particular orbital-angle combination
-          oscillating within a limited range, a behaviour called libration.
-        </p>
-      </ExperimentGuide>
-
-      <div className="resonance-workspace">
-        <div className="resonance-visual-panel">
-          <div className="resonance-status" aria-live="polite">
-            <span>{bodyCount} {bodyCount === 1 ? "body" : "bodies"} · drag to rotate</span>
-            <strong>{bodyCount === 1 ? "No resonance yet" : preset.label}</strong>
-          </div>
-          <svg
-            className={`resonance-canvas${dragging ? " is-dragging" : ""}`}
-            viewBox="0 0 620 380"
-            role="img"
-            aria-label={`${bodyCount} orbiting bodies in a ${bodyCount === 1 ? "single" : preset.label} configuration. Drag to rotate the system.`}
-            onPointerDown={beginOrbitDrag}
-            onPointerMove={rotateOrbits}
-            onPointerUp={endOrbitDrag}
-            onPointerCancel={endOrbitDrag}
-          >
-            <defs>
-              <radialGradient id="resonance-star-glow">
-                <stop offset="0" stopColor="#ffe1a0" stopOpacity="0.88" />
-                <stop offset="0.24" stopColor="#f3b65f" stopOpacity="0.38" />
-                <stop offset="1" stopColor="#d77b32" stopOpacity="0" />
-              </radialGradient>
-              <filter id="resonance-body-glow" x="-100%" y="-100%" width="300%" height="300%">
-                <feGaussianBlur stdDeviation="2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <rect className="resonance-field" width="620" height="380" rx="10" />
-            <FieldStars />
-            {ORBIT_RADII.slice(0, bodyCount).map((radius, index) => (
-              <ellipse
-                className="resonance-orbit"
-                key={radius}
-                cx="310"
-                cy="190"
-                rx={radius}
-                ry={radius * 0.58}
-                style={{ opacity: 0.48 - index * 0.07 }}
-              />
-            ))}
-            {bodyCount > 1 && bodies.map((body) => (
-              <line
-                className="resonance-spoke"
-                key={`spoke-${body.index}`}
-                x1="310"
-                y1="190"
-                x2={body.x}
-                y2={body.y}
-              />
-            ))}
-            <circle className="resonance-star-glow" cx="310" cy="190" r="48" />
-            <circle className="resonance-star" cx="310" cy="190" r="12" />
-            {bodies.map((body) => (
-              <g
-                className={`resonance-body resonance-body--${body.index + 1}`}
-                key={`body-${body.index}`}
-                transform={`translate(${body.x} ${body.y})`}
-              >
-                <circle className="resonance-body-halo" r={11 - body.index} />
-                <circle r={5.8 - body.index * 0.65} />
-              </g>
-            ))}
-          </svg>
-        </div>
-
-        <div className="resonance-controls simulator-controls">
+  // Reuse unchanged JSX regions so input/playback updates skip their subtrees.
+  const controls = useMemo(() => (<div className="resonance-controls simulator-controls">
           <fieldset className="resonance-body-picker">
             <legend>Orbiting bodies</legend>
             <div>
@@ -316,7 +219,78 @@ export default function OrbitalResonanceToy({
             </button>
             <button type="button" onClick={resetOrbits}>Reset</button>
           </div>
+        </div>), [bodyCount, resonance, speed, playing]);
+
+
+
+  return (
+    <section
+      ref={sectionRef}
+      id="orbital-resonance"
+      className={`orbital-resonance-toy${isExperimentVisible ? "" : " experiment-is-paused"}`}
+      aria-labelledby="orbital-resonance-title"
+    >
+      {heading}
+
+      {explanation}
+
+      <div className="resonance-workspace">
+        <div className="resonance-visual-panel">
+          <div className="resonance-status" aria-live="polite">
+            <span>{bodyCount} {bodyCount === 1 ? "body" : "bodies"} · drag to rotate</span>
+            <strong>{bodyCount === 1 ? "No resonance yet" : preset.label}</strong>
+          </div>
+          <svg
+            className={`resonance-canvas${dragging ? " is-dragging" : ""}`}
+            viewBox="0 0 620 380"
+            role="img"
+            aria-label={`${bodyCount} orbiting bodies in a ${bodyCount === 1 ? "single" : preset.label} configuration. Drag to rotate the system.`}
+            onPointerDown={beginOrbitDrag}
+            onPointerMove={rotateOrbits}
+            onPointerUp={endOrbitDrag}
+            onPointerCancel={endOrbitDrag}
+            onLostPointerCapture={endOrbitDrag}
+          >
+            {drawingDefinitions0}
+            <rect className="resonance-field" width="620" height="380" rx="10" />
+            <FieldStars />
+            {ORBIT_RADII.slice(0, bodyCount).map((radius, index) => (
+              <ellipse
+                className="resonance-orbit"
+                key={radius}
+                cx="310"
+                cy="190"
+                rx={radius}
+                ry={radius * 0.58}
+                style={{ opacity: 0.48 - index * 0.07 }}
+              />
+            ))}
+            {bodyCount > 1 && bodies.map((body) => (
+              <line
+                className="resonance-spoke"
+                key={`spoke-${body.index}`}
+                x1="310"
+                y1="190"
+                x2={body.x}
+                y2={body.y}
+              />
+            ))}
+            <circle className="resonance-star-glow" cx="310" cy="190" r="48" />
+            <circle className="resonance-star" cx="310" cy="190" r="12" />
+            {bodies.map((body) => (
+              <g
+                className={`resonance-body resonance-body--${body.index + 1}`}
+                key={`body-${body.index}`}
+                transform={`translate(${body.x} ${body.y})`}
+              >
+                <circle className="resonance-body-halo" r={11 - body.index} />
+                <circle r={5.8 - body.index * 0.65} />
+              </g>
+            ))}
+          </svg>
         </div>
+
+        {controls}
       </div>
 
       <dl className="simulator-results resonance-results">
@@ -334,13 +308,7 @@ export default function OrbitalResonanceToy({
         </div>
       </dl>
 
-      <p className="simulator-method-note">
-        Toy model: Non-interacting markers move at constant angular speeds along fixed, circular,
-        coplanar tracks. The selected period ratios alone determine when their relative positions
-        repeat, while the displayed orbit sizes are chosen for visual clarity. The calculation leaves
-        out Kepler&apos;s third law, gravitational coupling, eccentricity, and the resonant-angle libration
-        used to identify a true dynamical resonance.
-      </p>
+      {methodNote}
     </section>
   );
 }
@@ -359,3 +327,52 @@ const FieldStars = memo(function FieldStars() {
             ))}
   </>;
 });
+
+const heading = (<header className="simulator-heading">
+        <p className="simulator-kicker">Experiment 04</p>
+        <h2 id="orbital-resonance-title">Orbital Resonance Toy</h2>
+        <p>
+          Choose one to five bodies and compare repeating period-ratio chains with a near-resonant
+          pattern that keeps shifting over time.
+        </p>
+      </header>);
+
+const explanation = (<ExperimentGuide>
+        <p>
+          An orbital period is the time a body takes to complete one orbit, and a period ratio
+          compares that time with a neighbour&apos;s. In a 2:1 pair, the inner body completes two orbits
+          while the outer body completes one; in a 3:2 pair, they complete three and two. Adding more
+          bodies repeats the chosen ratio between neighbours, so a five-body 2:1 chain has relative
+          periods of 1:2:4:8:16.
+        </p>
+        <p>
+          Ratios made from small whole numbers return the entire chain to the same relative alignment
+          after a predictable number of inner orbits, which appears in the repeat readout. The Near
+          resonance preset uses slightly mismatched periods, so its geometry drifts without a short
+          repeat. In a physical resonance, gravity also keeps a particular orbital-angle combination
+          oscillating within a limited range, a behaviour called libration.
+        </p>
+      </ExperimentGuide>);
+
+const methodNote = (<p className="simulator-method-note">
+        Toy model: Non-interacting markers move at constant angular speeds along fixed, circular,
+        coplanar tracks. The selected period ratios alone determine when their relative positions
+        repeat, while the displayed orbit sizes are chosen for visual clarity. The calculation leaves
+        out Kepler&apos;s third law, gravitational coupling, eccentricity, and the resonant-angle libration
+        used to identify a true dynamical resonance.
+      </p>);
+
+const drawingDefinitions0 = (<defs>
+              <radialGradient id="resonance-star-glow">
+                <stop offset="0" stopColor="#ffe1a0" stopOpacity="0.88" />
+                <stop offset="0.24" stopColor="#f3b65f" stopOpacity="0.38" />
+                <stop offset="1" stopColor="#d77b32" stopOpacity="0" />
+              </radialGradient>
+              <filter id="resonance-body-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>);
