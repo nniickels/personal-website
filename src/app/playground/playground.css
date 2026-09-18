@@ -1002,6 +1002,46 @@
 }
 
 @media (hover: none), (pointer: coarse) {
+  [data-visual-paused],
+  [data-visual-paused] *,
+  [data-visual-paused] *::before,
+  [data-visual-paused] *::after {
+    animation-play-state: paused !important;
+  }
+
+  /* Keep layout dimensions fixed during growth; scale each part by its
+     original mass-to-size relationship, including the tilted disk planes. */
+  .black-hole-orbit-plane {
+    width: 310px;
+    height: 310px;
+    transform: rotateX(var(--view-pitch)) rotateZ(var(--view-yaw))
+      scale(calc((102 + 208 * var(--mass-scale)) / 310));
+  }
+
+  .black-hole-core {
+    width: 126px;
+    height: 126px;
+    transform: scale(calc((22 + 104 * var(--mass-scale)) / 126));
+  }
+
+  .black-hole-glow {
+    width: 180px;
+    height: 180px;
+    transform: scale(calc((48 + 132 * var(--mass-scale)) / 180));
+  }
+
+  .black-hole-photon-ring {
+    width: 143px;
+    height: 143px;
+    transform: scale(calc((29 + 114 * var(--mass-scale)) / 143));
+    animation: none;
+  }
+
+  /* The two textured disk halves carry the motion together. Their existing
+     highlights replace six separately filtered, orbiting streaks on mobile. */
+  .accretion-flow {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

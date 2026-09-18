@@ -52,6 +52,46 @@ export function useExperimentVisibility<T extends HTMLElement>() {
   return [elementRef, isVisible] as const;
 }
 
+// Decorative motion follows the visual itself on touch devices. Keep this
+// separate from experiment visibility so reading controls does not stop playback.
+export function useMobileVisualRef<T extends Element>() {
+  const visualRef = useRef<T | null>(null);
+
+  useEffect(() => {
+    const visual = visualRef.current;
+    if (!visual) return;
+    const touch = window.matchMedia("(hover: none), (pointer: coarse)");
+    let observer: IntersectionObserver | undefined;
+    let intersects = false;
+    const update = () => {
+      visual.toggleAttribute("data-visual-paused", touch.matches && (!intersects || document.hidden));
+    };
+    const observe = () => {
+      observer?.disconnect();
+      intersects = false;
+      if (touch.matches) {
+        observer = new IntersectionObserver(([entry]) => {
+          intersects = entry.isIntersecting;
+          update();
+        }, { threshold: 0 });
+        observer.observe(visual);
+      }
+      update();
+    };
+    observe();
+    touch.addEventListener("change", observe);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      observer?.disconnect();
+      touch.removeEventListener("change", observe);
+      document.removeEventListener("visibilitychange", update);
+      visual.removeAttribute("data-visual-paused");
+    };
+  }, []);
+
+  return visualRef;
+}
+
 // Only the latest sample needs rendering. Flush at the end of a gesture so a
 // release before the next frame cannot lose its final value. Activity hiding
 // also cancels pending work instead of applying it when the panel is reopened.

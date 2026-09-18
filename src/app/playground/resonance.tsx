@@ -1,7 +1,7 @@
 "use client";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { createFrameGate, useFrameValue, useExperimentVisibility, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
+import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
 const resonancePresets = {
   "2:1": {
     label: "2:1 chain",
@@ -36,6 +36,7 @@ export default function OrbitalResonanceToy({
   limitFrameRate?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
+  const visualRef = useMobileVisualRef<SVGSVGElement>();
   const [bodyCount, setBodyCount] = useState<ResonanceBodyCount>(3);
   const [resonance, setResonance] = useState<ResonancePreset>("2:1");
   const [speed, setSpeed] = useState(1);
@@ -241,6 +242,7 @@ export default function OrbitalResonanceToy({
             <strong>{bodyCount === 1 ? "No resonance yet" : preset.label}</strong>
           </div>
           <svg
+            ref={visualRef}
             className={`resonance-canvas${dragging ? " is-dragging" : ""}`}
             viewBox="0 0 620 380"
             role="img"

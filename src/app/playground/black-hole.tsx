@@ -1,7 +1,7 @@
 "use client";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createFrameGate, useFrameValue, useExperimentVisibility, SimulatorSlider, ExperimentGuide, clamp } from "./shared";
+import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp } from "./shared";
 const HUBBLE_CONSTANT = 67.4;
 const OMEGA_MATTER = 0.315;
 const OMEGA_LAMBDA = 0.685;
@@ -218,6 +218,7 @@ export default function BlackHoleGrowthSimulator({
   limitFrameRate?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
+  const visualRef = useMobileVisualRef<HTMLDivElement>();
   const [seedLogMass, setSeedLogMass] = useState(5);
   const [seedRedshift, setSeedRedshift] = useState(20);
   const [observedRedshift, setObservedRedshift] = useState(7);
@@ -578,6 +579,7 @@ export default function BlackHoleGrowthSimulator({
       </div>), [explanationOpen, variablesGuideOpen, coordinateTouchGuides, touchDisclosureOptimizations, activePresetName]);
 
   const scene = useMemo(() => (<div
+            ref={visualRef}
             className={`black-hole-stage${rotatingView ? " is-dragging" : ""}`}
             style={visualStyle}
             role="img"

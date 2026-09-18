@@ -1,7 +1,7 @@
 "use client";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { createFrameGate, useFrameValue, FrameRange, useExperimentVisibility, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
+import { createFrameGate, useFrameValue, FrameRange, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
 const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
 type StellarPhase = {
@@ -134,6 +134,7 @@ export default function StellarEvolutionExplorer({
   limitFrameRate?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
+  const visualRef = useMobileVisualRef<HTMLDivElement>();
   const [mass, setMass] = useState(1);
   const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
   const [playing, setPlaying] = useState(false);
@@ -242,6 +243,7 @@ export default function StellarEvolutionExplorer({
 
   // Reuse unchanged JSX regions so input/playback updates skip their subtrees.
   const scene = useMemo(() => (<div
+            ref={visualRef}
             className={`stellar-canvas stellar-canvas--${currentStage.key}`}
             style={stellarStyle}
             role="img"

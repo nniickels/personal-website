@@ -178,3 +178,92 @@ test("orbit dragging accumulates all movements before each frame", async ({ page
   await expect(phase).toHaveText(`${((initial + 0.5) % 1).toFixed(2)} turns`);
   await restoreFrames(page); await page.mouse.up();
 });
+
+test("mobile visuals pause outside the viewport without pausing the experiment", async ({ page, isMobile }) => {
+  await page.setViewportSize({ width: page.viewportSize()!.width, height: 500 });
+  for (const [id, selector] of [
+    ["black-hole-growth", ".black-hole-stage"],
+    ["stellar-evolution", ".stellar-canvas"],
+    ["gravitational-lensing", ".lensing-canvas"],
+    ["orbital-resonance", ".resonance-canvas"],
+  ]) {
+    await page.goto(`/playground#${id}`);
+    const scene = page.locator(selector);
+    await scene.scrollIntoViewIfNeeded();
+    await expect(scene).not.toHaveAttribute("data-visual-paused");
+    // Leave the controls/results visible while the drawing is above the viewport.
+    await scene.evaluate((el) => scrollTo(0, scrollY + el.getBoundingClientRect().bottom + 60));
+    await expect(page.locator(`#${id}`)).not.toHaveClass(/experiment-is-paused/);
+    if (isMobile) {
+      await expect(scene).toHaveAttribute("data-visual-paused", "");
+      const motion = await scene.evaluate((el) => el.getAnimations({ subtree: true })
+        .filter((animation) => animation instanceof CSSAnimation)
+        .map((animation) => animation.playState));
+      expect(motion.every((state) => state === "paused")).toBe(true);
+    } else {
+      await expect(scene).not.toHaveAttribute("data-visual-paused");
+    }
+    if (isMobile && id === "black-hole-growth") {
+      await page.getByRole("button", { name: "Play growth", exact: true }).click();
+      await expect(scene).toHaveAttribute("data-visual-paused", "");
+      const progress = page.getByRole("slider", { name: "Inspect growth time" });
+      await expect.poll(async () => Number(await progress.getAttribute("aria-valuenow"))).toBeLessThan(100);
+      const previous = await progress.getAttribute("aria-valuenow");
+      await expect.poll(() => progress.getAttribute("aria-valuenow")).not.toBe(previous);
+      await page.getByRole("button", { name: "Pause growth", exact: true }).click();
+    }
+    await scene.scrollIntoViewIfNeeded();
+    await expect(scene).not.toHaveAttribute("data-visual-paused");
+  }
+});
+
+test("mobile black-hole growth scales fixed geometry and keeps spin controls", async ({ page, isMobile }, testInfo) => {
+  await page.goto("/playground#black-hole-growth");
+  const scene = page.locator(".black-hole-stage");
+  await scene.scrollIntoViewIfNeeded();
+  const animationCount = () => scene.evaluate((el) => el.getAnimations({ subtree: true })
+    .filter((animation) => animation instanceof CSSAnimation).length);
+  await expect.poll(animationCount).toBe(isMobile ? 2 : 9);
+
+  const readGeometry = () => scene.evaluate((el) => {
+    const part = (selector: string) => {
+      const node = el.querySelector(selector)!;
+      return { width: parseFloat(getComputedStyle(node).width), visibleWidth: node.getBoundingClientRect().width };
+    };
+    return {
+      scale: parseFloat(getComputedStyle(el).getPropertyValue("--mass-scale")),
+      plane: part(".black-hole-orbit-plane"), core: part(".black-hole-core"),
+      ring: part(".black-hole-photon-ring"), glow: part(".black-hole-glow"),
+    };
+  });
+  const before = await readGeometry();
+  await page.getByRole("slider", { name: "Seed mass", exact: true }).fill("1");
+  await expect.poll(async () => (await readGeometry()).scale).not.toBe(before.scale);
+  const after = await readGeometry();
+  if (isMobile) {
+    for (const [part, width] of [["plane", 310], ["core", 126], ["ring", 143], ["glow", 180]] as const) {
+      expect(before[part].width).toBe(width);
+      expect(after[part].width).toBe(width);
+    }
+    for (const geometry of [before, after]) {
+      expect(geometry.core.visibleWidth).toBeCloseTo(22 + 104 * geometry.scale, 1);
+      expect(geometry.ring.visibleWidth).toBeCloseTo(29 + 114 * geometry.scale, 1);
+      expect(geometry.glow.visibleWidth).toBeCloseTo(48 + 132 * geometry.scale, 1);
+    }
+  } else {
+    expect(after.core.width).not.toBe(before.core.width);
+  }
+
+  await page.getByRole("button", { name: "Advanced settings", exact: true }).click();
+  // The native range starts at -0.998 with a 0.01 step; 0.002 is its near-zero stop.
+  await page.getByRole("slider", { name: "Spin", exact: true }).fill("0.002");
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).not.toHaveAttribute("data-visual-paused");
+  const texture = scene.locator(".accretion-texture").first();
+  await expect(texture).toHaveCSS("animation-play-state", "paused");
+  await page.getByRole("slider", { name: "Spin", exact: true }).fill("-0.698");
+  await scene.scrollIntoViewIfNeeded();
+  await expect(texture).toHaveCSS("animation-play-state", "running");
+  await expect(texture).toHaveCSS("animation-direction", "reverse");
+  await scene.screenshot({ path: testInfo.outputPath("black-hole.png") });
+});

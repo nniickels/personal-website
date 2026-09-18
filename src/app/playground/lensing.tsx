@@ -1,13 +1,14 @@
 "use client";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { formatMass, createFrameGate, useExperimentVisibility, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars, LENS_CENTER } from "./shared";
+import { formatMass, createFrameGate, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars, LENS_CENTER } from "./shared";
 export default function GravitationalLensingSandbox({
   limitFrameRate = false,
 }: {
   limitFrameRate?: boolean;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
+  const visualRef = useMobileVisualRef<SVGSVGElement>();
   const [sourcePosition, setSourcePosition] = useState({ x: 410, y: 135 });
   const [displaySourcePosition, setDisplaySourcePosition] = useState({ x: 410, y: 135 });
   const displaySourceRef = useRef(displaySourcePosition);
@@ -265,6 +266,7 @@ export default function GravitationalLensingSandbox({
           </div>
 
           <svg
+            ref={visualRef}
             className="lensing-canvas"
             viewBox="0 0 620 370"
             role="img"
