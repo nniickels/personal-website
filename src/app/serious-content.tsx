@@ -5,7 +5,6 @@ const projects = [
   {
     title: "Early Black-Hole Growth Constraints from JWST",
     dates: "Feb 2026 - Present",
-    href: "https://github.com/nniickels/highz-accretion-atlas",
     description:
       "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes and candidates at high redshift to evaluate objects against different growth scenarios. Supervised by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
   },
