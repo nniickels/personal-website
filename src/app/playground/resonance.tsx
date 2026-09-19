@@ -354,6 +354,9 @@ const explanation = (<ExperimentGuide>
           repeat. In a physical resonance, gravity also keeps a particular orbital-angle combination
           oscillating within a limited range, a behaviour called libration.
         </p>
+        <p className="experiment-phone-model-summary">
+          This toy model shows period-ratio patterns using non-interacting bodies on fixed circular tracks, leaving out Kepler&apos;s third law, gravitational coupling, eccentricity, and true resonant libration.
+        </p>
       </ExperimentGuide>);
 
 const methodNote = (<p className="simulator-method-note">

@@ -448,6 +448,9 @@ const explanation = (<ExperimentGuide>
           are visual cues, and the neutron-star stage is shown as a pulsar whose sweeping beams
           happen to cross our line of sight.
         </p>
+        <p className="experiment-phone-model-summary">
+          This toy model uses initial mass to estimate the lifetime, brightness, and remnant of a single star with Sun-like composition, leaving out detailed nuclear evolution, mass loss, rotation, and binary interactions.
+        </p>
       </ExperimentGuide>);
 
 const methodNote = (<p className="simulator-method-note">

@@ -171,6 +171,10 @@
   text-transform: uppercase;
 }
 
+.experiment-phone-model-summary {
+  display: none;
+}
+
 .experiment-guide {
   border-block: 1px solid var(--line);
 }
@@ -2304,6 +2308,33 @@
   .mobile-experiment-heading { display: block; margin: 0; }
   .experiment-slot:not(.is-open) > .experiment-panel { display: none; }
   .experiment-placeholder { min-height: 200px; }
+
+  .growth-chart-caption,
+  .simulator-method-note {
+    display: none;
+  }
+
+  .experiment-phone-model-summary {
+    display: block;
+  }
+
+  .simulator-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .simulator-results > div {
+    align-content: start;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .simulator-results > div + div {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .simulator-results dt {
+    overflow-wrap: anywhere;
+  }
 
   .simulator-workspace,
   .stellar-workspace,

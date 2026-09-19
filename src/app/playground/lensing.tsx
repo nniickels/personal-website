@@ -440,6 +440,9 @@ const explanation = (<ExperimentGuide>
           changes the width of the drawn arcs. The point-source equation predicts unlimited
           magnification at exact alignment, so the display caps the readout at “&gt; 40×.”
         </p>
+        <p className="experiment-phone-model-summary">
+          This toy model calculates two images using a point-mass thin lens, with illustrative arcs and source sizes that omit the complex mass distributions of real galaxies and clusters.
+        </p>
       </ExperimentGuide>);
 
 const methodNote = (<p className="simulator-method-note">

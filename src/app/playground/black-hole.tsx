@@ -544,6 +544,9 @@ export default function BlackHoleGrowthSimulator({
               faster or more sustained feeding, and longer time intervals raise the final mass; rapid
               prograde spin can slow growth because more of the incoming matter&apos;s energy escapes as light.
             </p>
+            <p className="experiment-phone-model-summary">
+              This toy model uses a simplified cosmic expansion history and fixed feeding and spin settings to estimate exponential black-hole growth, leaving out fuel shortages, feedback, and mergers.
+            </p>
           </>
         </ExperimentGuide>
 
