@@ -53,7 +53,7 @@ JavaScript guards prevent activation and respond to media-query changes. Matchin
 
 The ordinary background stars and eligible shooting-star wishes are separate from this desktop-only rule. Reduced-motion rules hide moving meteors, and status messages use `role="status"`. Timers, observers, and listeners are cleaned up when their components unmount.
 
-The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation. In the touchscreen Playground, twinkle durations are 2.4 times longer and half the stars are static; regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
+The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation, and reduced motion disables twinkling. Across all pages, devices matching `(hover: none), (pointer: coarse)` animate only eight background stars; the other visible stars remain static. Viewports wider than 520px show 96 stars, while widths up to 520px show 64 smaller stars, including the eight that can animate. In the touchscreen Playground, twinkle durations are 2.4 times longer and regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
 
 ## Known limitation
 

@@ -8,6 +8,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `src/app` contains the pages, shared portfolio shell, theme controls, and styles.
 - `src/app/sky-easter-eggs.tsx` contains shooting-star wishes and the idle meteor shower.
 - `src/app/playground/playground.tsx` loads the four independent experiment modules as needed and preserves their state between layouts.
+- `src/app/playground/shared.tsx` handles experiment visibility, touchscreen visual pausing, playback pacing, and frame-batched inputs.
 - `src/app/side-quests` contains the music and card shelves, deferred galleries, and separately loaded viewers.
 - `scripts/build-images.mjs` generates responsive WebP assets and dimension manifests from the original images.
 - `src/api-stats.ts` combines the public stats.fm feed with secret-backed Clash Royale and Steam data.
@@ -16,7 +17,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 - `public` contains static images, icons, gallery media, the social-preview artwork, and the résumé PDF.
 - `tests/rendered-html.test.mjs` checks rendered-page contracts; `tests/performance.test.mjs` checks generated images, provider deadlines, and stats caching.
 - `tests/browser/performance.spec.ts` checks desktop and mobile interactions against a production build using Playwright; `responsive.spec.ts` checks viewport overflow in WebKit.
-- `tests/browser/interaction.spec.ts` checks continuous slider/drag updates, final-value flushing, and keyboard input.
+- `tests/browser/interaction.spec.ts` checks continuous slider/drag updates, final-value flushing, keyboard input, mobile visual pausing, and black-hole scaling and spin behavior.
 - `docs/easter-eggs.md` documents the sky interactions, timing, layers, mobile rules, and verification checklist.
 
 
@@ -40,7 +41,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | `/side-quests` | Side Quests — expandable photos, listening previews and lifetime stats, reading, watching, recently played Steam game names, collections, and food |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
 
-All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count. Desktop and tablet layouts show 96 stars; phone widths up to 520px show 64 stars at a smaller size.
+All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count. Viewports wider than 520px show 96 stars; widths up to 520px show 64 stars at a smaller size. On devices without hover or with a coarse pointer, only eight background stars animate; the remaining visible stars stay static. This limit applies across all three pages and in either orientation. Devices with hover and a fine pointer retain the original animation behavior. Reduced-motion preferences disable twinkling.
 
 The Steam widget lists up to three recently played game names without playtime totals. When fewer than three games were played during the 14-day window, it displays a corresponding no-other-games note.
 
@@ -57,17 +58,20 @@ See [Easter egg documentation](docs/easter-eggs.md) for exact click timing, rend
 
 ## Desktop and mobile differences
 
-Layout responds to available width, so these are the typical orientation differences rather than device assumptions.
+Layout responds to viewport dimensions, while touch-specific behavior responds to pointer and hover capabilities. The phone copy and compact navigation apply at widths up to 520px; the Playground accordion uses the separate rules below.
 
-### Landscape and portrait
+### Wide and compact layouts
 
-| Feature | Landscape | Portrait |
+| Feature | Wide layout | Compact layout |
 |---------|-----------|----------|
-| Layout and navigation | Uses wider gutters, larger type and media, and single-row header controls when space permits. | Uses compact gutters, smaller type and media, wrapped social icons, and navigation constrained to the viewport. |
+| Layout and navigation | Uses wider gutters, larger type and media, and full page-link labels. | Uses compact gutters, smaller type and media, and shortened “Main”, “Side”, and “Play” navigation labels at phone widths. |
+| Main Quest copy | Shows the full introduction, project descriptions, and service descriptions. | Uses a shorter introduction and hides project and service descriptions at phone widths. |
 | Side Quests section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
+| Side Quests copy and rankings | Shows full introductory and interest paragraphs and expanded listening rankings. | Uses a shorter introduction and interest lists; Watching and Gaming lists use two columns. Top Tracks stays expanded, while artist and album rankings use disclosures. The Food introduction is hidden, and the two gaming widgets remain side by side. |
 | Side Quests lifecycle | Galleries initialize on first disclosure opening; viewers load on demand. | Same lifecycle, with smaller responsive image candidates selected for the displayed size and screen density. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
-| Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | Stacks experiment visuals and controls into one column on narrow screens. |
+| Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | In the accordion layout, settings appear before the scene and action buttons after it. The black-hole chart follows its actions; the stellar timeline appears before its playback actions. |
+| Playground explanations and results | Shows chart captions and model notes alongside the full explanations. | In the accordion layout, hides the black-hole chart caption and standalone model notes, includes concise model summaries inside Explanation, and arranges result cards in three columns. |
 | Playground lifecycle | All four experiment slots remain available; each experiment loads shortly before entering view. Offscreen motion pauses. | A single-open accordion initializes only requested experiments. React Activity retains visited experiments’ state while hiding their DOM and stopping effects. Rotation preserves settings and the selected panel. |
 
 ### Cursor and touchscreen
@@ -81,10 +85,12 @@ Layout responds to available width, so these are the typical orientation differe
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |
 | Photo galleries | Clicking a thumbnail opens the lightbox, with hover feedback available beforehand. | Tapping a thumbnail opens the same lightbox viewer. |
 | Playground experiments | Click-and-drag controls rotate or reposition experiment objects. | Touch-drag uses the same direct manipulation without requiring hover. |
-| Playground animation rate | Smooth CSS easing; autonomous JavaScript playback updates up to 60 times per second, backing off to 30 for Save-Data or observed frame delays. Offscreen and hidden-tab experiment motion pauses. | The same playback policy. Direct dragging follows display frames; touch capability alone does not lower quality. |
+| Playground playback rate | Autonomous JavaScript playback updates up to 60 times per second, backing off to 30 for Save-Data or observed frame delays. Playback pauses outside the experiment section's visibility margin or in a hidden tab. | The same playback policy. Direct dragging follows display frames; touch capability alone does not reduce the playback rate. |
+| Playground decorative motion | Uses the experiment section's visibility to pause decorative animation. | Also pauses decorative CSS animations when the visual itself leaves the viewport. Reading nearby controls does not reset state or independently stop simulation playback. |
 | Black Hole experiment | Includes the Variables Guide, all variable sliders, growth playback, the draggable mass-growth plot, presets, results, and 3D rotation. | Includes the same complete feature set in the mobile accordion. |
+| Black Hole rendering | Retains mass-dependent layout dimensions and nine decorative animations. | Scales fixed-size geometry with transforms. Two rotating disk textures provide motion; the six orbiting streaks are hidden and the photon ring stays static. Spin direction and near-zero-spin pausing remain supported. |
 | Playground loading feedback | A loading indicator appears while an experiment chunk is loading. | The same contextual indicator replaces the permanent desktop recommendation. |
-| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Black Hole defers Variables Guide and Advanced Settings content until open; its Explanation and Variables Guide are mutually exclusive. The starfield continues while reading. Accordion layouts disable Advanced Settings expansion transitions. Playground stars twinkle more slowly, half remain static, and shooting stars are hidden. |
+| Playground disclosures | Explanation and Variables Guide reveal immediately with matching arrow animation; Advanced Settings retains animated expansion. | Black Hole defers Variables Guide and Advanced Settings content until open; its Explanation and Variables Guide are mutually exclusive. Accordion layouts disable Advanced Settings expansion transitions. The eight animated background stars continue while reading, with twinkle durations 2.4 times longer in Playground; shooting stars are hidden. |
 
 The Playground accordion applies at widths up to 700px in portrait, or heights up to 520px in landscape with a coarse pointer. Other viewports use the full experiment layout, including larger portrait tablets. Touch-specific controls and starfield adjustments separately use `(hover: none), (pointer: coarse)`; these checks do not impose a blanket playback-rate reduction.
 
@@ -133,7 +139,7 @@ npx playwright install chromium webkit
 npm run test:browser
 ```
 
-`npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout and phone slider/drag checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Use `npm run start` separately to preview the production site manually.
+`npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout and phone slider/drag checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Avoid rebuilding the shared `dist` directory while a production preview or browser check is running: the server can retain references to removed asset filenames. Use `npm run start` separately to preview the production site manually.
 
 Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
 
@@ -144,19 +150,3 @@ Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It loss
 - [Stanley Pang](https://stanleyp.dev/) — photo galleries and visual details
 - [Ryan Alumkal](https://ryanalumkal.github.io/) — horizontal media shelf
 - [Alvina Yang](https://www.alvinayang.com/blogs) — interactive simulation widgets
-
-## Performance workflow
-
-`predev` and `prebuild` generate images automatically. `npm run images:build` also runs independently. Original photos stay unchanged in `public`; generated `public/media` files and `src/generated/media` manifests are ignored by Git and reproducible from those originals. WebP thumbnails use widths up to 480px, and lightboxes can select larger candidates up to each original's native width. The image recipe and source hash are included in URLs. `public/_headers` marks only those fingerprinted assets immutable. No Cloudflare Images binding is needed.
-
-When adding or replacing media, update the originals and their entries in `src/app/side-quests/data.ts`, then regenerate images (restart an already running dev server if needed). The generator handles the six gallery/shelf directories and three education/service logos listed in `scripts/build-images.mjs`; other assets, including the social preview and résumé, are unchanged. It auto-orients images, strips metadata from generated WebPs, and removes obsolete generated variants. Originals remain publicly accessible, so keep using the privacy command for source JPEGs. Commit source assets and code, not generated outputs.
-
-Non-icon candidates are 160, 320, 480, 960, and native-width pixels where available, without enlargement. Small variants use WebP quality 78 and larger/native variants use quality 86. Logos use a single 128px variant, except the Science Centre wordmark at 280px to retain detail in its existing crop. The generator's byte summary compares one roughly 320px variant per source against originals; it is an asset-size comparison, not a measured page-load or Core Web Vitals result. Bump the recipe identifier whenever changing generation settings so immutable URLs cannot reuse an older encoding.
-
-The homepage keeps résumé markup on the server and loads only shared interactive controls. Playground CSS is route-specific, its simulation modules load on demand, and gallery metadata/viewers stay outside the homepage's client dependency graph. Gallery dimensions reserve layout space before decoding. The black-hole curve is calculated independently of playback progress; lens dragging coalesces pointer updates once per frame; static simulation stars are memoized.
-
-Experiment rendering reuses unchanged JSX regions for scenes, controls, explanations, chart geometry, and result panels. Shared sliders move their native thumb immediately and publish the latest value to the experiment each display frame; black-hole rotation/chart dragging, stellar timeline scrubbing, and orbit dragging also combine intermediate samples per frame. Rotation accumulates every movement before publishing so direction changes and clamping retain their existing behavior. Release, cancellation, and lost pointer capture flush the final sample; queued work is cancelled when its component is hidden or unmounted. These changes do not alter visual effects, CSS easing, scientific formulas, or playback frame-rate policy.
-
-Stats use a four-second deadline per upstream request. The Workers Cache API stores a snapshot for up to 75 minutes, serves it fresh for 15 minutes, then returns stale data immediately while `waitUntil` refreshes it. Partial failures retain the affected provider's last successful data only within its original retention window, with a one-minute freshness interval before another request triggers a retry. Cache read failures fall back to direct fetching; write failures still return the fetched data. Public responses separately allow five minutes of HTTP caching. `X-Stats-Cache` reports `hit`, `stale`, or `miss`; production edge hit behavior must be verified after deployment.
-
-`npm test` checks rendered page contracts, actual image dimensions/metadata/byte budgets, provider deadlines, and cache behavior. `npm run test:browser` uses a local production server to check desktop and mobile loading, gallery navigation, deep links, retained experiment state across closing and rotation, offscreen playback, shelf proportions, and mobile interaction under CPU throttling. Run `npm run build` before browser tests. Browser tests stub external services and do not record analytics visits. These regression checks do not establish production Core Web Vitals or real-device performance.
