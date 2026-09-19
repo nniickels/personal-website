@@ -1,15 +1,13 @@
 "use client";
 import { ThemeToggle } from "./theme-toggle";
-import { useCalligraphyEasterEgg } from "./sky-easter-eggs";
 import { ResponsiveImage } from "./responsive-image";
 import icons from "../generated/media/icons.json";
 export type SitePage = "serious" | "fun" | "playground";
 export function SiteHeader({ page }: { page: SitePage }) {
-  const handleCalligraphyClick = useCalligraphyEasterEgg();
   return (
     <header className="bar topbar">
       <div className="container topbar-content">
-        <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home" onClick={handleCalligraphyClick}>
+        <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home">
           <ResponsiveImage asset={icons["/tong-calligraphy.png"]} sizes="22px" alt="" aria-hidden="true" />
           <ResponsiveImage asset={icons["/tong-calligraphy.png"]} sizes="22px" alt="" aria-hidden="true" />
         </a>

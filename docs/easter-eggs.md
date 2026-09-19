@@ -1,12 +1,12 @@
 # Astronomy Easter eggs
 
-The three effects share the site shell and are available through `NightSky` and `SiteHeader` on Main Quest, Side Quests, and Playground, subject to the device and motion rules below. They do not require an API, account, or additional asset downloads.
+The two effects share the site shell and are available through `NightSky` on Main Quest, Side Quests, and Playground, subject to the device and motion rules below. They do not require an API, account, or additional asset downloads.
 
 ## Source map
 
-- `src/app/sky-easter-eggs.tsx`: effects, timers, device checks, meteor configurations, and logo click handling.
+- `src/app/sky-easter-eggs.tsx`: effects, timers, device checks, meteor configurations.
 - `src/app/night-sky.tsx`: seeded background stars, regular shooting-star data, and integration with the Easter egg effects.
-- `src/app/site-header.tsx`: home logo and constellation click handler integration.
+- `src/app/site-header.tsx`: standard home link with immediate navigation.
 - `src/app/portfolio.tsx` and `src/app/playground/page.tsx`: shared sky and header placement on the three routes.
 - `src/app/globals.css`: click targets, glow and trail styling, layering, dimming, and animations.
 - `src/app/playground/playground.css`: route-specific touchscreen starfield adjustments.
@@ -45,25 +45,11 @@ Trail length is capped at 55vmin. Both layers use angles from 132° to 138°. He
 
 “Meteor shower!” is visible at the bottom for the duration of the active shower. Ending the shower removes both meteor layers and the message, and restores normal content brightness.
 
-## Calligraphy constellation
-
-On supported desktop devices, five quick logo clicks dispatch `nicole:constellation`. The reveal spells “N” with four-point stars and the caption “A little constellation for Nicole.”
-
-- Normal desktop home navigation waits 300 ms after the most recent click. Each additional click cancels and restarts that navigation timer.
-- The click count resets when the gap reaches 1,500 ms. Away from Main Quest, clicks must arrive before the 300 ms navigation timer fires to keep the sequence on the same page.
-- The fifth click cancels navigation and resets the count for another sequence.
-- Counts are held in component refs and do not survive navigation or reload. No session-storage click tracking is used.
-- Mobile and modified clicks retain native link behavior without the delay.
-
-The reveal lasts 4,000 ms. Each trigger increments `constellationRun`, giving the figure a new React key and restarting its CSS animation. The dismissal timer also restarts. Keep the JavaScript timeout and the `constellation-reveal` CSS duration aligned when changing this duration.
-
-Unlike the meteors, the constellation can appear in light mode. With reduced motion enabled, it is a static reveal. Changing to a mobile configuration dismisses it.
-
 ## Mobile and accessibility rules
 
-`MOBILE_QUERY` is `(max-width: 700px), (hover: none), (pointer: coarse)`. Any matching condition disables both the shower and constellation. This includes narrow desktop windows and typical touch tablets as well as phones; it is a capability/layout check rather than user-agent detection.
+`MOBILE_QUERY` is `(max-width: 700px), (hover: none), (pointer: coarse)`. Any matching condition disables the shower. This includes narrow desktop windows and typical touch tablets as well as phones; it is a capability/layout check rather than user-agent detection.
 
-JavaScript guards prevent activation and respond to media-query changes. Matching CSS rules also hide the shower's foreground and background meteors, dimmer, message, and constellation. Keep the JavaScript and CSS queries synchronized.
+JavaScript guards prevent activation and respond to media-query changes. Matching CSS rules also hide the shower's foreground and background meteors, dimmer, and message. Keep the JavaScript and CSS queries synchronized.
 
 The ordinary background stars and eligible shooting-star wishes are separate from this desktop-only rule. Reduced-motion rules hide moving meteors, and status messages use `role="status"`. Timers, observers, and listeners are cleaned up when their components unmount.
 
@@ -77,13 +63,13 @@ Moving the cursor toward an idle-shower meteor ends the shower before it can usu
 
 Run `npm test` for the production build, rendered-page checks, and image/cache performance checks. Run `npm run typecheck` for a separate TypeScript check; it also generates the image manifests required by a fresh checkout.
 
-After building and installing the browsers with `npx playwright install chromium webkit`, run `npm run test:browser` for desktop and mobile regression checks, including WebKit layout checks. These cover theme controls, navigation, galleries, experiment lifecycle, and the absence of disclosure-triggered sky pausing. They stub external services and analytics. They do not automate the timed meteor shower, wish, or constellation sequences below.
+After building and installing the browsers with `npx playwright install chromium webkit`, run `npm run test:browser` for desktop and mobile regression checks, including WebKit layout checks. These cover theme controls, navigation, galleries, experiment lifecycle, and the absence of disclosure-triggered sky pausing. They stub external services and analytics. They do not automate the timed meteor shower or wish sequences below.
 
 Passing these checks does not establish browser visual or interaction correctness. A browser release check should cover:
 
 1. Desktop dark mode: no shower before 10 seconds, then layered meteors, dimming, and the bottom message; activity restores the page.
 2. Ordinary star: click or tap within the enlarged target, confirm the pause, wish message, and resumed flight.
-3. Logo: one click navigates after 300 ms; five rapid clicks reveal the constellation; another five restart its full four-second animation.
-4. Mobile, narrow windows, and touch input: no shower or constellation; logo navigation is immediate. Resize during an active effect to confirm dismissal.
+3. Logo: clicking or tapping navigates home immediately through the native link, including modified clicks for opening a new tab.
+4. Mobile, narrow windows, and touch input: no shower; logo navigation is immediate. Resize during an active effect to confirm dismissal.
 5. Light mode, reduced motion, and background tabs: no inappropriate moving or lingering effects; returning to an eligible desktop state requires a fresh idle period.
 6. All three routes: page links, Playground controls, and gallery dialogs still behave normally around the effects.

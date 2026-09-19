@@ -343,41 +343,6 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
   bottom: 5.5rem;
 }
 
-.sky-constellation {
-  position: absolute;
-  top: 1.5rem;
-  right: 1rem;
-  width: min(240px, 44vw);
-  margin: 0;
-  color: var(--foreground);
-  background: radial-gradient(ellipse, var(--background), transparent 72%);
-  animation: constellation-reveal 4s ease both;
-}
-
-.sky-constellation svg {
-  display: block;
-  width: 100%;
-  overflow: visible;
-}
-
-.sky-constellation path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 0.35;
-  opacity: 0.55;
-}
-
-.sky-constellation polygon {
-  fill: currentColor;
-  filter: drop-shadow(0 0 2px currentColor);
-}
-
-.sky-constellation figcaption {
-  font-size: 0.875rem;
-  text-align: center;
-  text-wrap: balance;
-}
-
 @keyframes wish-star-flight {
   0%, 78% {
     visibility: hidden;
@@ -422,23 +387,16 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
   22% { opacity: 0; transform: translateY(-50%) scaleX(0.4); }
 }
 
-@keyframes constellation-reveal {
-  0%, 100% { opacity: 0; }
-  12%, 82% { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sky-meteors { display: none; }
   .sky-shower-dimmer { display: none; }
   .sky-distant-meteors { display: none; }
-  .sky-constellation { animation: none; }
 }
 
 @media (max-width: 700px), (hover: none), (pointer: coarse) {
   .sky-shower-dimmer,
   .sky-distant-meteors,
   .shooting-star-target--meteor,
-  .sky-constellation,
   .sky-shower-message {
     display: none;
   }

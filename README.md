@@ -6,7 +6,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 ## Structure
 
 - `src/app` contains the pages, shared portfolio shell, theme controls, and styles.
-- `src/app/sky-easter-eggs.tsx` contains shooting-star wishes, the idle meteor shower, and the calligraphy constellation trigger.
+- `src/app/sky-easter-eggs.tsx` contains shooting-star wishes and the idle meteor shower.
 - `src/app/playground/playground.tsx` loads the four independent experiment modules as needed and preserves their state between layouts.
 - `src/app/side-quests` contains the music and card shelves, deferred galleries, and separately loaded viewers.
 - `scripts/build-images.mjs` generates responsive WebP assets and dimension manifests from the original images.
@@ -50,9 +50,8 @@ The Steam widget lists up to three recently played game names without playtime t
 |---------|---------|----------|
 | Shooting-star wish | Click or tap within the invisible 96×96-pixel target around a visible shooting star. | Pauses the star for 1.6 seconds and shows “Make a wish ✧” for 3.2 seconds. |
 | Meteor shower | Leave a supported desktop page idle for 10 seconds in dark mode. | Adds 12 foreground and 18 background meteors, dims the page content, and displays “Meteor shower!” at the bottom. Activity ends the shower. |
-| Calligraphy constellation | Click the home logo five times quickly on desktop. | Reveals an “N” made of four-point stars for four seconds. Retriggering restarts the animation. |
 
-The meteor shower and constellation are disabled at widths of 700px or less, on devices without hover, or with a coarse primary pointer. Mobile logo navigation is immediate; desktop logo navigation waits 300 ms to allow repeated clicks. Moving meteors are disabled when reduced motion is requested. The constellation remains available as a static reveal on supported desktop devices.
+The meteor shower is disabled at widths of 700px or less, on devices without hover, or with a coarse primary pointer. The calligraphy logo is a standard home link with immediate navigation on every device. Moving meteors are disabled when reduced motion is requested.
 
 See [Easter egg documentation](docs/easter-eggs.md) for exact click timing, rendering details, and known limitations.
 
@@ -76,7 +75,7 @@ Layout responds to available width, so these are the typical orientation differe
 | Feature | Cursor | Touchscreen |
 |---------|--------|-------------|
 | Links and controls | Hover and focus states brighten, underline, or raise interactive elements before selection. | Controls use touch-sized targets and activate without depending on hover. |
-| Idle meteor shower and constellation | Available above 700px with hover and a fine primary pointer. | Disabled; the logo navigates home immediately. |
+| Idle meteor shower | Available above 700px with hover and a fine primary pointer. | Disabled; the logo navigates home immediately. |
 | Shooting-star wishes | Click a visible star to pause it and display a wish message. | Tap a visible star on Main Quest or Side Quests; regular shooting stars remain hidden in the touchscreen Playground. |
 | Listening music shelf | Hovering a cover starts its looping preview. Clicking expands it, and clicking the expanded cover opens Spotify. | Holding a cover starts its preview. Dragging across covers switches tracks and smoothly scrolls near the shelf edges. Tapping expands it, and tapping the expanded cover opens Spotify. |
 | Pokémon card shelf | Hovering identifies a card. Clicking expands it, and clicking the expanded card opens TCG Collector. | Tapping expands a card, and tapping the expanded card opens TCG Collector. Arrow navigation keeps the selected card visible for both input methods. |

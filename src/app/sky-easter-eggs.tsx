@@ -1,9 +1,8 @@
 "use client";
 
-import type { CSSProperties, MouseEvent } from "react";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 
-const CONSTELLATION_EVENT = "nicole:constellation";
 const IDLE_DELAY = 10_000;
 const MOBILE_QUERY = "(max-width: 700px), (hover: none), (pointer: coarse)";
 
@@ -57,41 +56,6 @@ function meteorStyle(star: Star): CSSProperties {
   } as CSSProperties;
 }
 
-// Delay normal navigation briefly to recognize repeated clicks on every route.
-// Mobile and modified clicks retain native navigation behavior.
-export function useCalligraphyEasterEgg() {
-  const clicks = useRef(0);
-  const lastClick = useRef(0);
-  const navigationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  useEffect(() => () => clearTimeout(navigationTimer.current), []);
-
-  return (event: MouseEvent<HTMLAnchorElement>) => {
-    if (window.matchMedia(MOBILE_QUERY).matches) {
-      clearTimeout(navigationTimer.current);
-      clicks.current = 0;
-      return;
-    }
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    clearTimeout(navigationTimer.current);
-    const now = Date.now();
-    clicks.current = now - lastClick.current < 1_500 ? clicks.current + 1 : 1;
-    lastClick.current = now;
-
-    if (clicks.current >= 5) {
-      clicks.current = 0;
-      window.dispatchEvent(new Event(CONSTELLATION_EVENT));
-      return;
-    }
-
-    navigationTimer.current = setTimeout(() => {
-      if (window.location.pathname === "/") window.scrollTo({ top: 0 });
-      else window.location.assign("/");
-    }, 300);
-  };
-}
-
 function WishStar({ star, meteor = false }: { star: Star; meteor?: boolean }) {
   const [paused, setPaused] = useState(false);
   const [wish, setWish] = useState(false);
@@ -140,8 +104,6 @@ export function SkyEasterEggs({ stars, playground = false }: {
   playground?: boolean;
 }) {
   const [idle, setIdle] = useState(false);
-  const [constellation, setConstellation] = useState(false);
-  const [constellationRun, setConstellationRun] = useState(0);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -200,30 +162,6 @@ export function SkyEasterEggs({ stars, playground = false }: {
     };
   }, []);
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const mobile = window.matchMedia(MOBILE_QUERY);
-    const dismissOnMobile = () => {
-      if (!mobile.matches) return;
-      clearTimeout(timer);
-      setConstellation(false);
-    };
-    const reveal = () => {
-      if (mobile.matches) return;
-      clearTimeout(timer);
-      setConstellationRun(run => run + 1);
-      setConstellation(true);
-      timer = setTimeout(() => setConstellation(false), 4_000);
-    };
-    window.addEventListener(CONSTELLATION_EVENT, reveal);
-    mobile.addEventListener("change", dismissOnMobile);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener(CONSTELLATION_EVENT, reveal);
-      mobile.removeEventListener("change", dismissOnMobile);
-    };
-  }, []);
-
   return (
     <>
     {idle && (
@@ -242,21 +180,6 @@ export function SkyEasterEggs({ stars, playground = false }: {
         {idle && meteors.map((star, index) => <WishStar key={`meteor-${index}`} star={star} meteor />)}
         {idle && <p className="sky-wish sky-shower-message" role="status">Meteor shower!</p>}
       </div>
-      {constellation && (
-        <figure key={constellationRun} className="sky-constellation" role="status">
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <path d="M20 82V18L80 82V18" />
-            {[[20, 82], [20, 50], [20, 18], [40, 39], [60, 61], [80, 82], [80, 50], [80, 18]].map(([x, y]) => (
-              <polygon
-                key={`${x}-${y}`}
-                transform={`translate(${x} ${y})`}
-                points="0,-3 0.55,-0.55 3,0 0.55,0.55 0,3 -0.55,0.55 -3,0 -0.55,-0.55"
-              />
-            ))}
-          </svg>
-          <figcaption>A little constellation for Nicole.</figcaption>
-        </figure>
-      )}
     </div>
     </>
   );
