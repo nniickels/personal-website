@@ -67,9 +67,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /aria-label="Email"/i);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
-  assert.match(html, /href="\/playground"[^>]*>Playground<\/a>/i);
-  assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
-  assert.ok(html.indexOf(">Playground</a>") < html.indexOf(">Side Quests</a>"));
+  assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Playground<\/span><span class="mobile-only">Play<\/span><\/a>/i);
+  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side Quests<\/span><span class="mobile-only">Side<\/span><\/a>/i);
+  assert.ok(html.indexOf(">Playground</span>") < html.indexOf(">Side Quests</span>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
@@ -153,7 +153,7 @@ test("keeps the phone layout compact without changing wider breakpoints", async 
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.pokemon-card-wheel-item\s*\{[\s\S]*?flex-basis:\s*78px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.home-link,[\s\S]*?\.page-links \.text-btn,[\s\S]*?\.theme-toggle\s*\{[\s\S]*?min-height:\s*44px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.social-link\s*\{[\s\S]*?width:\s*44px[\s\S]*?height:\s*44px/);
-  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.side-quest-index-link\s*\{[\s\S]*?min-height:\s*44px/);
+  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.side-quest-index-link\s*\{[\s\S]*?min-height:\s*32px/);
   assert.match(css, /@media \(max-width: 360px\) \{[\s\S]*?\.mode-serious \.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(1\.75rem, 9vw, 2rem\)/);
   assert.match(source, /\{"\\u2060"\}[\s\S]*?className="external-link-icon"/);
 });
@@ -539,7 +539,7 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.match(html, /aria-label="Google Maps"/i);
   assert.equal(
     (html.match(/href="https:\/\/maps\.app\.goo\.gl\/qet6vnym45NpTQ2XA\?g_st=ic"/g) ?? []).length,
-    2,
+    1,
   );
   assert.doesNotMatch(html, /google\.com\/maps\/contrib/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
@@ -551,7 +551,7 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
   assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
-  assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
+  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main Quest<\/span><span class="mobile-only">Main<\/span><\/a>/i);
   assert.match(html, /aria-label="Side Quests content"/i);
 });
 

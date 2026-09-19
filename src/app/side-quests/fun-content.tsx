@@ -204,9 +204,8 @@ export function FunContent() {
             : spotify?.message ?? "Loading live data…"}
         </p>
         <div className="listening-rankings">
-          {rankingData.map(({ kind, title, count, items }) => (
-            <article className={`ranking-card ranking-card--${kind}`} key={title}>
-              <h3>{title}</h3>
+          {rankingData.map(({ kind, title, count, items }) => {
+            const rankingList = (
               <ol>
                 {Array.from({ length: count }, (_, index) => index).map((index) => (
                   <li key={index}>
@@ -231,14 +230,41 @@ export function FunContent() {
                   </li>
                 ))}
               </ol>
-            </article>
-          ))}
+            );
+
+            return (
+              <article className={`ranking-card ranking-card--${kind}`} key={title}>
+                {kind === "tracks" ? (
+                  <>
+                    <h3>{title}</h3>
+                    {rankingList}
+                  </>
+                ) : (
+                  <>
+                    <div className="desktop-only">
+                      <h3>{title}</h3>
+                      {rankingList}
+                    </div>
+                    <details className="dropdown-entry mobile-only">
+                      <summary><h3>{title}</h3></summary>
+                      {rankingList}
+                    </details>
+                  </>
+                )}
+              </article>
+            );
+          })}
         </div>
       </section>
 
       <section className="section" id="reading">
         <h2>Reading</h2>
-        <p className="placeholder-copy">
+        <ul className="mobile-only interest-list placeholder-copy">
+          <li><strong><cite>The Book of Laughter and Forgetting</cite></strong> — Milan Kundera (Michael Henry Heim translation)</li>
+          <li><strong><cite>Personal Identity</cite></strong> — Derek Parfit (1971)</li>
+          <li><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer"><strong>Joshua Barkman’s works</strong></a></li>
+        </ul>
+        <p className="placeholder-copy desktop-only">
           My current favourite book is{" "}
           <strong><cite>The Book of Laughter and Forgetting</cite></strong> by Milan Kundera (Michael Henry Heim translation).
           I like his essayistic prose and enjoy reading other books within the realm of literary fiction, philosophical fiction,
@@ -252,7 +278,13 @@ export function FunContent() {
 
       <section className="section" id="watching">
         <h2>Watching</h2>
-        <p className="placeholder-copy">
+        <ul className="mobile-only interest-list placeholder-copy">
+          <li><a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer"><strong>Jacob Geller</strong></a></li>
+          <li><a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer"><strong>Daryl Talks Games</strong></a></li>
+          <li><strong><cite>Mononoke</cite></strong> (2007)</li>
+          <li><strong><cite>BoJack Horseman</cite></strong></li>
+        </ul>
+        <p className="placeholder-copy desktop-only">
           My favourite YouTube channels are{" "}
           <strong>
             <cite>
@@ -276,7 +308,13 @@ export function FunContent() {
 
       <section className="section" id="gaming">
         <h2>Gaming</h2>
-        <p className="placeholder-copy">
+        <ul className="mobile-only interest-list placeholder-copy">
+          <li><a className="text-link" href="https://store.steampowered.com/app/208650/Batman_Arkham_Knight/" target="_blank" rel="noreferrer"><strong><cite>Batman: Arkham Knight</cite></strong></a></li>
+          <li><a className="text-link" href="https://store.steampowered.com/app/2240620/UNBEATABLE/" target="_blank" rel="noreferrer"><strong><cite>UNBEATABLE</cite></strong></a></li>
+          <li><strong><cite>Minecraft</cite></strong></li>
+          <li><strong><cite>League of Legends</cite></strong></li>
+        </ul>
+        <p className="placeholder-copy desktop-only">
           My favourite games include{" "}
           <a
             className="text-link"
@@ -391,7 +429,7 @@ export function FunContent() {
 
       <section className="section" id="food" data-expand-on-navigate="true">
         <h2>Food</h2>
-        <p className="placeholder-copy">
+        <p className="placeholder-copy desktop-only">
           I'm a big snacker, and tend to eat more appetizers and starters than fully balanced meals...
           My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
           However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare!

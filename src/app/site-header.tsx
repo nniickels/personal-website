@@ -17,16 +17,19 @@ export function SiteHeader({ page }: { page: SitePage }) {
           <nav className="page-links" aria-label="Primary navigation">
             {page !== "playground" && (
               <a className="text-btn mode-switch" href="/playground">
-                Playground
+                <span className="desktop-only">Playground</span>
+                <span className="mobile-only">Play</span>
               </a>
             )}
             {page === "playground" ? (
               <>
                 <a className="text-btn mode-switch" href="/">
-                  Main Quest
+                  <span className="desktop-only">Main Quest</span>
+                  <span className="mobile-only">Main</span>
                 </a>
                 <a className="text-btn mode-switch" href="/side-quests">
-                  Side Quests
+                  <span className="desktop-only">Side Quests</span>
+                  <span className="mobile-only">Side</span>
                 </a>
               </>
             ) : (
@@ -35,7 +38,8 @@ export function SiteHeader({ page }: { page: SitePage }) {
                 href={page === "serious" ? "/side-quests" : "/"}
                 aria-label={`Switch to ${page === "serious" ? "Side Quests" : "Main Quest"}`}
               >
-                {page === "serious" ? "Side Quests" : "Main Quest"}
+                <span className="desktop-only">{page === "serious" ? "Side Quests" : "Main Quest"}</span>
+                <span className="mobile-only">{page === "serious" ? "Side" : "Main"}</span>
               </a>
             )}
           </nav>

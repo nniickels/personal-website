@@ -59,7 +59,10 @@ export function Portfolio({ mode }: { mode: Mode }) {
           <div className="hero-description">
             {mode === "serious" ? (
               <>
-                <p>
+                <p className="mobile-only">
+                  Hello! Welcome to my personal website (best experienced on desktop). Below is a quick overview of my academic profile.
+                </p>
+                <p className="desktop-only">
                   Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University
                   of Toronto. Welcome to my personal website! My research interests include galaxy formation and evolution,
                   observational cosmology, early-universe physics, and stellar remnants. Below is a
@@ -69,12 +72,17 @@ export function Portfolio({ mode }: { mode: Mode }) {
 
               </>
             ) : (
-              <p>
-                Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
-                very interested in philosophy (namely metaphysics and epistemology, though
-                interdisciplinary questions are my favourite). I have many interests, collections,
-                and hobbies I'd like to share with you on this page... Please enjoy!
-              </p>
+              <>
+                <p className="mobile-only">
+                  I also have many interests, collections, and hobbies outside of astrophysics and career-goal-adjacent stuff!
+                </p>
+                <p className="desktop-only">
+                  Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
+                  very interested in philosophy (namely metaphysics and epistemology, though
+                  interdisciplinary questions are my favourite). I have many interests, collections,
+                  and hobbies I'd like to share with you on this page... Please enjoy!
+                </p>
+              </>
             )}
           </div>
         </section>

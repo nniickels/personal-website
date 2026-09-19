@@ -1741,7 +1741,31 @@ button {
   }
 }
 
+/* Phone copy follows the same breakpoint as the compact phone layout. */
+.mobile-only {
+  display: none;
+}
+
+.interest-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.interest-list li + li {
+  margin-top: 0.3rem;
+}
+
 @media (max-width: 520px) {
+  .desktop-only,
+  .project-description,
+  .service-description {
+    display: none;
+  }
+
+  .mobile-only {
+    display: revert;
+  }
+
   :root[data-theme="dark"] .night-star {
     --night-star-size-scale: 0.68;
   }
@@ -1866,6 +1890,10 @@ button {
     gap: 0;
   }
 
+  .mode-fun .social-link {
+    height: 24px;
+  }
+
   .social-link svg {
     width: 1.08rem;
     height: 1.08rem;
@@ -1949,13 +1977,13 @@ button {
   }
 
   .side-quest-index {
-    gap: 0.4rem;
+    gap: 0.1rem;
     font-size: 0.7rem;
   }
 
   .side-quest-index-link {
     display: inline-flex;
-    min-height: 44px;
+    min-height: 32px;
     align-items: center;
     justify-content: center;
   }
@@ -2015,9 +2043,27 @@ button {
     gap: 0.35rem;
   }
 
+  #watching .interest-list,
+  #gaming .interest-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem 1.5rem;
+  }
+
+  #watching .interest-list li,
+  #gaming .interest-list li {
+    margin-top: 0;
+  }
+
   .gaming-widgets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.9rem;
     margin-top: 1rem;
+  }
+
+  .gaming-widget {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .pokemon-card-lightbox,
