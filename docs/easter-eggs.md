@@ -27,7 +27,7 @@ Each regular shooting star has an invisible 96×96-pixel button centered around 
 
 Clicking or tapping a target pauses its motion for 1,600 ms and displays “Make a wish ✧” for 3,200 ms. Repeated clicks reset those timers. During a shower, wish messages sit above the “Meteor shower!” pill so they do not overlap it.
 
-Targets are hidden during the invisible portion of each flight. Keyboard focus pauses a visible target; it may remain paused while keyboard focus remains on it. Light mode and reduced-motion settings hide moving stars and their targets. Regular shooting stars are also hidden in the touchscreen Playground.
+Targets are hidden during the invisible portion of each flight. Keyboard focus pauses a visible target; it may remain paused while keyboard focus remains on it. Light mode and reduced-motion settings hide moving stars and their targets. Touch devices show one regular shooting star on a 24-second cycle, including in Playground.
 
 ## Idle meteor shower
 
@@ -62,7 +62,7 @@ JavaScript guards prevent activation and respond to media-query changes. Matchin
 
 The ordinary background stars and eligible shooting-star wishes are separate from this desktop-only rule. Reduced-motion rules hide moving meteors, and status messages use `role="status"`. Timers, observers, and listeners are cleaned up when their components unmount.
 
-The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation, and reduced motion disables twinkling. Across all pages, devices matching `(hover: none), (pointer: coarse)` animate only eight background stars; the other visible stars remain static. Viewports wider than 520px show 96 stars, while widths up to 520px show 64 smaller stars, including the eight that can animate. In the touchscreen Playground, twinkle durations are 2.4 times longer and regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
+The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation, and reduced motion disables twinkling. Across all pages, devices matching `(hover: none), (pointer: coarse)` animate only 16 background stars; the other visible stars remain static. Viewports wider than 520px show 96 stars, while widths up to 520px show 64 smaller stars, including the 16 that can animate. In the touchscreen Playground, twinkle durations are 1.8 times longer and one regular shooting star appears on a 24-second cycle. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
 
 ## Known limitation
 

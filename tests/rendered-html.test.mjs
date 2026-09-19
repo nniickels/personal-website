@@ -775,7 +775,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.playground-index\s*\{[\s\S]*?display:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.mobile-playground-accordion \.simulator-advanced-reveal[\s\S]*?transition:\s*none/i);
   assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.variable-guide \.simulator-advanced-reveal,[\s\S]*?\.variable-guide \.simulator-advanced-content[\s\S]*?transition:\s*none/i);
-  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.night-sky--playground \.night-star[\s\S]*?animation-duration:\s*var\(--touch-twinkle-duration\)[\s\S]*?\.night-sky--playground \.shooting-star[\s\S]*?display:\s*none/i);
+  assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.night-sky--playground \.night-star[\s\S]*?animation-duration:\s*var\(--touch-twinkle-duration\)/i);
   assert.match(css, /@media \(hover: none\), \(pointer: coarse\)[\s\S]*?\.stellar-timeline-scrubber\s*\{[\s\S]*?z-index:\s*4[\s\S]*?height:\s*44px[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /\.mobile-experiment-item\.is-open \.mobile-experiment-caret/i);
   assert.match(css, /\.experiment-is-paused,[\s\S]*?animation-play-state:\s*paused !important/i);

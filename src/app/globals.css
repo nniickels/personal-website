@@ -408,15 +408,21 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
 }
 
 @media (hover: none), (pointer: coarse) {
-  .sky-easter-eggs--playground .shooting-star-target:not(.shooting-star-target--meteor) {
+  /* Keep one occasional flight on touch devices, including Playground. */
+  .sky-meteors > .shooting-star-target:not(.shooting-star-target--meteor) {
+    animation-duration: 24s;
+  }
+
+  .sky-meteors > .shooting-star-target:not(.shooting-star-target--meteor):nth-of-type(n + 2) {
     display: none;
+    animation: none;
   }
 }
 
 @media (hover: none) and (prefers-reduced-motion: no-preference),
   (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  /* Animate eight of the 96 stars; these also survive the phone's 3n filter. */
-  .night-star:not(:nth-child(12n + 1)) {
+  /* Animate 16 of the 96 stars; these also survive the phone's 3n filter. */
+  .night-star:not(:nth-child(6n + 1)) {
     animation: none;
     opacity: 0.35;
   }
