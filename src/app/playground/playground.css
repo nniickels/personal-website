@@ -53,7 +53,6 @@
     animation-duration: var(--touch-twinkle-duration);
   }
 
-
   .stellar-timeline-scrubber {
     z-index: 4;
     top: calc(0.9rem - 16px);

@@ -81,7 +81,7 @@ export function NightSky({ className = "" }: { className?: string } = {}) {
                 "--star-color": star.colour,
                 "--star-peak": star.peak,
                 "--twinkle-duration": star.duration,
-                "--touch-twinkle-duration": `${(Number.parseFloat(star.duration) * 1.8).toFixed(2)}s`,
+                "--touch-twinkle-duration": `${(Number.parseFloat(star.duration) * 2.4).toFixed(2)}s`,
                 "--twinkle-delay": star.delay,
               } as CSSProperties
             }

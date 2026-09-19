@@ -408,11 +408,12 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
 }
 
 @media (hover: none), (pointer: coarse) {
-  /* Keep one occasional flight on touch devices, including Playground. */
+  /* Keep one occasional flight on touch devices outside Playground. */
   .sky-meteors > .shooting-star-target:not(.shooting-star-target--meteor) {
     animation-duration: 24s;
   }
 
+  .sky-easter-eggs--playground .shooting-star-target,
   .sky-meteors > .shooting-star-target:not(.shooting-star-target--meteor):nth-of-type(n + 2) {
     display: none;
     animation: none;
@@ -421,8 +422,9 @@ body:has(.sky-easter-eggs--shower) :is(.layout, .bar) {
 
 @media (hover: none) and (prefers-reduced-motion: no-preference),
   (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  /* Animate 16 of the 96 stars; these also survive the phone's 3n filter. */
-  .night-star:not(:nth-child(6n + 1)) {
+  /* Animate 16 stars, or eight in Playground; both survive the phone's 3n filter. */
+  .night-star:not(:nth-child(6n + 1)),
+  .night-sky--playground .night-star:not(:nth-child(12n + 1)) {
     animation: none;
     opacity: 0.35;
   }
