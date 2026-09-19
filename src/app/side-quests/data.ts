@@ -297,7 +297,7 @@ export const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => (
 }));
 
 export const foodPhotoOrder = [
-  20, 18, 15, 2, 34, 22, 35, 24, 26, 13, 28, 17, 11, 19, 1, 27, 6,
+  18, 15, 2, 34, 22, 35, 24, 26, 13, 28, 17, 11, 19, 1, 27, 6,
   30, 7, 4, 9, 33, 31, 10, 23, 3, 8, 29, 14, 16, 12, 25, 21, 32, 36, 37,
 ] as const;
 

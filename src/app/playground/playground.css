@@ -2304,6 +2304,40 @@
   .mobile-experiment-heading { display: block; margin: 0; }
   .experiment-slot:not(.is-open) > .experiment-panel { display: none; }
   .experiment-placeholder { min-height: 200px; }
+
+  .simulator-workspace,
+  .stellar-workspace,
+  .lensing-workspace,
+  .resonance-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1rem;
+  }
+
+  /* Place settings above the scene and actions below it in phone layouts. */
+  .simulator-controls {
+    display: contents;
+  }
+
+  .simulator-controls > :not(.simulator-actions) {
+    order: -1;
+  }
+
+  .simulator-controls > .simulator-actions {
+    order: 1;
+  }
+
+  .growth-chart-figure,
+  .stellar-timeline-panel {
+    order: 2;
+  }
+
+  .stellar-controls > .stellar-actions {
+    order: 3;
+  }
+
+  .growth-chart-figure {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (hover: none), (pointer: coarse) {
