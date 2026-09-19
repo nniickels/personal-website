@@ -2,6 +2,15 @@
 
 The two effects share the site shell and are available through `NightSky` on Main Quest, Side Quests, and Playground, subject to the device and motion rules below. They do not require an API, account, or additional asset downloads.
 
+## Overview
+
+| Feature | Trigger | Behavior |
+|---------|---------|----------|
+| Shooting-star wish | Click or tap within the invisible 96×96-pixel target around a visible shooting star. | Pauses the star for 1.6 seconds and shows “Make a wish ✧” for 3.2 seconds. |
+| Meteor shower | Leave a supported desktop page idle for 10 seconds in dark mode. | Adds 12 foreground and 18 background meteors, dims the page content, and displays “Meteor shower!” at the bottom. Activity ends the shower. |
+
+The meteor shower is disabled at widths of 700px or less, on devices without hover, or with a coarse primary pointer. The calligraphy logo is a standard home link with immediate navigation on every device. Moving meteors are disabled when reduced motion is requested.
+
 ## Source map
 
 - `src/app/sky-easter-eggs.tsx`: effects, timers, device checks, meteor configurations.
