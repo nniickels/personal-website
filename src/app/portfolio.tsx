@@ -19,12 +19,13 @@ const seriousLinks: readonly SocialLink[] = [
 const funLinks: readonly SocialLink[] = [
   { name: "Pinterest", href: "https://ca.pinterest.com/nnickelsj/", icon: "pinterest" },
   { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime", icon: "spotify" },
-  { name: "Instagram", href: "https://www.instagram.com/nicolejiang_/", icon: "instagram" },
   {
     name: "Google Maps",
     href: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
     icon: "maps",
   },
+  { name: "AniList", href: "https://anilist.co/user/niickels/", icon: "anilist" },
+  { name: "Instagram", href: "https://www.instagram.com/nicolejiang_/", icon: "instagram" },
 ] as const;
 
 export function Portfolio({ mode }: { mode: Mode }) {

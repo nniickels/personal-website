@@ -1841,8 +1841,8 @@ button {
 
   .social-links {
     display: grid;
-    grid-template-columns: repeat(2, 44px);
-    gap: 0 0.2rem;
+    grid-template-columns: repeat(3, 28px);
+    gap: 0.4rem 0.5rem;
     justify-content: end;
   }
 
@@ -1857,6 +1857,7 @@ button {
   }
 
   .mode-fun .social-link {
+    width: 28px;
     height: 24px;
   }
 
