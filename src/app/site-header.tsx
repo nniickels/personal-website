@@ -15,7 +15,7 @@ export function SiteHeader({ page }: { page: SitePage }) {
           <nav className="page-links" aria-label="Primary navigation">
             {page !== "playground" && (
               <a className="text-btn mode-switch" href="/playground">
-                <span className="desktop-only">Playground</span>
+                <span className="desktop-only">Play</span>
                 <span className="mobile-only">Play</span>
               </a>
             )}

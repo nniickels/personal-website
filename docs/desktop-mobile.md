@@ -6,7 +6,7 @@ Layout responds to viewport dimensions, while touch-specific behavior responds t
 
 | Feature | Wide layout | Compact layout |
 |---------|-----------|----------|
-| Layout and navigation | Uses wider gutters, larger type and media, and full page-link labels. | Uses compact gutters, smaller type and media, and the shortened “Play” navigation label at phone widths. “Main” and “Side” use the same labels at every width. |
+| Layout and navigation | Uses wider gutters and larger type and media. Navigation uses “Main”, “Side”, and “Play”; the Play page retains its “Playground” title. | Uses compact gutters and smaller type and media, with the same navigation labels. |
 | Main copy | Shows the full introduction, project descriptions, and service descriptions. | Uses a shorter introduction and hides project and service descriptions at phone widths. |
 | Side section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
 | Side profile icons | Shows Pinterest, Spotify, Google Maps, AniList, and Instagram in one row. AniList links to `https://anilist.co/user/niickels/` and uses a smaller logo to balance its visual weight. | At phone widths, uses two rows: Pinterest, Spotify, and Google Maps above AniList and Instagram, with 8px horizontal and 6.4px vertical gaps. |

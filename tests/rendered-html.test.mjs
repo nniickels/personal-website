@@ -67,9 +67,9 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /aria-label="Email"/i);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
-  assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Playground<\/span><span class="mobile-only">Play<\/span><\/a>/i);
+  assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Play<\/span><span class="mobile-only">Play<\/span><\/a>/i);
   assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
-  assert.ok(html.indexOf(">Playground</span>") < html.indexOf(">Side</span>"));
+  assert.ok(html.indexOf(">Play</span>") < html.indexOf(">Side</span>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
