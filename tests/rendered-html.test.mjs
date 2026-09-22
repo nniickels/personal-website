@@ -68,8 +68,8 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Playground<\/span><span class="mobile-only">Play<\/span><\/a>/i);
-  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side Quests<\/span><span class="mobile-only">Side<\/span><\/a>/i);
-  assert.ok(html.indexOf(">Playground</span>") < html.indexOf(">Side Quests</span>"));
+  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
+  assert.ok(html.indexOf(">Playground</span>") < html.indexOf(">Side</span>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
@@ -211,7 +211,7 @@ test("publishes the résumé, education logos, and single-character favicon", as
   assert.deepEqual([...ico.subarray(0, 4)], [0, 0, 1, 0]);
 });
 
-test("keeps the Side Quests interest sections and stats in the requested order", async () => {
+test("keeps the Side interest sections and stats in the requested order", async () => {
   const source = await portfolioSource();
   const headings = [
     "<h2>Photo Gallery</h2>",
@@ -342,7 +342,7 @@ test("keeps the Side Quests interest sections and stats in the requested order",
     source,
     /const sideQuestNavigationRows[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"[\s\S]*?href: "#gaming"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#food"/,
   );
-  assert.match(source, /<nav className="side-quest-index" aria-label="Side Quests sections">/);
+  assert.match(source, /<nav className="side-quest-index" aria-label="Side sections">/);
   assert.match(source, /id="natural-things"/);
   assert.match(source, /id="scrapbook"/);
   assert.match(source, /id="pokemon-cards"/);
@@ -524,12 +524,12 @@ test("keeps the Side Quests interest sections and stats in the requested order",
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });
 
-test("publishes Side Quests as its own shareable page", async () => {
+test("publishes Side as its own shareable page", async () => {
   const response = await render("/side-quests");
   assert.equal(response.status, 200);
 
   const html = await response.text();
-  assert.match(html, /<title>Side Quests — Nicole Jiang<\/title>/i);
+  assert.match(html, /<title>Side — Nicole Jiang<\/title>/i);
   assert.match(html, /name="description"[^>]*photography, music, reading, games, collections, and food/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side-quests"/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
@@ -551,8 +551,8 @@ test("publishes Side Quests as its own shareable page", async () => {
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
   assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
-  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main Quest<\/span><span class="mobile-only">Main<\/span><\/a>/i);
-  assert.match(html, /aria-label="Side Quests content"/i);
+  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main<\/span><span class="mobile-only">Main<\/span><\/a>/i);
+  assert.match(html, /aria-label="Side content"/i);
 });
 
 test("publishes an interactive, shareable astronomy Playground", async () => {

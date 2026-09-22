@@ -189,8 +189,8 @@ test("all experiment content and scientific explanations remain available", asyn
   assert.match(html, /Play growth/i);
   assert.match(html, /Drag to rotate in 3D/i);
   assert.match(html, /Drag to move and rotate the source galaxy/i);
-  assert.match(html, /href="\/"[^>]*>Main Quest<\/a>/i);
-  assert.match(html, /href="\/side-quests"[^>]*>Side Quests<\/a>/i);
+  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main<\/span><span class="mobile-only">Main<\/span><\/a>/i);
+  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
 
 });
 

@@ -7,7 +7,7 @@ const description =
 const socialDescription = "Personal website and portfolio.";
 
 export const metadata: Metadata = {
-  title: "Side Quests — Nicole Jiang",
+  title: "Side — Nicole Jiang",
   description,
   alternates: { canonical: "/side-quests" },
   openGraph: {

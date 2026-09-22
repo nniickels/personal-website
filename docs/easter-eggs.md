@@ -1,6 +1,6 @@
 # Astronomy Easter eggs
 
-The two effects share the site shell and are available through `NightSky` on Main Quest, Side Quests, and Playground, subject to the device and motion rules below. They do not require an API, account, or additional asset downloads.
+The two effects share the site shell and are available through `NightSky` on Main, Side, and Playground, subject to the device and motion rules below. They do not require an API, account, or additional asset downloads.
 
 ## Overview
 
@@ -27,7 +27,7 @@ Each regular shooting star has an invisible 96×96-pixel button centered around 
 
 Clicking or tapping a target pauses its motion for 1,600 ms and displays “Make a wish ✧” for 3,200 ms. Repeated clicks reset those timers. During a shower, wish messages sit above the “Meteor shower!” pill so they do not overlap it.
 
-Targets are hidden during the invisible portion of each flight. Keyboard focus pauses a visible target; it may remain paused while keyboard focus remains on it. Light mode and reduced-motion settings hide moving stars and their targets. Touch devices show one regular shooting star on a 24-second cycle on Main Quest and Side Quests; regular shooting stars are hidden in Playground.
+Targets are hidden during the invisible portion of each flight. Keyboard focus pauses a visible target; it may remain paused while keyboard focus remains on it. Light mode and reduced-motion settings hide moving stars and their targets. Touch devices show one regular shooting star on a 24-second cycle on Main and Side; regular shooting stars are hidden in Playground.
 
 ## Idle meteor shower
 
@@ -62,7 +62,7 @@ JavaScript guards prevent activation and respond to media-query changes. Matchin
 
 The ordinary background stars and eligible shooting-star wishes are separate from this desktop-only rule. Reduced-motion rules hide moving meteors, and status messages use `role="status"`. Timers, observers, and listeners are cleaned up when their components unmount.
 
-The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation, and reduced motion disables twinkling. Devices matching `(hover: none), (pointer: coarse)` animate only 16 background stars on Main Quest and Side Quests, and eight in Playground; the other visible stars remain static. Viewports wider than 520px show 96 stars, while widths up to 520px show 64 smaller stars, including all stars eligible to animate. In the touchscreen Playground, twinkle durations are 2.4 times longer and regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
+The starfield uses smooth CSS easing without `steps()` frame-rate overrides. Light mode pauses background-star animation, and reduced motion disables twinkling. Devices matching `(hover: none), (pointer: coarse)` animate only 16 background stars on Main and Side, and eight in Playground; the other visible stars remain static. Viewports wider than 520px show 96 stars, while widths up to 520px show 64 smaller stars, including all stars eligible to animate. In the touchscreen Playground, twinkle durations are 2.4 times longer and regular shooting stars are hidden. These decorative adjustments are independent of experiment playback, which pauses outside its viewport margin or in a hidden tab.
 
 ## Known limitation
 

@@ -147,9 +147,9 @@ export function FunContent() {
   return (
     <div
       className="mode-content fun-content"
-      aria-label="Side Quests content"
+      aria-label="Side content"
     >
-      <nav className="side-quest-index" aria-label="Side Quests sections">
+      <nav className="side-quest-index" aria-label="Side sections">
         {sideQuestNavigationRows.map((row, rowIndex) => (
           <div className="side-quest-index-row" key={rowIndex}>
             {row.map((item, itemIndex) => (

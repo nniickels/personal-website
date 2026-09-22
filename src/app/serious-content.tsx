@@ -52,7 +52,7 @@ const experience = [
 
 export function SeriousContent() {
   return (
-    <div className="mode-content serious-content" aria-label="Main Quest content">
+    <div className="mode-content serious-content" aria-label="Main content">
       <section className="section" id="education">
         <h2>Education</h2>
         <div className="education-entries">

@@ -22,11 +22,11 @@ export function SiteHeader({ page }: { page: SitePage }) {
             {page === "playground" ? (
               <>
                 <a className="text-btn mode-switch" href="/">
-                  <span className="desktop-only">Main Quest</span>
+                  <span className="desktop-only">Main</span>
                   <span className="mobile-only">Main</span>
                 </a>
                 <a className="text-btn mode-switch" href="/side-quests">
-                  <span className="desktop-only">Side Quests</span>
+                  <span className="desktop-only">Side</span>
                   <span className="mobile-only">Side</span>
                 </a>
               </>
@@ -34,9 +34,9 @@ export function SiteHeader({ page }: { page: SitePage }) {
               <a
                 className="text-btn mode-switch"
                 href={page === "serious" ? "/side-quests" : "/"}
-                aria-label={`Switch to ${page === "serious" ? "Side Quests" : "Main Quest"}`}
+                aria-label={`Switch to ${page === "serious" ? "Side" : "Main"}`}
               >
-                <span className="desktop-only">{page === "serious" ? "Side Quests" : "Main Quest"}</span>
+                <span className="desktop-only">{page === "serious" ? "Side" : "Main"}</span>
                 <span className="mobile-only">{page === "serious" ? "Side" : "Main"}</span>
               </a>
             )}
