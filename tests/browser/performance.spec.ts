@@ -24,7 +24,7 @@ test("home renders without side-quest or simulation code", async ({ page }) => {
 test("galleries defer original-size media and preserve the full viewer", async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
-  await page.goto("/side-quests");
+  await page.goto("/side");
   await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(0);
   expect(requests.some((url) => /media\/photos-/.test(url))).toBe(false);
   await page.locator("#photo-gallery summary").click();
@@ -190,12 +190,12 @@ test("all experiment content and scientific explanations remain available", asyn
   assert.match(html, /Drag to rotate in 3D/i);
   assert.match(html, /Drag to move and rotate the source galaxy/i);
   assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main<\/span><span class="mobile-only">Main<\/span><\/a>/i);
-  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
+  assert.match(html, /href="\/side"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
 
 });
 
 test("shelf image proportions and enlarged card quality are preserved", async ({ page }, testInfo) => {
-  await page.goto("/side-quests");
+  await page.goto("/side");
   const cover = page.locator(".listening-cover-thumbnail img").first();
   await cover.scrollIntoViewIfNeeded();
   const coverBox = await cover.boundingBox();

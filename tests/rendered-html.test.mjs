@@ -68,7 +68,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Play<\/span><span class="mobile-only">Play<\/span><\/a>/i);
-  assert.match(html, /href="\/side-quests"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
+  assert.match(html, /href="\/side"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
   assert.ok(html.indexOf(">Play</span>") < html.indexOf(">Side</span>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
@@ -107,7 +107,7 @@ test("publishes search-engine discovery files", async () => {
   assert.equal(sitemapResponse.status, 200);
   const sitemap = await sitemapResponse.text();
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/<\/loc>/i);
-  assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/side-quests<\/loc>/i);
+  assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/side<\/loc>/i);
   assert.match(sitemap, /<loc>https:\/\/nicolejiang\.com\/playground<\/loc>/i);
   assert.doesNotMatch(sitemap, /<priority>|<changefreq>/i);
 });
@@ -524,14 +524,22 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.doesNotMatch(css, /\.dropdown-entry summary::after\s*\{[\s\S]*?content:\s*"\+"/i);
 });
 
+test("redirects the previous Side route to its canonical URL", async () => {
+  const response = await render("/side-quests?from=bookmark");
+  assert.equal(response.status, 308);
+  const destination = new URL(response.headers.get("location"), "http://localhost");
+  assert.equal(destination.pathname, "/side");
+  assert.equal(destination.search, "?from=bookmark");
+});
+
 test("publishes Side as its own shareable page", async () => {
-  const response = await render("/side-quests");
+  const response = await render("/side");
   assert.equal(response.status, 200);
 
   const html = await response.text();
   assert.match(html, /<title>Side — Nicole Jiang<\/title>/i);
   assert.match(html, /name="description"[^>]*photography, music, reading, games, collections, and food/i);
-  assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side-quests"/i);
+  assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side"/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, /aria-label="Pinterest"/i);
   assert.match(html, /aria-label="Spotify"/i);
@@ -545,7 +553,7 @@ test("publishes Side as its own shareable page", async () => {
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);
   assert.match(html, /property="og:description"[^>]*content="Personal website and portfolio\."/i);
   assert.match(html, /property="og:site_name"[^>]*content="Nicole Jiang"/i);
-  assert.match(html, /property="og:url"[^>]*content="https:\/\/nicolejiang\.com\/side-quests"/i);
+  assert.match(html, /property="og:url"[^>]*content="https:\/\/nicolejiang\.com\/side"/i);
   assert.match(html, /property="og:image"[^>]*content="https:\/\/nicolejiang\.com\/og\.png\?v=8"/i);
   assert.match(html, /name="twitter:title"[^>]*content="Nicole Jiang"/i);
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);

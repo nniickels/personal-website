@@ -9,10 +9,10 @@ const socialDescription = "Personal website and portfolio.";
 export const metadata: Metadata = {
   title: "Side — Nicole Jiang",
   description,
-  alternates: { canonical: "/side-quests" },
+  alternates: { canonical: "/side" },
   openGraph: {
     type: "website",
-    url: "/side-quests",
+    url: "/side",
     siteName: "Nicole Jiang",
     title: "Nicole Jiang",
     description: socialDescription,
@@ -33,6 +33,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SideQuestsPage() {
+export default function SidePage() {
   return <Portfolio mode="fun" />;
 }

@@ -28,8 +28,10 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | Route | Description |
 |-------|-------------|
 | `/` | Main — résumé-style education, research, projects, and service |
-| `/side-quests` | Side — expandable photos, listening previews and lifetime stats, reading, watching, recently played Steam game names, collections, and food |
+| `/side` | Side — expandable photos, listening previews and lifetime stats, reading, watching, recently played Steam game names, collections, and food |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
+
+The previous `/side-quests` route permanently redirects to `/side`.
 
 All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
 

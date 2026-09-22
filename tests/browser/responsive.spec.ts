@@ -14,7 +14,7 @@ test("reading backdrop does not create sideways scrolling in WebKit", async ({ p
 
   for (const width of [520, 521, 700, 820, 848, 1440]) {
     await page.setViewportSize({ width, height: 1180 });
-    for (const route of ["/", "/side-quests", "/playground"]) {
+    for (const route of ["/", "/side", "/playground"]) {
       await page.goto(route);
       await expect(page.locator("h1")).toBeVisible();
       for (const theme of ["light", "dark"] as const) {

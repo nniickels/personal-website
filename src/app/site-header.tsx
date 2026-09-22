@@ -25,7 +25,7 @@ export function SiteHeader({ page }: { page: SitePage }) {
                   <span className="desktop-only">Main</span>
                   <span className="mobile-only">Main</span>
                 </a>
-                <a className="text-btn mode-switch" href="/side-quests">
+                <a className="text-btn mode-switch" href="/side">
                   <span className="desktop-only">Side</span>
                   <span className="mobile-only">Side</span>
                 </a>
@@ -33,7 +33,7 @@ export function SiteHeader({ page }: { page: SitePage }) {
             ) : (
               <a
                 className="text-btn mode-switch"
-                href={page === "serious" ? "/side-quests" : "/"}
+                href={page === "serious" ? "/side" : "/"}
                 aria-label={`Switch to ${page === "serious" ? "Side" : "Main"}`}
               >
                 <span className="desktop-only">{page === "serious" ? "Side" : "Main"}</span>

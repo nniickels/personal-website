@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: "https://nicolejiang.com/",
     },
     {
-      url: "https://nicolejiang.com/side-quests",
+      url: "https://nicolejiang.com/side",
     },
     {
       url: "https://nicolejiang.com/playground",
