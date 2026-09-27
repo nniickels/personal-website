@@ -35,10 +35,6 @@
 .mobile-experiment-heading { display: none; }
 .experiment-slot { scroll-margin-top: calc(var(--header-height) + 1rem); }
 
-.playground-desktop-experiments {
-  display: contents;
-}
-
 .experiment-is-paused,
 .experiment-is-paused *,
 .experiment-is-paused *::before,
@@ -120,10 +116,6 @@
   .mobile-experiment-panel > .orbital-resonance-toy {
     padding-top: 0.5rem;
     border-top: 0;
-  }
-
-  .playground-desktop-experiments {
-    display: none;
   }
 }
 
@@ -2205,7 +2197,7 @@
   transform: scale(1.15);
 }
 
-.stellar-timeline button[aria-pressed="true"] > .stellar-marker-glow[data-ready] {
+.stellar-timeline button[aria-pressed="true"] > span[data-worker-glow] + .stellar-marker-glow {
   visibility: visible;
 }
 
@@ -2330,9 +2322,6 @@
   .stellar-timeline button small {
     font-size: 0.59rem;
   }
-}
-
-@media (hover: none), (pointer: coarse) {
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -145,7 +145,7 @@ export function SkyEasterEggs({ stars, playground = false }: {
     motion.addEventListener("change", reset);
     mobile.addEventListener("change", reset);
     const observer = new MutationObserver(reset);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-theme", "class"] });
+    observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
     activity();
     return () => {
       clearTimeout(timer);

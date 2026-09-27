@@ -37,7 +37,6 @@ export default function StellarMarker({ active, visible, color }: {
       worker = undefined;
       canvas?.remove();
       canvas = undefined;
-      glow.removeAttribute("data-ready");
       marker.removeAttribute("data-worker-glow");
       if (time !== undefined) {
         const fallback = marker.getAnimations().find((item) =>
@@ -87,7 +86,6 @@ export default function StellarMarker({ active, visible, color }: {
           if (worker !== currentWorker) return;
           if (data.type === "ready") {
             marker.setAttribute("data-worker-glow", "");
-            glow.setAttribute("data-ready", "");
           } else if (data.type === "error") stop();
         };
         currentWorker.onerror = (event) => { event.preventDefault(); stop(); };

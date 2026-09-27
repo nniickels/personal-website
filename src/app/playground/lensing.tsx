@@ -49,13 +49,7 @@ function imageRadii(magnification: number, sourceSize: number) {
   };
 }
 
-export default function GravitationalLensingSandbox({
-  limitFrameRate = false,
-  numberFormat,
-}: {
-  limitFrameRate?: boolean;
-  numberFormat?: Intl.NumberFormat;
-} = {}) {
+export default function GravitationalLensingSandbox() {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const visualRef = useMobileVisualRef<SVGSVGElement>();
   const [sourcePosition, setSourcePosition] = useState({ x: 410, y: 135 });
@@ -111,7 +105,7 @@ export default function GravitationalLensingSandbox({
         cancelAnimationFrame(lensAnimationFrame.current);
       }
     };
-  }, [sourcePosition, isExperimentVisible, limitFrameRate]);
+  }, [sourcePosition, isExperimentVisible]);
 
   const einsteinRadius = clamp(
     55 * Math.sqrt(10 ** (lensLogMass - 12) * (distanceRatio / 0.5)),
@@ -245,7 +239,7 @@ export default function GravitationalLensingSandbox({
             min={10}
             max={13.5}
             step={0.1}
-            displayValue={formatMass(lensLogMass, numberFormat)}
+            displayValue={formatMass(lensLogMass)}
             onChange={setLensLogMass}
           />
           <SimulatorSlider
@@ -277,7 +271,7 @@ export default function GravitationalLensingSandbox({
             </button>
             <button type="button" onClick={resetLensing}>Reset</button>
           </div>
-        </div>), [lensLogMass, distanceRatio, sourceSize, numberFormat]);
+        </div>), [lensLogMass, distanceRatio, sourceSize]);
 
 
 

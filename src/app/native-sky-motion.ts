@@ -213,12 +213,9 @@ export function animateSky(root: HTMLElement) {
     }
     if (pauseChanged) syncPauses();
   });
-  const themeObserver = new MutationObserver((changes) => {
-    if (changes.some((change) => change.attributeName === "class")) queueRefresh();
-    else {
-      if (refreshScope !== "all") refreshScope = "theme";
-      queueChildrenRefresh();
-    }
+  const themeObserver = new MutationObserver(() => {
+    if (refreshScope !== "all") refreshScope = "theme";
+    queueChildrenRefresh();
   });
   const media = ["(max-width: 520px)", "(hover: none)", "(pointer: coarse)", "(prefers-reduced-motion: reduce)"]
     .map((query) => matchMedia(query));
@@ -229,7 +226,7 @@ export function animateSky(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>(".shooting-star-target")
     .forEach((element) => pauseStyles.set(element, pauseSignature(element)));
   observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ["style"] });
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   media.forEach((query) => query.addEventListener("change", queueRefresh));
   focusEvents.forEach((event) => root.addEventListener(event, focusChanged));
   window.addEventListener("resize", resize);

@@ -195,20 +195,13 @@ export default function ListeningCoverWheel() {
     touchPreviewFrameRef.current = window.requestAnimationFrame(updatePreviewUnderFinger);
   };
 
-  const openTrack = (index: number) => {
+  const openTrack = (index: number, preview = true) => {
     preloadImage(imageAssets[listeningTracks[index].image], viewerSizes);
     void preload().then((loaded) => { if (!loaded) closeTrack(); });
-    keepPlayingRef.current = true;
+    keepPlayingRef.current = preview;
+    if (!preview) resetPreview();
     setSelectedIndex(index);
-    void playPreview(index);
-  };
-
-  const openTouchTrack = (index: number) => {
-    preloadImage(imageAssets[listeningTracks[index].image], viewerSizes);
-    void preload().then((loaded) => { if (!loaded) closeTrack(); });
-    keepPlayingRef.current = false;
-    resetPreview();
-    setSelectedIndex(index);
+    if (preview) void playPreview(index);
   };
 
   const clearLongPressTimer = () => {
@@ -300,7 +293,7 @@ export default function ListeningCoverWheel() {
       if (press.previewing) {
         resetPreview();
       } else if (!press.cancelled) {
-        openTouchTrack(index);
+        openTrack(index, false);
       }
     }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {

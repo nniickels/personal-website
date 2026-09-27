@@ -258,12 +258,12 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
   assert.match(source, /window\.scrollTo\(\{ top: press\.startPageScrollY - deltaY \}\)/);
   assert.doesNotMatch(source, /getBoundingClientRect\(\)[\s\S]*?isOutsideCover/);
-  assert.match(source, /handleCoverPointerUp[\s\S]*?openTouchTrack\(index\)/);
+  assert.match(source, /handleCoverPointerUp[\s\S]*?openTrack\(index, false\)/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /if \(press\.previewing\)[\s\S]*?resetPreview\(\)/);
   assert.match(source, /onFocus[\s\S]*?Date\.now\(\) - lastTouchAtRef\.current >= 1_000/);
   assert.match(source, /onContextMenu[\s\S]*?event\.preventDefault\(\)/);
-  assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
+  assert.match(source, /keepPlayingRef\.current = preview[\s\S]*?if \(preview\) void playPreview\(index\)/);
   assert.match(source, /<audio[\s\S]*?loop/);
   assert.match(source, /aria-label="Track preview progress"/);
   assert.match(source, /previewProgress \* 360/);
