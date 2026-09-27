@@ -19,4 +19,6 @@ npm run test:browser
 
 `npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout and phone slider/drag checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Avoid rebuilding the shared `dist` directory while a production preview or browser check is running: the server can retain references to removed asset filenames. Use `npm run start` separately to preview the production site manually.
 
+The [Validate workflow](../.github/workflows/validate.yml) runs the build, Node checks, types, and all browser projects on Ubuntu with Node 24. Failed browser runs retain their traces for seven days. See [Rendering performance validation](performance-validation.md) for coverage and measurement limits.
+
 Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.

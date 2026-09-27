@@ -1,6 +1,7 @@
 # Documentation
 
 - [Local development](local-development.md) — setup, production builds, tests, and image metadata cleanup.
+- [Rendering performance validation](performance-validation.md) — retained changes, regression checks, measured improvements, and remaining limits.
 - [Runtime variables](runtime-variables.md) — environment configuration and secrets.
 - [API routes](api-routes.md) — public endpoints and their purposes.
 - [Desktop and mobile differences](desktop-mobile.md) — layouts, touch controls, and animation behavior.
