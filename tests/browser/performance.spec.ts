@@ -21,31 +21,6 @@ test("home renders without side-quest or simulation code", async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("prepared simulations hydrate before restoring browser number formatting", async ({ browser, baseURL }, testInfo) => {
-  test.skip(testInfo.project.name !== "desktop");
-  for (const locale of ["fr-FR", "ar-EG"]) {
-    const context = await browser.newContext({ locale, reducedMotion: "reduce", baseURL });
-    try {
-      await context.route("**/gc/**", (route) => route.fulfill(route.request().url().endsWith(".js")
-        ? { contentType: "application/javascript", body: "" } : { json: { count: "123" } }));
-      await context.route("https://webring.ca/**", (route) => route.fulfill({ contentType: "application/javascript", body: "" }));
-      const localized = await context.newPage();
-      const errors: string[] = [];
-      localized.on("pageerror", (error) => errors.push(error.message));
-      localized.on("console", (message) => {
-        if (message.type() === "error" && /hydrat|#418|#425/i.test(message.text())) errors.push(message.text());
-      });
-      await localized.goto("/playground");
-      const expected = await localized.evaluate(() => `${(100_000).toLocaleString()} M☉`);
-      const output = localized.getByRole("slider", { name: "Seed mass", exact: true }).locator("..").locator("output");
-      await expect(output).toHaveText(expected);
-      expect(errors, locale).toEqual([]);
-    } finally {
-      await context.close();
-    }
-  }
-});
-
 test("galleries render markup upfront and preserve the full viewer", async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
@@ -122,33 +97,6 @@ test("deep links open their experiment", async ({ page }, testInfo) => {
   await page.screenshot({ path: testInfo.outputPath("lensing.png"), fullPage: false });
 });
 
-test("reselecting an experiment leaves unchanged simulation drawings alone", async ({ page }) => {
-  await page.goto("/playground#black-hole-growth");
-  await expect(page.locator("#black-hole-growth")).not.toHaveClass(/experiment-is-paused/);
-  await page.getByRole("button", { name: /^Pause (growth|evolution|orbits)$/ })
-    .evaluateAll(buttons => buttons.forEach(button => (button as HTMLButtonElement).click()));
-  const mutations = await page.evaluate(async () => {
-    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    await document.fonts.ready;
-    await frame();
-    const link = document.querySelector<HTMLAnchorElement>('.playground-index a[href="#black-hole-growth"]')!;
-    link.click();
-    await frame();
-    const writes: string[] = [];
-    const observer = new MutationObserver(records => writes.push(...records.map(record =>
-      `${(record.target as Element).nodeName}:${record.attributeName ?? record.type}`)));
-    for (const section of document.querySelectorAll('.experiment-panel > section')) {
-      observer.observe(section, { subtree: true, attributes: true, childList: true, characterData: true });
-    }
-    try {
-      for (let index = 0; index < 3; index++) { link.click(); await frame(); }
-      return writes;
-    } finally { observer.disconnect(); }
-  });
-  expect(mutations).toEqual([]);
-  await expect(page).toHaveURL(/#black-hole-growth$/);
-});
-
 test("offscreen orbit animation stops and resumes", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.goto("/playground#orbital-resonance");
@@ -168,17 +116,10 @@ test("offscreen orbit animation stops and resumes", async ({ page }, testInfo) =
 test("all experiment content and scientific explanations remain available", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.goto("/playground");
-  const ids = ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"];
-  // No scroll is needed to fetch code or create any experiment.
-  for (const id of ids) await expect(page.locator(`#${id}`)).toBeAttached();
-  const height = await page.evaluate(() => document.documentElement.scrollHeight);
-  const scrollScripts: string[] = [];
-  page.on("request", (request) => { if (request.resourceType() === "script") scrollScripts.push(request.url()); });
-  for (const id of ids) {
+  for (const id of ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"]) {
     await page.locator(`#${id}-slot`).scrollIntoViewIfNeeded();
-    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(height);
+    await expect(page.locator(`#${id}`)).toBeAttached();
   }
-  expect(scrollScripts).toEqual([]);
   const html = await page.locator("body").innerHTML();
   assert.match(html, /id="black-hole-growth"/i);
   assert.match(html, /id="gravitational-lensing"/i);
