@@ -23,15 +23,18 @@ for (const group of [...groups, "icons"]) {
   const manifest = {};
   for (const filename of filenames) {
     const input = await readFile(path.join(directory, filename));
-    const sourceHash = createHash("sha256").update(recipe).update(input).digest("hex");
+    const isScienceCentre = group === "icons" && filename === "ontario-science-centre.png";
+    const sourceHash = createHash("sha256").update(recipe)
+      .update(isScienceCentre ? "-black-v1" : "").update(input).digest("hex");
     const hash = sourceHash.slice(0, 12);
     const image = sharp(input).rotate();
+    // Bake the logo's fixed black fill; only inversion animates in CSS.
+    if (isScienceCentre) image.linear(0);
     const metadata = await image.metadata();
     const width = metadata.autoOrient.width;
     const height = metadata.autoOrient.height;
     // Preserve the Science Centre logo's existing cover crop; its box is almost
     // square, so reducing the whole wordmark would throw away the emblem detail.
-    const isScienceCentre = filename === "ontario-science-centre.png";
     const targetWidth = group === "icons" ? (isScienceCentre ? 280 : 128) : width;
     const widths = group === "icons"
       ? [targetWidth]

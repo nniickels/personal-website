@@ -12,7 +12,7 @@
   --preview-progress-base: #777;
   --preview-progress-overlay: #2e2e2e;
   --home-logo-filter: none;
-  --osc-logo-filter: brightness(0) invert(1);
+  --osc-logo-filter: invert(1);
 }
 
 :root[data-theme="light"] {
@@ -24,7 +24,7 @@
   --preview-progress-base: #bdbdbd;
   --preview-progress-overlay: #555;
   --home-logo-filter: invert(1);
-  --osc-logo-filter: brightness(0);
+  --osc-logo-filter: invert(0);
 }
 
 * {
