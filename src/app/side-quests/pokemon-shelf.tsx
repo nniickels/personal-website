@@ -1,18 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ResponsiveImage } from "../responsive-image";
+import { preloadImage, usePreloadedComponent } from "../preload";
 
 import { pokemonCards } from "./data";
 import imageAssets from "../../generated/media/pokemon-cards.json";
-const Viewer = lazy(() => import("./pokemon-shelf-viewer"));
+const loadViewer = () => import("./pokemon-shelf-viewer");
+const viewerSizes = "(max-width: 700px) 70vw, 480px";
 
 export default function PokemonCardWheel() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const isViewerOpen = selectedIndex !== null;
+  const [Viewer, preload] = usePreloadedComponent(loadViewer);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const wheelItemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const selectedCard = selectedIndex === null ? null : pokemonCards[selectedIndex];
+
+  const openCard = (index: number) => {
+    preloadImage(imageAssets[pokemonCards[index].image], viewerSizes);
+    setSelectedIndex(index);
+    void preload().then((loaded) => { if (!loaded) setSelectedIndex(null); });
+  };
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -33,12 +43,14 @@ export default function PokemonCardWheel() {
   }, [selectedIndex]);
 
   useEffect(() => {
-    if (selectedIndex === null) {
-      return;
-    }
-
+    if (!isViewerOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isViewerOpen]);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -57,7 +69,6 @@ export default function PokemonCardWheel() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedIndex]);
@@ -84,7 +95,10 @@ export default function PokemonCardWheel() {
               type="button"
               aria-haspopup="dialog"
               aria-label={`Enlarge ${card.name}`}
-              onClick={() => setSelectedIndex(index)}
+              onPointerEnter={preload}
+              onPointerDown={preload}
+              onFocus={preload}
+              onClick={() => openCard(index)}
             >
               <ResponsiveImage asset={imageAssets[card.image]} sizes="(max-width: 520px) 78px, 104px" alt={card.name} loading="lazy" draggable="false" />
             </button>
@@ -92,10 +106,8 @@ export default function PokemonCardWheel() {
         ))}
       </div>
 
-      {selectedCard && selectedIndex !== null && (
-        <Suspense fallback={null}>
-          <Viewer selectedCard={selectedCard} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} closeButtonRef={closeButtonRef} />
-        </Suspense>
+      {Viewer && selectedCard && selectedIndex !== null && (
+        <Viewer selectedCard={selectedCard} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} closeButtonRef={closeButtonRef} />
       )}
     </>
   );

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ResponsiveImage } from "../responsive-image";
+import { preloadImage, usePreloadedComponent } from "../preload";
 
 import { imageAssets } from "./gallery-assets";
-const Viewer = lazy(() => import("./image-gallery-viewer"));
+const loadViewer = () => import("./image-gallery-viewer");
+const viewerSizes = "(max-width: 700px) 75vw, 700px";
 
 export default function ImageGallery({
   photos,
@@ -16,9 +18,17 @@ export default function ImageGallery({
   desktopColumns?: number;
 }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const isViewerOpen = selectedIndex !== null;
   const [columnCount, setColumnCount] = useState(desktopColumns);
+  const [Viewer, preload] = usePreloadedComponent(loadViewer);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const selectedPhoto = selectedIndex === null ? null : photos[selectedIndex];
+
+  const openPhoto = (index: number) => {
+    preloadImage(imageAssets[photos[index].src], viewerSizes);
+    setSelectedIndex(index);
+    void preload().then((loaded) => { if (!loaded) setSelectedIndex(null); });
+  };
 
   useEffect(() => {
     const mobileColumns = window.matchMedia("(max-width: 520px)");
@@ -30,10 +40,14 @@ export default function ImageGallery({
   }, [desktopColumns]);
 
   useEffect(() => {
-    if (selectedIndex === null) return;
-
+    if (!isViewerOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isViewerOpen]);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -52,7 +66,6 @@ export default function ImageGallery({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [photos.length, selectedIndex]);
@@ -82,7 +95,10 @@ export default function ImageGallery({
                 role="listitem"
                 aria-haspopup="dialog"
                 aria-label={`Enlarge photo ${index + 1}`}
-                onClick={() => setSelectedIndex(index)}
+                onPointerEnter={preload}
+                onPointerDown={preload}
+                onFocus={preload}
+                onClick={() => openPhoto(index)}
                 key={photo.src}
               >
                 <ResponsiveImage asset={imageAssets[photo.src]} sizes={`(max-width: 520px) calc((100vw - 3.25rem) / 3), (max-width: 792px) calc((100vw - 6rem) / ${desktopColumns}), ${Math.ceil(660 / desktopColumns)}px`} alt={photo.alt} loading="lazy" />
@@ -92,10 +108,8 @@ export default function ImageGallery({
         ))}
       </div>
 
-      {selectedPhoto && selectedIndex !== null && (
-        <Suspense fallback={null}>
-          <Viewer selectedPhoto={selectedPhoto} selectedIndex={selectedIndex} photos={photos} setSelectedIndex={setSelectedIndex} closeButtonRef={closeButtonRef} />
-        </Suspense>
+      {Viewer && selectedPhoto && selectedIndex !== null && (
+        <Viewer selectedPhoto={selectedPhoto} selectedIndex={selectedIndex} photos={photos} setSelectedIndex={setSelectedIndex} closeButtonRef={closeButtonRef} />
       )}
     </>
   );

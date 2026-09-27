@@ -21,7 +21,10 @@ async function proxyGoatCounter(request: Request, env: Env | undefined): Promise
   const url = new URL(request.url);
 
   if (url.pathname === "/gc/count.js") {
-    const response = await fetch("https://gc.zgo.at/count.js");
+    // Node's preview fetch decodes bodies without removing compression headers.
+    // Cloudflare supplies env and supports the existing compressed passthrough.
+    const response = await fetch("https://gc.zgo.at/count.js", env === undefined
+      ? { headers: { "Accept-Encoding": "identity" } } : undefined);
     const headers = new Headers(response.headers);
     headers.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
     return new Response(response.body, { status: response.status, headers });
@@ -38,7 +41,9 @@ async function proxyGoatCounter(request: Request, env: Env | undefined): Promise
   const upstreamUrl = new URL(url.pathname.slice(3) + url.search, `https://${code}.goatcounter.com`);
 
   try {
-    return await fetch(new Request(upstreamUrl, request));
+    const upstreamRequest = new Request(upstreamUrl, request);
+    if (env === undefined) upstreamRequest.headers.set("Accept-Encoding", "identity");
+    return await fetch(upstreamRequest);
   } catch (error) {
     console.error(
       JSON.stringify({

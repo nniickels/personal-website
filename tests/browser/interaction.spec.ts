@@ -6,6 +6,35 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://webring.ca/**", (route) => route.fulfill({ contentType: "application/javascript", body: "" }));
 });
 
+test("section links use native scrolling with header clearance and reduced motion", async ({ page }) => {
+  await page.route("**/api/stats", (route) => route.fulfill({ json: {} }));
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto("/side");
+    const historyLength = await page.evaluate(() => history.length);
+    for (const id of ["photo-gallery", "natural-things", "food"]) {
+      const details = page.locator(`#${id}${id === "natural-things" ? "" : " > details"}`);
+      // Check precise alignment with a settled layout; cold gallery loading is
+      // covered separately and can extend the document after native scrolling starts.
+      await details.evaluate((element: HTMLDetailsElement) => { element.open = true; });
+      await expect(page.locator(`#${id} .photo-gallery-grid`)).toBeVisible();
+      await details.evaluate((element: HTMLDetailsElement) => { element.open = false; });
+      const link = page.locator(`.side-quest-index a[href="#${id}"]`);
+      await link.click();
+      await expect(page).toHaveURL(new RegExp(`#${id}$`));
+      await expect(details).toHaveAttribute("open", "");
+      const distance = () => page.locator(`#${id}`).evaluate((target) => {
+        const desired = scrollY + target.getBoundingClientRect().top - parseFloat(getComputedStyle(target).scrollMarginTop);
+        const destination = Math.max(0, Math.min(desired, document.documentElement.scrollHeight - innerHeight));
+        return Math.abs(scrollY - destination);
+      });
+      if (reducedMotion === "reduce") expect(await distance()).toBeLessThan(2);
+      else await expect.poll(distance).toBeLessThan(2);
+      expect(await page.evaluate(() => history.length)).toBe(historyLength);
+    }
+  }
+});
+
 // Control display frames, not React: independent input events must update the
 // native thumb, while only the latest sample reaches the experiment per frame.
 async function holdFrames(page: Page) {
@@ -86,7 +115,12 @@ test("black-hole rotation retains every delta and flushes cancellation", async (
   const x = bounds!.x + bounds!.width / 2;
   const y = bounds!.y + bounds!.height / 2;
   await page.mouse.move(x, y); await page.mouse.down();
-  const yaw = () => scene.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--view-yaw"));
+  const yaw = () => scene.evaluate((el) => {
+    const transform = el.querySelector<HTMLElement>(".black-hole-orbit-plane")!.style.transform;
+    const value = transform.match(/rotateZ\(([-\d.]+)deg\)/)?.[1]
+      ?? (el as HTMLElement).style.getPropertyValue("--view-yaw");
+    return `${parseFloat(value).toFixed(1)}deg`;
+  });
   const initial = await yaw();
   await holdFrames(page);
   for (const dx of [10, 30, 20]) {
@@ -118,6 +152,8 @@ test("growth chart scrubbing stays live and playback restarts from the end", asy
   await marker.dispatchEvent("pointermove", { pointerId: 1, clientX: position(0.7), clientY: box!.y });
   await marker.dispatchEvent("pointerup", { pointerId: 1 });
   await expect(marker).toHaveAttribute("aria-valuenow", "70");
+  const readout = page.locator(".simulator-now");
+  await expect(marker).toHaveAttribute("aria-valuetext", `${await readout.locator("span").textContent()}, ${await readout.locator("strong").textContent()}`);
   await restoreFrames(page); await page.mouse.up();
   await marker.focus(); await page.keyboard.press("End");
   await expect(marker).toHaveAttribute("aria-valuenow", "100");
@@ -151,6 +187,46 @@ test("stellar timeline retains the last touch sample and presets reset it", asyn
   await expect(page.getByRole("slider", { name: "Initial mass", exact: true })).toHaveValue("12");
 });
 
+test("focused native ranges follow presets and playback without losing pending input", async ({ page }) => {
+  await page.goto("/playground#stellar-evolution");
+  const mass = page.getByRole("slider", { name: "Initial mass", exact: true });
+  const output = mass.locator("..").locator("output");
+  await mass.focus();
+  // DOM activation retains focus on the range while its external value changes.
+  await page.getByRole("button", { name: "Massive", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
+  await expect(mass).toBeFocused();
+  await expect(mass).toHaveValue("12");
+  await expect(output).toHaveText("12.0 M☉");
+
+  await holdFrames(page);
+  await mass.fill("2");
+  await page.getByRole("button", { name: "Sun-like", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
+  await expect(mass).toBeFocused();
+  await expect(mass).toHaveValue("2"); // Pending native input wins until its frame commits.
+  await expect(output).toHaveText("1.0 M☉");
+  await nextFrame(page);
+  await expect(output).toHaveText("2.0 M☉");
+  await restoreFrames(page);
+
+  const timeline = page.getByRole("slider", { name: "Evolution progress", exact: true });
+  const status = page.locator(".stellar-status span");
+  await timeline.focus();
+  await page.getByRole("button", { name: "Red giant", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
+  await expect(timeline).toBeFocused();
+  await expect(timeline).toHaveValue("33.3");
+  await expect(status).toHaveText("2.0 M☉ · 72%");
+  await expect(page.locator(".stellar-status strong")).toHaveText("Red giant");
+  await page.getByRole("button", { name: "Play evolution", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
+  await expect.poll(async () => Number(await timeline.inputValue())).toBeGreaterThan(33.3);
+  await expect(status).not.toHaveText("2.0 M☉ · 72%");
+  await expect(timeline).toBeFocused();
+  await page.getByRole("button", { name: "Pause evolution", exact: true }).evaluate((element: HTMLButtonElement) => element.click());
+  await expect(page.getByRole("button", { name: "Play evolution", exact: true })).toBeVisible();
+  const paused = await timeline.inputValue();
+  await page.waitForTimeout(100);
+  await expect(timeline).toHaveValue(paused);
+});
+
 test("orbit dragging accumulates all movements before each frame", async ({ page }) => {
   await page.goto("/playground#orbital-resonance");
   await page.getByRole("button", { name: "Pause orbits", exact: true }).click();
@@ -168,6 +244,7 @@ test("orbit dragging accumulates all movements before each frame", async ({ page
   await page.mouse.move(at(0).clientX, at(0).clientY); await page.mouse.down();
   // WebKit rounds native mouse coordinates; use the same fractional event
   // coordinates for the start and subsequent samples in this precision check.
+  await scene.evaluate(element => element.releasePointerCapture(1));
   await scene.dispatchEvent("pointerdown", at(0));
   await holdFrames(page);
   for (const angle of [0.4, 0.2, Math.PI / 2]) await scene.dispatchEvent("pointermove", at(angle));
@@ -188,6 +265,8 @@ test("mobile visuals pause outside the viewport without pausing the experiment",
     ["orbital-resonance", ".resonance-canvas"],
   ]) {
     await page.goto(`/playground#${id}`);
+    // Give the final mobile drawing enough room to scroll completely offscreen.
+    await page.evaluate(() => { document.body.style.paddingBottom = "100vh"; });
     const scene = page.locator(selector);
     await scene.scrollIntoViewIfNeeded();
     await expect(scene).not.toHaveAttribute("data-visual-paused");
@@ -205,6 +284,9 @@ test("mobile visuals pause outside the viewport without pausing the experiment",
     }
     if (isMobile && id === "black-hole-growth") {
       await page.getByRole("button", { name: "Play growth", exact: true }).click();
+      // Clicking scrolls the play button into view, which can also reveal the drawing.
+      // Recreate the user's offscreen reading position after starting playback.
+      await scene.evaluate((el) => scrollTo(0, scrollY + el.getBoundingClientRect().bottom + 60));
       await expect(scene).toHaveAttribute("data-visual-paused", "");
       const progress = page.getByRole("slider", { name: "Inspect growth time" });
       await expect.poll(async () => Number(await progress.getAttribute("aria-valuenow"))).toBeLessThan(100);

@@ -21,12 +21,37 @@ test("home renders without side-quest or simulation code", async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("galleries defer original-size media and preserve the full viewer", async ({ page }, testInfo) => {
+test("prepared simulations hydrate before restoring browser number formatting", async ({ browser, baseURL }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  for (const locale of ["fr-FR", "ar-EG"]) {
+    const context = await browser.newContext({ locale, reducedMotion: "reduce", baseURL });
+    try {
+      await context.route("**/gc/**", (route) => route.fulfill(route.request().url().endsWith(".js")
+        ? { contentType: "application/javascript", body: "" } : { json: { count: "123" } }));
+      await context.route("https://webring.ca/**", (route) => route.fulfill({ contentType: "application/javascript", body: "" }));
+      const localized = await context.newPage();
+      const errors: string[] = [];
+      localized.on("pageerror", (error) => errors.push(error.message));
+      localized.on("console", (message) => {
+        if (message.type() === "error" && /hydrat|#418|#425/i.test(message.text())) errors.push(message.text());
+      });
+      await localized.goto("/playground");
+      const expected = await localized.evaluate(() => `${(100_000).toLocaleString()} M☉`);
+      const output = localized.getByRole("slider", { name: "Seed mass", exact: true }).locator("..").locator("output");
+      await expect(output).toHaveText(expected);
+      expect(errors, locale).toEqual([]);
+    } finally {
+      await context.close();
+    }
+  }
+});
+
+test("galleries render markup upfront and preserve the full viewer", async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
   await page.goto("/side");
-  await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(0);
-  expect(requests.some((url) => /media\/photos-/.test(url))).toBe(false);
+  await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(50);
+  expect(requests.some((url) => /media\/photos-.*-(960|1600)\.webp/.test(url))).toBe(false);
   await page.locator("#photo-gallery summary").click();
   await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(50);
   const first = page.locator("#photo-gallery .photo-gallery-thumbnail img").first();
@@ -51,14 +76,13 @@ test("galleries defer original-size media and preserve the full viewer", async (
   await page.screenshot({ path: testInfo.outputPath("gallery.png"), fullPage: false });
 });
 
-test("mobile initializes only the chosen experiment and preserves state", async ({ page }, testInfo) => {
+test("mobile keeps prepared experiments collapsed and preserves state", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  const requests: string[] = [];
-  page.on("request", (request) => requests.push(request.url()));
   await page.goto("/playground");
   await expect(page.locator(".mobile-experiment-toggle")).toHaveCount(4);
-  await expect(page.locator(".black-hole-stage, .stellar-canvas, .lensing-canvas, .resonance-canvas")).toHaveCount(0);
-  expect(requests.filter((url) => /chunks\/(black-hole|stellar|lensing|resonance)-/.test(url))).toEqual([]);
+  await expect(page.locator(".black-hole-stage, .stellar-canvas, .lensing-canvas, .resonance-canvas")).toHaveCount(4);
+  await expect(page.locator(".mobile-experiment-toggle[aria-expanded=true]")).toHaveCount(0);
+  await expect(page.locator(".experiment-panel:visible")).toHaveCount(0);
   const blackToggle = page.getByRole("button", { name: "Black-Hole Growth Simulator", exact: true });
   await blackToggle.click();
   await expect(page.locator(".black-hole-stage")).toBeVisible();
@@ -77,7 +101,7 @@ test("mobile initializes only the chosen experiment and preserves state", async 
   await expect(blackToggle).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("button", { name: "Rapid growth", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Variables guide", exact: true }).click();
-  expect(await page.locator(".night-star").evaluateAll((stars) => stars.some((star) => getComputedStyle(star).animationPlayState === "running" && getComputedStyle(star).animationName !== "none"))).toBe(true);
+  expect(await page.locator(".night-star").evaluateAll((stars) => stars.some((star) => star.getAnimations().some((animation) => animation.playState === "running")))).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("playground.png"), fullPage: false });
 });
 
@@ -96,6 +120,33 @@ test("deep links open their experiment", async ({ page }, testInfo) => {
   await expect(page.locator(".lensing-instruction strong")).toHaveText("Einstein ring");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("lensing.png"), fullPage: false });
+});
+
+test("reselecting an experiment leaves unchanged simulation drawings alone", async ({ page }) => {
+  await page.goto("/playground#black-hole-growth");
+  await expect(page.locator("#black-hole-growth")).not.toHaveClass(/experiment-is-paused/);
+  await page.getByRole("button", { name: /^Pause (growth|evolution|orbits)$/ })
+    .evaluateAll(buttons => buttons.forEach(button => (button as HTMLButtonElement).click()));
+  const mutations = await page.evaluate(async () => {
+    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await document.fonts.ready;
+    await frame();
+    const link = document.querySelector<HTMLAnchorElement>('.playground-index a[href="#black-hole-growth"]')!;
+    link.click();
+    await frame();
+    const writes: string[] = [];
+    const observer = new MutationObserver(records => writes.push(...records.map(record =>
+      `${(record.target as Element).nodeName}:${record.attributeName ?? record.type}`)));
+    for (const section of document.querySelectorAll('.experiment-panel > section')) {
+      observer.observe(section, { subtree: true, attributes: true, childList: true, characterData: true });
+    }
+    try {
+      for (let index = 0; index < 3; index++) { link.click(); await frame(); }
+      return writes;
+    } finally { observer.disconnect(); }
+  });
+  expect(mutations).toEqual([]);
+  await expect(page).toHaveURL(/#black-hole-growth$/);
 });
 
 test("offscreen orbit animation stops and resumes", async ({ page }, testInfo) => {
@@ -117,10 +168,17 @@ test("offscreen orbit animation stops and resumes", async ({ page }, testInfo) =
 test("all experiment content and scientific explanations remain available", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.goto("/playground");
-  for (const id of ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"]) {
+  const ids = ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"];
+  // No scroll is needed to fetch code or create any experiment.
+  for (const id of ids) await expect(page.locator(`#${id}`)).toBeAttached();
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  const scrollScripts: string[] = [];
+  page.on("request", (request) => { if (request.resourceType() === "script") scrollScripts.push(request.url()); });
+  for (const id of ids) {
     await page.locator(`#${id}-slot`).scrollIntoViewIfNeeded();
-    await expect(page.locator(`#${id}`)).toBeAttached();
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(height);
   }
+  expect(scrollScripts).toEqual([]);
   const html = await page.locator("body").innerHTML();
   assert.match(html, /id="black-hole-growth"/i);
   assert.match(html, /id="gravitational-lensing"/i);

@@ -1,26 +1,21 @@
 "use client";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ResponsiveImage } from "../responsive-image";
+import { preloadImage, usePreloadedComponent } from "../preload";
 
 import { listeningTracks } from "./data";
 import musicAssets from "../../generated/media/music-covers.json";
 import type { ImageAsset } from "../responsive-image";
 const imageAssets: Record<string, ImageAsset> = musicAssets;
-const MAX_ANIMATION_FRAME_INTERVAL_MS = 1_000 / 60;
-
-function animationFrameIsTooSoon(now: number, lastRenderedAt: number | null) {
-  return (
-    lastRenderedAt !== null &&
-    now - lastRenderedAt < MAX_ANIMATION_FRAME_INTERVAL_MS - 0.5
-  );
-}
-
-const Viewer = lazy(() => import("./music-shelf-viewer"));
+const loadViewer = () => import("./music-shelf-viewer");
+const viewerSizes = "(max-width: 700px) 70vw, 450px";
 
 export default function ListeningCoverWheel() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const isViewerOpen = selectedIndex !== null;
+  const [Viewer, preload] = usePreloadedComponent(loadViewer);
   const [volume, setVolume] = useState(0);
   const [previewProgress, setPreviewProgress] = useState(0);
   const [previewError, setPreviewError] = useState(false);
@@ -132,7 +127,8 @@ export default function ListeningCoverWheel() {
   const startTouchPreviewLoop = () => {
     stopTouchPreviewLoop();
     wheelRef.current?.classList.add("is-touch-dragging");
-    let lastRenderedAt: number | null = null;
+    let lastRenderedAt = performance.now();
+    let scrollRemainder = 0;
 
     const updatePreviewUnderFinger = (now: number) => {
       const press = touchPressRef.current;
@@ -141,11 +137,8 @@ export default function ListeningCoverWheel() {
         touchPreviewFrameRef.current = null;
         return;
       }
-      if (animationFrameIsTooSoon(now, lastRenderedAt)) {
-        touchPreviewFrameRef.current = window.requestAnimationFrame(updatePreviewUnderFinger);
-        return;
-      }
-      lastRenderedAt = now;
+      const frameScale = Math.max(0, Math.min(now - lastRenderedAt, 50)) / (1_000 / 60);
+      lastRenderedAt = Math.max(lastRenderedAt, now);
 
       const wheelRect = wheel.getBoundingClientRect();
       const edgeZone = Math.min(96, Math.max(56, wheelRect.width * 0.22));
@@ -176,10 +169,13 @@ export default function ListeningCoverWheel() {
         if (Math.abs(edgeScrollStrength) > 0.02 && canScrollTowardEdge) {
           const direction = Math.sign(edgeScrollStrength);
           const easedStrength = Math.pow(Math.abs(edgeScrollStrength), 1.6);
-          wheel.scrollLeft = Math.max(
+          const nextLeft = Math.max(
             0,
-            Math.min(maxScrollLeft, wheel.scrollLeft + direction * (1 + easedStrength * 15)),
+            Math.min(maxScrollLeft, wheel.scrollLeft + scrollRemainder + direction * (1 + easedStrength * 15) * frameScale),
           );
+          wheel.scrollLeft = nextLeft;
+          // Retain subpixel movement when the browser rounds scrollLeft on assignment.
+          scrollRemainder = nextLeft - wheel.scrollLeft;
         }
 
         if (
@@ -200,12 +196,16 @@ export default function ListeningCoverWheel() {
   };
 
   const openTrack = (index: number) => {
+    preloadImage(imageAssets[listeningTracks[index].image], viewerSizes);
+    void preload().then((loaded) => { if (!loaded) closeTrack(); });
     keepPlayingRef.current = true;
     setSelectedIndex(index);
     void playPreview(index);
   };
 
   const openTouchTrack = (index: number) => {
+    preloadImage(imageAssets[listeningTracks[index].image], viewerSizes);
+    void preload().then((loaded) => { if (!loaded) closeTrack(); });
     keepPlayingRef.current = false;
     resetPreview();
     setSelectedIndex(index);
@@ -343,10 +343,14 @@ export default function ListeningCoverWheel() {
   };
 
   useEffect(() => {
-    if (selectedIndex === null) return;
-
+    if (!isViewerOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isViewerOpen]);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
     closeButtonRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -362,7 +366,6 @@ export default function ListeningCoverWheel() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedIndex]);
@@ -430,9 +433,13 @@ export default function ListeningCoverWheel() {
                 aria-haspopup="dialog"
                 aria-label={`Preview and enlarge ${track.name} by ${track.artist}`}
                 onPointerEnter={(event) => {
+                  void preload();
                   if (event.pointerType === "mouse") void playPreview(index);
                 }}
-                onPointerDown={(event) => handleCoverPointerDown(event, index)}
+                onPointerDown={(event) => {
+                  void preload();
+                  handleCoverPointerDown(event, index);
+                }}
                 onPointerMove={handleCoverPointerMove}
                 onPointerUp={(event) => handleCoverPointerUp(event, index)}
                 onPointerLeave={(event) => {
@@ -440,6 +447,7 @@ export default function ListeningCoverWheel() {
                 }}
                 onPointerCancel={cancelCoverPress}
                 onFocus={() => {
+                  void preload();
                   if (Date.now() - lastTouchAtRef.current >= 1_000) void playPreview(index);
                 }}
                 onBlur={stopPreview}
@@ -491,10 +499,8 @@ export default function ListeningCoverWheel() {
         />
       </div>
 
-      {selectedTrack && selectedIndex !== null && (
-        <Suspense fallback={null}>
-          <Viewer selectedTrack={selectedTrack} selectedIndex={selectedIndex} openTrack={openTrack} closeTrack={closeTrack} closeButtonRef={closeButtonRef} />
-        </Suspense>
+      {Viewer && selectedTrack && selectedIndex !== null && (
+        <Viewer selectedTrack={selectedTrack} selectedIndex={selectedIndex} openTrack={openTrack} closeTrack={closeTrack} closeButtonRef={closeButtonRef} />
       )}
     </>
   );

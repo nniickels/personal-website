@@ -5,18 +5,8 @@ import type { PublicStatsResponse } from "../../api-stats";
 import { ExternalLinkIcon } from "../icons";
 import ListeningCoverWheel from "./music-shelf";
 import PokemonCardWheel from "./pokemon-shelf";
-import { DeferredGallery } from "./deferred-gallery";
+import ImageGallery from "./image-gallery";
 import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, foodPhotos, sideQuestNavigationRows } from "./data";
-let sideQuestScrollAnimationFrame: number | null = null;
-const MAX_ANIMATION_FRAME_INTERVAL_MS = 1_000 / 60;
-
-
-function animationFrameIsTooSoon(now: number, lastRenderedAt: number | null) {
-  return (
-    lastRenderedAt !== null &&
-    now - lastRenderedAt < MAX_ANIMATION_FRAME_INTERVAL_MS - 0.5
-  );
-}
 
 function navigateToSideQuestDestination(
   event: ReactMouseEvent<HTMLAnchorElement>,
@@ -24,68 +14,18 @@ function navigateToSideQuestDestination(
 ) {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
-  event.preventDefault();
   const target = document.querySelector(href);
   if (!(target instanceof HTMLElement)) return;
+  event.preventDefault();
 
-  let dropdown: HTMLDetailsElement | null = null;
-
-  if (target instanceof HTMLDetailsElement) {
-    dropdown = target;
-  } else if (
-    target instanceof HTMLElement
-    && target.dataset.expandOnNavigate === "true"
-  ) {
-    dropdown = target.querySelector<HTMLDetailsElement>(":scope > details");
-  }
-
-  if (dropdown instanceof HTMLDetailsElement) {
-    dropdown.open = true;
-  }
+  const dropdown = target instanceof HTMLDetailsElement ? target
+    : target.dataset.expandOnNavigate === "true" ? target.querySelector<HTMLDetailsElement>(":scope > details") : null;
+  if (dropdown) dropdown.open = true;
 
   window.history.replaceState(null, "", href);
-
-  const headerHeight = Number.parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue("--header-height"),
-  ) || 48;
-  const destination = Math.max(
-    0,
-    target.getBoundingClientRect().top + window.scrollY - headerHeight - 16,
-  );
-
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    window.scrollTo(0, destination);
-    return;
-  }
-
-  if (sideQuestScrollAnimationFrame !== null) {
-    window.cancelAnimationFrame(sideQuestScrollAnimationFrame);
-  }
-
-  const start = window.scrollY;
-  const distance = destination - start;
-  const duration = 260;
-  const startedAt = performance.now();
-  let lastRenderedAt: number | null = null;
-
-  const animateScroll = (now: number) => {
-    if (animationFrameIsTooSoon(now, lastRenderedAt)) {
-      sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
-      return;
-    }
-    lastRenderedAt = now;
-    const progress = Math.min((now - startedAt) / duration, 1);
-    const easedProgress = 1 - Math.pow(1 - progress, 3);
-    window.scrollTo(0, start + distance * easedProgress);
-
-    if (progress < 1) {
-      sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
-    } else {
-      sideQuestScrollAnimationFrame = null;
-    }
-  };
-
-  sideQuestScrollAnimationFrame = window.requestAnimationFrame(animateScroll);
+  target.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+  });
 }
 
 export function FunContent() {
@@ -187,7 +127,7 @@ export function FunContent() {
               </a>
 
             </p>
-            <DeferredGallery photos={galleryPhotos} ariaLabel="PhotoGallery" />
+            <ImageGallery photos={galleryPhotos} ariaLabel="PhotoGallery" />
           </div>
         </details>
       </section>
@@ -403,7 +343,7 @@ export function FunContent() {
               <p className="placeholder-copy">
                 I like gardening and plant-keeping, so I collect dried flowers and press them sometimes also. I also like collecting rocks and fossils. Catch me at the beach with a hammer just throwing shale around.
               </p>
-              <DeferredGallery photos={naturalThingsPhotos} ariaLabel="NaturalThingsGallery" desktopColumns={6} />
+              <ImageGallery photos={naturalThingsPhotos} ariaLabel="NaturalThingsGallery" desktopColumns={6} />
             </div>
           </details>
           <details className="dropdown-entry" id="scrapbook">
@@ -412,7 +352,7 @@ export function FunContent() {
               <p className="placeholder-copy">
                 I hoard (and organize) a bunch of junk and like making scrapbooks with it. Everything has sentimental value! Here are some pages I like in particular.
               </p>
-              <DeferredGallery photos={scrapbookPhotos} ariaLabel="ScrapbookGallery" desktopColumns={3} />
+              <ImageGallery photos={scrapbookPhotos} ariaLabel="ScrapbookGallery" desktopColumns={3} />
             </div>
           </details>
           <div className="collection-static-entry" id="pokemon-cards">
@@ -438,7 +378,7 @@ export function FunContent() {
         <details className="dropdown-entry food-photo-dropdown">
           <summary>Photos</summary>
           <div className="dropdown-content">
-            <DeferredGallery photos={foodPhotos} ariaLabel="FoodPhotoGallery" />
+            <ImageGallery photos={foodPhotos} ariaLabel="FoodPhotoGallery" />
           </div>
         </details>
       </section>

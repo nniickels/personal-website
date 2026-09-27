@@ -8,9 +8,10 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:4173", trace: "retain-on-failure", colorScheme: "dark" },
   projects: [
     { name: "desktop", testIgnore: "**/responsive.spec.ts", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } } },
+    { name: "desktop-webkit", testMatch: ["**/sky-animation.spec.ts", "**/resonance-rendering.spec.ts", "**/black-hole-rendering.spec.ts", "**/stellar-rendering.spec.ts", "**/lensing-rendering.spec.ts", "**/stellar-marker.spec.ts"], use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 1000 } } },
     { name: "mobile", testIgnore: "**/responsive.spec.ts", use: { ...devices["Pixel 7"] } },
     { name: "tablet-webkit", testMatch: "**/responsive.spec.ts", use: { ...devices["iPad Air"] } },
-    { name: "phone-webkit", testMatch: "**/interaction.spec.ts", use: { ...devices["iPhone 13"] } },
+    { name: "phone-webkit", testMatch: ["**/interaction.spec.ts", "**/sky-animation.spec.ts", "**/resonance-rendering.spec.ts", "**/black-hole-rendering.spec.ts", "**/stellar-rendering.spec.ts", "**/lensing-rendering.spec.ts", "**/stellar-marker.spec.ts"], use: { ...devices["iPhone 13"] } },
   ],
   webServer: {
     command: "npm run start -- --port 4173 --hostname 127.0.0.1",

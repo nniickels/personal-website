@@ -11,6 +11,7 @@ const outputRoot = "public/media";
 await mkdir(outputRoot, { recursive: true });
 await mkdir("src/generated/media", { recursive: true });
 const generatedFiles = new Set();
+const generatedSources = new Map();
 let originalBytes = 0;
 let thumbnailBytes = 0;
 
@@ -22,7 +23,8 @@ for (const group of [...groups, "icons"]) {
   const manifest = {};
   for (const filename of filenames) {
     const input = await readFile(path.join(directory, filename));
-    const hash = createHash("sha256").update(recipe).update(input).digest("hex").slice(0, 12);
+    const sourceHash = createHash("sha256").update(recipe).update(input).digest("hex");
+    const hash = sourceHash.slice(0, 12);
     const image = sharp(input).rotate();
     const metadata = await image.metadata();
     const width = metadata.autoOrient.width;
@@ -34,29 +36,35 @@ for (const group of [...groups, "icons"]) {
     const widths = group === "icons"
       ? [targetWidth]
       : [...new Set([160, 320, 480, 960, width].filter((w) => w <= width))].sort((a, b) => a - b);
-    const sources = [];
-    for (const size of widths) {
-      const name = `${group}-${path.parse(filename).name}-${hash}-${size}.webp`;
-      const output = path.join(outputRoot, name);
-      generatedFiles.add(name);
-      let bytes;
-      try { bytes = (await readFile(output)).length; }
-      catch {
-        const result = await image.clone().resize({ width: size, withoutEnlargement: true })
-          .webp({ quality: size <= 480 && size < width && group !== "icons" ? 78 : 86, effort: 5 }).toBuffer();
-        await writeFile(output, result);
-        bytes = result.length;
+    // Match the full input/recipe digest, widths and icon-specific quality rule.
+    const cacheKey = `${sourceHash}:${widths.join(",")}:${group === "icons"}`;
+    let sources = generatedSources.get(cacheKey);
+    if (!sources) {
+      sources = [];
+      for (const size of widths) {
+        const name = `${group}-${path.parse(filename).name}-${hash}-${size}.webp`;
+        const output = path.join(outputRoot, name);
+        generatedFiles.add(name);
+        let bytes;
+        try { bytes = (await readFile(output)).length; }
+        catch {
+          const result = await image.clone().resize({ width: size, withoutEnlargement: true })
+            .webp({ quality: size <= 480 && size < width && group !== "icons" ? 78 : 86, effort: 5 }).toBuffer();
+          await writeFile(output, result);
+          bytes = result.length;
+        }
+        sources.push({ src: `/media/${name}`, width: size, bytes });
       }
-      sources.push({ src: `/media/${name}`, width: size, bytes });
+      generatedSources.set(cacheKey, sources);
+      thumbnailBytes += (sources.find((source) => source.width >= 320) ?? sources.at(-1)).bytes;
     }
     const src = `/${group === "icons" ? "" : `${group}/`}${filename}`;
     manifest[src] = { width, height, sources: sources.map(({ src, width }) => ({ src, width })) };
     originalBytes += input.length;
-    thumbnailBytes += (sources.find((source) => source.width >= 320) ?? sources.at(-1)).bytes;
   }
   await writeFile(`src/generated/media/${group}.json`, `${JSON.stringify(manifest)}\n`);
 }
 for (const filename of await readdir(outputRoot)) {
   if (filename.endsWith(".webp") && !generatedFiles.has(filename)) await unlink(path.join(outputRoot, filename));
 }
-console.log(`Images ready: ${(originalBytes / 1048576).toFixed(2)} MiB originals; ${(thumbnailBytes / 1048576).toFixed(2)} MiB at ~320px.`);
+console.log(`Images ready: ${(originalBytes / 1048576).toFixed(2)} MiB originals; ${(thumbnailBytes / 1048576).toFixed(2)} MiB unique candidates at ~320px.`);

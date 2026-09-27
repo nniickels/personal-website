@@ -34,8 +34,6 @@
 }
 .mobile-experiment-heading { display: none; }
 .experiment-slot { scroll-margin-top: calc(var(--header-height) + 1rem); }
-.experiment-placeholder { min-height: 650px; padding-top: 1.7rem; }
-.experiment-placeholder[role="status"] { color: var(--muted); }
 
 .playground-desktop-experiments {
   display: contents;
@@ -358,11 +356,12 @@
 }
 
 .black-hole-orbit-plane {
+  --orbit-size: calc(102px + 208px * var(--mass-scale));
   z-index: 1;
   display: grid;
   place-items: center;
-  width: calc(102px + 208px * var(--mass-scale));
-  height: calc(102px + 208px * var(--mass-scale));
+  width: var(--orbit-size);
+  height: var(--orbit-size);
   transform: rotateX(var(--view-pitch)) rotateZ(var(--view-yaw));
   transform-style: preserve-3d;
   will-change: transform;
@@ -471,8 +470,10 @@
 }
 
 .accretion-flow {
+  --orbit-radius: calc(var(--orbit-size) * 0.34);
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
   width: 24px;
   height: 5px;
   border-radius: 999px;
@@ -481,32 +482,36 @@
     0 0 14px color-mix(in srgb, var(--disk-warm) 54%, transparent);
   filter: blur(0.7px);
   opacity: var(--spin-opacity);
-  offset-rotate: 0deg;
+  /* Counter-rotation preserves the fixed streak orientation of offset-rotate: 0deg. */
+  transform: translate(-50%, -50%) rotate(0turn) translateX(var(--orbit-radius)) rotate(0turn);
   animation: accretion-orbit var(--spin-duration) linear infinite;
   animation-direction: var(--spin-direction);
   animation-play-state: var(--spin-play-state);
 }
 
 .accretion-flow--outer {
+  --orbit-radius: calc(var(--orbit-size) * 0.43);
   width: 34px;
-  offset-path: ellipse(43% 43% at 50% 50%);
   animation-delay: -1.7s;
   opacity: calc(var(--spin-opacity) * 0.48);
 }
 
 .accretion-flow--middle {
-  offset-path: ellipse(34% 34% at 50% 50%);
   animation-delay: -0.8s;
 }
 
 .accretion-flow--inner {
+  --orbit-radius: calc(var(--orbit-size) * 0.27);
   width: 16px;
-  offset-path: ellipse(27% 27% at 50% 50%);
   animation-duration: calc(var(--spin-duration) * 0.68);
   animation-delay: -0.25s;
 }
 
 @keyframes accretion-shear {
+  from {
+    transform: rotate(0turn);
+  }
+
   to {
     transform: rotate(1turn);
   }
@@ -514,11 +519,11 @@
 
 @keyframes accretion-orbit {
   from {
-    offset-distance: 0%;
+    transform: translate(-50%, -50%) rotate(0turn) translateX(var(--orbit-radius)) rotate(0turn);
   }
 
   to {
-    offset-distance: 100%;
+    transform: translate(-50%, -50%) rotate(1turn) translateX(var(--orbit-radius)) rotate(-1turn);
   }
 }
 
@@ -546,6 +551,7 @@
 }
 
 @keyframes photon-ring-drift {
+  from { transform: rotate(0turn); }
   to { transform: rotate(1turn); }
 }
 
@@ -1571,11 +1577,15 @@
 
 .resonance-body {
   color: var(--simulation-foreground);
-  filter: url(#resonance-body-glow);
   will-change: transform;
 }
 
-.resonance-body > circle:last-child {
+.resonance-body > g {
+  /* Keep the unchanged glow separate from the group's per-frame translation. */
+  filter: url(#resonance-body-glow);
+}
+
+.resonance-body > g > circle:last-child {
   fill: currentColor;
 }
 
@@ -1739,6 +1749,7 @@
 }
 
 .stellar-canvas {
+  contain: size layout;
   --simulation-background: #121212;
   --simulation-foreground: #d7d7d7;
   --simulation-line: #2a2a2a;
@@ -2158,6 +2169,7 @@
 }
 
 .stellar-timeline button > span {
+  grid-area: 1 / 1;
   width: 11px;
   height: 11px;
   border: 1px solid var(--stage-color);
@@ -2165,6 +2177,42 @@
   background: var(--background);
   box-shadow: 0 0 0 transparent;
   transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.stellar-marker-glow {
+  grid-area: 1 / 1;
+  position: relative;
+  /* The full glow paints outside this box without widening the phone viewport. */
+  contain: layout;
+  width: 11px;
+  height: 11px;
+  z-index: -1;
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 180ms ease;
+}
+
+.stellar-marker-glow canvas {
+  position: absolute;
+  top: -39.5px;
+  left: -39.5px;
+  display: block;
+  width: 90px;
+  height: 90px;
+}
+
+.stellar-timeline button[aria-pressed="true"] > .stellar-marker-glow {
+  transform: scale(1.15);
+}
+
+.stellar-timeline button[aria-pressed="true"] > .stellar-marker-glow[data-ready] {
+  visibility: visible;
+}
+
+.stellar-timeline button[aria-pressed="true"] > span[data-worker-glow] {
+  animation-name: none;
+  box-shadow: none;
+  transition: background-color 180ms ease, transform 180ms ease;
 }
 
 .stellar-timeline button small {
@@ -2208,6 +2256,7 @@
 }
 
 @keyframes stellar-surface-drift {
+  from { transform: rotate(0turn); }
   to { transform: rotate(1turn); }
 }
 
@@ -2238,6 +2287,7 @@
 }
 
 @keyframes stellar-neutron-spin {
+  from { transform: rotate(0turn); }
   to { transform: rotate(1turn); }
 }
 
@@ -2303,7 +2353,6 @@
   (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
   .mobile-experiment-heading { display: block; margin: 0; }
   .experiment-slot:not(.is-open) > .experiment-panel { display: none; }
-  .experiment-placeholder { min-height: 200px; }
 
   .growth-chart-caption,
   .simulator-method-note {

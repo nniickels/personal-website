@@ -83,11 +83,6 @@ function WishStar({ star, meteor = false }: { star: Star; meteor?: boolean }) {
         }}
         style={{
           ...meteorStyle(star),
-          top: star.top,
-          left: star.left,
-          "--shoot-color": star.colour,
-          "--shoot-duration": star.duration,
-          "--shoot-delay": star.delay,
           animationPlayState: paused ? "paused" : undefined,
           "--meteor-play-state": paused ? "paused" : "running",
         } as CSSProperties}
