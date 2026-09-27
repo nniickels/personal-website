@@ -1,6 +1,6 @@
 "use client";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { useEffect, useMemo, useRef, useState, memo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
 const resonancePresets = {
   "2:1": {
@@ -40,10 +40,11 @@ export default function OrbitalResonanceToy({
   const [bodyCount, setBodyCount] = useState<ResonanceBodyCount>(3);
   const [resonance, setResonance] = useState<ResonancePreset>("2:1");
   const [speed, setSpeed] = useState(1);
-  const [phase, setPhase] = useState(0);
-  const [playing, setPlaying] = useState(() =>
-    typeof window === "undefined" || !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
+  const phase = useRef(0);
+  const phaseReadout = useRef<HTMLElement>(null);
+  const drawPhase = useRef<(next: number) => void>(() => {});
+  const [playing, setPlaying] = useState(true);
+  const motionPreferenceApplied = useRef(false);
   const resonanceFrame = useRef<number | null>(null);
   const previousTime = useRef<number | null>(null);
   const resonanceDrag = useRef<{
@@ -52,9 +53,38 @@ export default function OrbitalResonanceToy({
     phase: number;
     resumeAfterDrag: boolean;
   } | null>(null);
-  const orbitFrame = useFrameValue(setPhase);
+  const orbitFrame = useFrameValue((next: number) => drawPhase.current(next));
   const [dragging, setDragging] = useState(false);
   const preset = resonancePresets[resonance];
+
+  useEffect(() => {
+    if (motionPreferenceApplied.current) return;
+    motionPreferenceApplied.current = true;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPlaying(false);
+  }, []);
+
+  useLayoutEffect(() => {
+    const markers = visualRef.current!.querySelectorAll<SVGGElement>(".resonance-body");
+    const spokes = visualRef.current!.querySelectorAll<SVGLineElement>(".resonance-spoke");
+    const readout = phaseReadout.current!;
+    // The SVG artwork is fixed between control changes; playback only moves it.
+    drawPhase.current = (next) => {
+      phase.current = next;
+      markers.forEach((marker, index) => {
+        const angle = (next / preset.periods[index]) * Math.PI * 2 - Math.PI / 2;
+        const x = 310 + ORBIT_RADII[index] * Math.cos(angle);
+        const y = 190 + ORBIT_RADII[index] * 0.58 * Math.sin(angle);
+        marker.setAttribute("transform", `translate(${x} ${y})`);
+        if (spokes[index]) {
+          spokes[index].setAttribute("x2", String(x));
+          spokes[index].setAttribute("y2", String(y));
+        }
+      });
+      const text = `${(next % 1).toFixed(2)} turns`;
+      if (readout.textContent !== text) readout.textContent = text;
+    };
+    drawPhase.current(phase.current);
+  }, [bodyCount, preset.periods, visualRef]);
 
   useEffect(() => {
     if (!playing || !isExperimentVisible) {
@@ -71,7 +101,7 @@ export default function OrbitalResonanceToy({
       }
       if (previousTime.current !== null) {
         const elapsedSeconds = Math.min(0.05, (now - previousTime.current) / 1_000);
-        setPhase((current) => (current + elapsedSeconds * speed * 0.12) % 100);
+        drawPhase.current((phase.current + elapsedSeconds * speed * 0.12) % 100);
       }
       previousTime.current = now;
       resonanceFrame.current = requestAnimationFrame(animate);
@@ -84,35 +114,23 @@ export default function OrbitalResonanceToy({
     };
   }, [playing, speed, isExperimentVisible, limitFrameRate]);
 
-  const bodies = useMemo(() => {
-    return preset.periods.slice(0, bodyCount).map((period, index) => {
-      const angle = (phase / period) * Math.PI * 2 - Math.PI / 2;
-      const radius = ORBIT_RADII[index];
-      return {
-        index,
-        period,
-        radius,
-        x: 310 + radius * Math.cos(angle),
-        y: 190 + radius * 0.58 * Math.sin(angle),
-      };
-    });
-  }, [bodyCount, phase, preset.periods]);
+  const radii = ORBIT_RADII.slice(0, bodyCount);
 
   const setBodies = (count: ResonanceBodyCount) => {
     setBodyCount(count);
-    setPhase(0);
+    drawPhase.current(0);
   };
 
   const setResonancePreset = (nextPreset: ResonancePreset) => {
     setResonance(nextPreset);
-    setPhase(0);
+    drawPhase.current(0);
   };
 
   const resetOrbits = () => {
     setBodyCount(3);
     setResonance("2:1");
     setSpeed(1);
-    setPhase(0);
+    drawPhase.current(0);
     setPlaying(true);
   };
 
@@ -124,12 +142,14 @@ export default function OrbitalResonanceToy({
   };
 
   const beginOrbitDrag = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const drag = resonanceDrag.current;
+    if (drag && event.currentTarget.hasPointerCapture(drag.pointerId)) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     resonanceDrag.current = {
       pointerId: event.pointerId,
       lastAngle: pointerAngle(event),
-      phase,
+      phase: phase.current,
       resumeAfterDrag: playing,
     };
     setPlaying(false);
@@ -256,7 +276,7 @@ export default function OrbitalResonanceToy({
             {drawingDefinitions0}
             <rect className="resonance-field" width="620" height="380" rx="10" />
             <FieldStars />
-            {ORBIT_RADII.slice(0, bodyCount).map((radius, index) => (
+            {radii.map((radius, index) => (
               <ellipse
                 className="resonance-orbit"
                 key={radius}
@@ -267,26 +287,28 @@ export default function OrbitalResonanceToy({
                 style={{ opacity: 0.48 - index * 0.07 }}
               />
             ))}
-            {bodyCount > 1 && bodies.map((body) => (
+            {bodyCount > 1 && radii.map((radius, index) => (
               <line
                 className="resonance-spoke"
-                key={`spoke-${body.index}`}
+                key={`spoke-${index}`}
                 x1="310"
                 y1="190"
-                x2={body.x}
-                y2={body.y}
+                x2="310"
+                y2={190 - radius * 0.58}
               />
             ))}
             <circle className="resonance-star-glow" cx="310" cy="190" r="48" />
             <circle className="resonance-star" cx="310" cy="190" r="12" />
-            {bodies.map((body) => (
+            {radii.map((radius, index) => (
               <g
-                className={`resonance-body resonance-body--${body.index + 1}`}
-                key={`body-${body.index}`}
-                transform={`translate(${body.x} ${body.y})`}
+                className={`resonance-body resonance-body--${index + 1}`}
+                key={`body-${index}`}
+                transform={`translate(310 ${190 - radius * 0.58})`}
               >
-                <circle className="resonance-body-halo" r={11 - body.index} />
-                <circle r={5.8 - body.index * 0.65} />
+                <g>
+                  <circle className="resonance-body-halo" r={11 - index} />
+                  <circle r={5.8 - index * 0.65} />
+                </g>
               </g>
             ))}
           </svg>
@@ -306,7 +328,7 @@ export default function OrbitalResonanceToy({
         </div>
         <div>
           <dt>Inner-orbit phase</dt>
-          <dd>{(phase % 1).toFixed(2)} turns</dd>
+          <dd ref={phaseReadout}>0.00 turns</dd>
         </div>
       </dl>
 

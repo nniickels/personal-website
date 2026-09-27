@@ -1,6 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useEffect, useRef } from "react";
+import { animateSky } from "./native-sky-motion";
 import { SkyEasterEggs } from "./sky-easter-eggs";
 function createNightStars(count: number, bottomLeftCount = 0) {
   let seed = 9474;
@@ -64,21 +66,27 @@ const shootingStars = [
 ] as const;
 
 export function NightSky({ className = "" }: { className?: string } = {}) {
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => root.current ? animateSky(root.current) : undefined, []);
+
   return (
-    <>
+    <div ref={root} style={{ display: "contents" }}>
     <div className={`night-sky${className ? ` ${className}` : ""}`} aria-hidden="true">
       <div className="night-sky__stars">
         {nightStars.map((star, index) => (
-          <span
+          <img
             className="night-star"
             key={index}
+            alt=""
+            src={`data:image/svg+xml,${encodeURIComponent(
+              `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><polygon points="50,0 57,43 100,50 57,57 50,100 43,57 0,50 43,43" fill="${star.colour}"/></svg>`,
+            )}`}
             style={
               {
                 top: star.top,
                 left: star.left,
                 width: star.size,
                 height: star.size,
-                "--star-color": star.colour,
                 "--star-peak": star.peak,
                 "--twinkle-duration": star.duration,
                 "--touch-twinkle-duration": `${(Number.parseFloat(star.duration) * 2.4).toFixed(2)}s`,
@@ -90,6 +98,6 @@ export function NightSky({ className = "" }: { className?: string } = {}) {
       </div>
     </div>
     <SkyEasterEggs stars={shootingStars} playground={className.includes("night-sky--playground")} />
-    </>
+    </div>
   );
 }

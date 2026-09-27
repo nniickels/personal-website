@@ -12,7 +12,7 @@
   --preview-progress-base: #777;
   --preview-progress-overlay: #2e2e2e;
   --home-logo-filter: none;
-  --osc-logo-filter: grayscale(1) brightness(0) invert(1);
+  --osc-logo-filter: invert(1);
 }
 
 :root[data-theme="light"] {
@@ -24,7 +24,7 @@
   --preview-progress-base: #bdbdbd;
   --preview-progress-overlay: #555;
   --home-logo-filter: invert(1);
-  --osc-logo-filter: grayscale(1) brightness(0);
+  --osc-logo-filter: invert(0);
 }
 
 * {
@@ -72,59 +72,19 @@ body {
   z-index: 1;
 }
 
+[data-native-sky-motion~="element"],
+[data-native-sky-motion~="::before"]::before,
+[data-native-sky-motion~="::after"]::after {
+  animation-name: none !important;
+}
+
 .night-star {
   --night-star-size-scale: 1;
   position: absolute;
-  clip-path: polygon(
-    50% 0,
-    57% 43%,
-    100% 50%,
-    57% 57%,
-    50% 100%,
-    43% 57%,
-    0 50%,
-    43% 43%
-  );
-  background: var(--star-color, #f8f9ff);
-  box-shadow: 0 0 5px color-mix(in srgb, var(--star-color, #f8f9ff) 52%, transparent);
+  /* Cached vector artwork avoids a separate animated clip-mask pass per star. */
   opacity: 0.08;
   transform: scale(calc(0.72 * var(--night-star-size-scale)));
   animation: night-star-twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite;
-}
-
-.night-star::before,
-.night-star::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border-radius: 999px;
-  opacity: 0.82;
-  transform: translate(-50%, -50%);
-}
-
-.night-star::before {
-  width: 1px;
-  height: calc(100% + 8px);
-  background: linear-gradient(
-    180deg,
-    transparent,
-    var(--star-color, #f8f9ff) 46%,
-    var(--star-color, #f8f9ff) 54%,
-    transparent
-  );
-}
-
-.night-star::after {
-  width: calc(100% + 8px);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--star-color, #f8f9ff) 46%,
-    var(--star-color, #f8f9ff) 54%,
-    transparent
-  );
 }
 
 .shooting-star {

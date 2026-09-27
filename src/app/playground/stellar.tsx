@@ -1,7 +1,8 @@
 "use client";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
-import { useEffect, useMemo, useRef, useState, memo } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { createFrameGate, useFrameValue, FrameRange, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
+import StellarMarker from "./stellar-marker";
 const STELLAR_TIMELINE_START_FRACTION = 5 / 6;
 const STELLAR_PHASE_POSITIONS = [0, 100 / 3, 200 / 3, 100] as const;
 type StellarPhase = {
@@ -72,10 +73,13 @@ function formatStellarLifetime(gyr: number) {
   return `${gyr.toFixed(gyr < 10 ? 1 : 0)} Gyr`;
 }
 
-function formatSolarLuminosity(luminosity: number) {
+function formatSolarLuminosity(luminosity: number, numberFormat?: Intl.NumberFormat) {
   if (luminosity < 0.1) return `${luminosity.toFixed(2)} L☉`;
   if (luminosity < 100) return `${luminosity.toFixed(1)} L☉`;
-  if (luminosity < 10_000) return `${Math.round(luminosity).toLocaleString()} L☉`;
+  if (luminosity < 10_000) {
+    const rounded = Math.round(luminosity);
+    return `${numberFormat?.format(rounded) ?? rounded.toLocaleString()} L☉`;
+  }
   return `${luminosity.toExponential(1).replace("e+", " × 10^")} L☉`;
 }
 
@@ -129,27 +133,33 @@ function stellarTimelinePositionToProgress(stages: StellarPhase[], position: num
 export default function StellarEvolutionExplorer({
   touchLineScrubbing = false,
   limitFrameRate = false,
+  numberFormat,
 }: {
   touchLineScrubbing?: boolean;
   limitFrameRate?: boolean;
+  numberFormat?: Intl.NumberFormat;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const visualRef = useMobileVisualRef<HTMLDivElement>();
   const [mass, setMass] = useState(1);
-  const [progress, setProgress] = useState(() => mainSequenceTimelineStart(1));
+  const progress = useRef(mainSequenceTimelineStart(1));
+  const [stageKey, setStageKey] = useState<StellarPhase["key"]>("main-sequence");
+  const displayedStage = useRef(stageKey);
   const [playing, setPlaying] = useState(false);
   const animationFrame = useRef<number | null>(null);
-  const timelineFrame = useFrameValue(setProgress);
+  const drawProgress = useRef((next: number) => { progress.current = next; });
+  const timelineFrame = useFrameValue((next: number) => drawProgress.current(next));
+  const timelineControl = useRef<HTMLDivElement>(null);
+  const progressReadout = useRef<HTMLSpanElement>(null);
+  const timelineInputPending = useRef(false);
   const timelineDragPointer = useRef<number | null>(null);
   const stages = useMemo(() => stellarEvolutionTrack(mass), [mass]);
-  const currentStage = stages.find((stage, index) =>
-    progress >= stage.start && (progress < stage.end || index === stages.length - 1),
-  ) ?? stages[0];
+  const currentStage = stages.find((stage) => stage.key === stageKey) ?? stages[0];
   const mainSequenceLifetime = clamp(10 * mass ** -2.5, 0.003, 180);
   const luminosity = mainSequenceLuminosity(mass);
   const finalRemnant = mass < 8 ? "White dwarf" : mass < 25 ? "Neutron star" : "Black hole";
   const activePreset = stellarPresets.find((preset) => preset.mass === mass)?.name;
-  const timelineSliderPosition = progressToStellarTimelinePosition(stages, progress);
+  const timelineSliderPosition = progressToStellarTimelinePosition(stages, progress.current);
   const stellarPulseDuration = clamp(4.8 - mass * 0.08, 1.8, 4.8);
   const stellarStyle = {
     "--stellar-size": `${currentStage.size}px`,
@@ -158,9 +168,34 @@ export default function StellarEvolutionExplorer({
     "--stellar-pulse-duration": `${stellarPulseDuration.toFixed(2)}s`,
   } as CSSProperties;
 
+  // Only phase changes affect the artwork. Keep the exact playback clock and
+  // native thumb moving without reconciling the experiment on every frame.
+  useLayoutEffect(() => {
+    const range = timelineControl.current?.querySelector("input");
+    const readout = progressReadout.current;
+    if (!range || !readout) return;
+    drawProgress.current = (next) => {
+      progress.current = next;
+      const stage = stages.find((candidate, index) =>
+        next >= candidate.start && (next < candidate.end || index === stages.length - 1),
+      ) ?? stages[0];
+      if (displayedStage.current !== stage.key) {
+        displayedStage.current = stage.key;
+        setStageKey(stage.key);
+      }
+      if (!timelineInputPending.current) {
+        range.value = String(progressToStellarTimelinePosition(stages, next));
+      }
+      const text = `${mass.toFixed(1)} M☉ · ${Math.round(next * 100)}%`;
+      if (readout.textContent !== text) readout.textContent = text;
+    };
+    drawProgress.current(progress.current);
+  });
+  useLayoutEffect(() => () => { timelineInputPending.current = false; }, []);
+
   useEffect(() => {
     if (!playing || !isExperimentVisible) return;
-    const initialProgress = progress >= 1 ? mainSequenceTimelineStart(mass) : progress;
+    const initialProgress = progress.current >= 1 ? mainSequenceTimelineStart(mass) : progress.current;
     const startedAt = performance.now();
     const duration = Math.max(2_400, 18_000 * (1 - initialProgress));
     const frameGate = createFrameGate(limitFrameRate);
@@ -174,7 +209,7 @@ export default function StellarEvolutionExplorer({
       lastRenderedAt = now;
       const elapsed = Math.min(1, (now - startedAt) / duration);
       const nextProgress = initialProgress + elapsed * (1 - initialProgress);
-      setProgress(nextProgress);
+      drawProgress.current(nextProgress);
       if (nextProgress < 1) {
         animationFrame.current = requestAnimationFrame(animate);
       } else {
@@ -182,7 +217,7 @@ export default function StellarEvolutionExplorer({
       }
     };
 
-    setProgress(initialProgress);
+    drawProgress.current(initialProgress);
     animationFrame.current = requestAnimationFrame(animate);
     return () => {
       if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
@@ -192,18 +227,18 @@ export default function StellarEvolutionExplorer({
   const updateMass = (nextMass: number) => {
     setPlaying(false);
     setMass(nextMass);
-    setProgress(mainSequenceTimelineStart(nextMass));
+    drawProgress.current(mainSequenceTimelineStart(nextMass));
   };
 
   const selectStage = (stage: StellarPhase) => {
     setPlaying(false);
-    setProgress(stage.key === "main-sequence" ? mainSequenceTimelineStart(mass) : stage.start);
+    drawProgress.current(stage.key === "main-sequence" ? mainSequenceTimelineStart(mass) : stage.start);
   };
 
   const resetEvolution = () => {
     setPlaying(false);
     setMass(1);
-    setProgress(mainSequenceTimelineStart(1));
+    drawProgress.current(mainSequenceTimelineStart(1));
   };
 
   const updateTimelineFromPointer = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -219,6 +254,7 @@ export default function StellarEvolutionExplorer({
 
   const beginTimelineDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!touchLineScrubbing) return;
+    if (timelineDragPointer.current !== null && event.currentTarget.hasPointerCapture(timelineDragPointer.current)) return;
     if (event.target instanceof Element && event.target.closest(".stellar-timeline button")) return;
     event.preventDefault();
     timelineDragPointer.current = event.pointerId;
@@ -290,13 +326,13 @@ export default function StellarEvolutionExplorer({
         </div>
         <div>
           <dt>Main-sequence luminosity</dt>
-          <dd>{formatSolarLuminosity(luminosity)}</dd>
+          <dd>{formatSolarLuminosity(luminosity, numberFormat)}</dd>
         </div>
         <div>
           <dt>Final remnant</dt>
           <dd>{finalRemnant}</dd>
         </div>
-      </dl>), [mass]);
+      </dl>), [mass, numberFormat]);
 
     const phaseButtons = useMemo(() => (<ol className="stellar-timeline" aria-label="Evolutionary phases">
               {stages.map((stage, index) => (
@@ -313,7 +349,7 @@ export default function StellarEvolutionExplorer({
                     aria-pressed={currentStage.key === stage.key}
                     onClick={() => selectStage(stage)}
                   >
-                    <span aria-hidden="true" />
+                    <StellarMarker active={currentStage.key === stage.key} visible={isExperimentVisible} color={stage.color} />
                     <small>
                       {index === 0 ? (
                         "5/6ths through main sequence"
@@ -324,7 +360,7 @@ export default function StellarEvolutionExplorer({
                   </button>
                 </li>
               ))}
-            </ol>), [stages, currentStage.key, mass]);
+            </ol>), [stages, currentStage.key, mass, isExperimentVisible]);
 
   return (
     <section
@@ -355,7 +391,7 @@ export default function StellarEvolutionExplorer({
       <div className="stellar-workspace">
         <div className="stellar-visual-panel">
           <div className="stellar-status" aria-live="polite">
-            <span>{mass.toFixed(1)} M☉ · {Math.round(progress * 100)}%</span>
+            <span ref={progressReadout}>{`${mass.toFixed(1)} M☉ · ${Math.round(progress.current * 100)}%`}</span>
             <strong>{currentStage.label}</strong>
           </div>
           {scene}
@@ -369,6 +405,7 @@ export default function StellarEvolutionExplorer({
             Phases are evenly spaced for easy selection; playback slows through longer intervals. <strong>Drag to explore or select any phase.</strong>
           </p>
           <div
+            ref={timelineControl}
             className="stellar-timeline-control"
             onPointerDown={beginTimelineDrag}
             onPointerMove={scrubTimeline}
@@ -384,9 +421,11 @@ export default function StellarEvolutionExplorer({
               value={timelineSliderPosition}
               aria-label="Evolution progress"
               aria-describedby="stellar-timeline-hint"
+              onInput={() => { timelineInputPending.current = true; }}
               onValueChange={(value) => {
+                timelineInputPending.current = false;
                 setPlaying(false);
-                setProgress(stellarTimelinePositionToProgress(stages, value));
+                drawProgress.current(stellarTimelinePositionToProgress(stages, value));
               }}
             />
             {phaseButtons}

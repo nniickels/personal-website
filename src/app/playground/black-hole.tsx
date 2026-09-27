@@ -1,12 +1,11 @@
 "use client";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp } from "./shared";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, formatMass } from "./shared";
 const HUBBLE_CONSTANT = 67.4;
 const OMEGA_MATTER = 0.315;
 const OMEGA_LAMBDA = 0.685;
 const EDDINGTON_TIME_GYR = 0.45;
-const SOLAR_MASS = "M☉";
 const VISUAL_LOG_MASS_MIN = 1;
 const VISUAL_LOG_MASS_REFERENCE_MAX = 15;
 const GROWTH_CHART_LOG_MASS_MIN = 1;
@@ -58,16 +57,6 @@ function redshiftAtCosmicAge(ageGyr: number) {
   );
   const scaleFactor = (argument / Math.sqrt(OMEGA_LAMBDA / OMEGA_MATTER)) ** (2 / 3);
   return Math.max(0, 1 / scaleFactor - 1);
-}
-
-function formatMass(logMass: number) {
-  if (logMass < 6) {
-    return `${Math.round(10 ** logMass).toLocaleString()} ${SOLAR_MASS}`;
-  }
-
-  const exponent = Math.floor(logMass);
-  const mantissa = 10 ** (logMass - exponent);
-  return `${mantissa.toFixed(2)} × 10^${exponent} ${SOLAR_MASS}`;
 }
 
 function formatPowerOfTen(exponent: number) {
@@ -212,10 +201,12 @@ export default function BlackHoleGrowthSimulator({
   touchDisclosureOptimizations = false,
   coordinateTouchGuides = false,
   limitFrameRate = false,
+  numberFormat,
 }: {
   touchDisclosureOptimizations?: boolean;
   coordinateTouchGuides?: boolean;
   limitFrameRate?: boolean;
+  numberFormat?: Intl.NumberFormat;
 } = {}) {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const visualRef = useMobileVisualRef<HTMLDivElement>();
@@ -227,13 +218,15 @@ export default function BlackHoleGrowthSimulator({
   const [dutyCycle, setDutyCycle] = useState(0.7);
   const efficiency = radiativeEfficiencyFromSpin(spin);
   const effectiveAccretionRate = eddingtonRatio * (0.1 / efficiency);
-  const [progress, setProgress] = useState(1);
+  const progressRef = useRef(1);
+  const progress = progressRef.current;
+  const drawProgress = useRef<(next: number) => void>(() => {});
   const [playing, setPlaying] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [variablesGuideOpen, setVariablesGuideOpen] = useState(false);
   const [explanationOpen, setExplanationOpen] = useState(false);
-  const [viewYaw, setViewYaw] = useState(-9);
-  const [viewPitch, setViewPitch] = useState(84);
+  const viewRef = useRef({ yaw: -9, pitch: 84 });
+  const drawView = useRef<(view: { yaw: number; pitch: number }) => void>(() => {});
   const [rotatingView, setRotatingView] = useState(false);
   const animationFrame = useRef<number | null>(null);
   const blackHoleDrag = useRef<{
@@ -244,11 +237,8 @@ export default function BlackHoleGrowthSimulator({
     pitch: number;
   } | null>(null);
 
-  const rotationFrame = useFrameValue((view: { yaw: number; pitch: number }) => {
-    setViewYaw(view.yaw);
-    setViewPitch(view.pitch);
-  });
-  const chartFrame = useFrameValue(setProgress);
+  const rotationFrame = useFrameValue((view: { yaw: number; pitch: number }) => drawView.current(view));
+  const chartFrame = useFrameValue((next: number) => drawProgress.current(next));
 
   const chartMarkerPointer = useRef<number | null>(null);
 
@@ -274,11 +264,13 @@ export default function BlackHoleGrowthSimulator({
   const currentAge = model.seedAge + model.growthTime * progress;
   const currentLogMass = seedLogMass + model.growthDex * progress;
   const currentRedshift = redshiftAtCosmicAge(currentAge);
+  const currentRedshiftLabel = currentRedshift.toFixed(1);
+  const currentMassLabel = formatMass(currentLogMass, numberFormat);
 
   useEffect(() => {
     if (!playing || !isExperimentVisible) return;
 
-    const initialProgress = progress >= 1 ? 0.02 : progress;
+    const initialProgress = progressRef.current >= 1 ? 0.02 : progressRef.current;
     const startedAt = performance.now();
     const duration = Math.max(1_500, 8_500 * (1 - initialProgress));
     const frameGate = createFrameGate(limitFrameRate);
@@ -296,7 +288,7 @@ export default function BlackHoleGrowthSimulator({
         1,
         initialProgress + easedElapsed * (1 - initialProgress),
       );
-      setProgress(nextProgress);
+      drawProgress.current(nextProgress);
       if (nextProgress < 1) {
         animationFrame.current = requestAnimationFrame(animate);
       } else {
@@ -304,7 +296,7 @@ export default function BlackHoleGrowthSimulator({
       }
     };
 
-    setProgress(initialProgress);
+    drawProgress.current(initialProgress);
     animationFrame.current = requestAnimationFrame(animate);
     return () => {
       if (animationFrame.current !== null) cancelAnimationFrame(animationFrame.current);
@@ -313,7 +305,7 @@ export default function BlackHoleGrowthSimulator({
 
   const updateControl = (setter: (value: number) => void) => (value: number) => {
     setPlaying(false);
-    setProgress(1);
+    drawProgress.current(1);
     setter(value);
   };
 
@@ -327,7 +319,7 @@ export default function BlackHoleGrowthSimulator({
 
   const updateSeedRedshift = useCallback((value: number) => {
     setPlaying(false);
-    setProgress(1);
+    drawProgress.current(1);
     setSeedRedshift(value);
     setObservedRedshift((current) => Math.min(current, value - 1));
   }, []);
@@ -340,24 +332,25 @@ export default function BlackHoleGrowthSimulator({
     setEddingtonRatio(preset.eddingtonRatio);
     setDutyCycle(preset.dutyCycle);
     setSpin(preset.spin);
-    setProgress(1);
+    drawProgress.current(1);
   };
 
   const resetSimulation = () => {
     applyPreset(presets[1]);
-    setViewYaw(-9);
-    setViewPitch(84);
+    drawView.current({ yaw: -9, pitch: 84 });
   };
 
   const beginBlackHoleRotation = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = blackHoleDrag.current;
+    if (drag && event.currentTarget.hasPointerCapture(drag.pointerId)) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     blackHoleDrag.current = {
       pointerId: event.pointerId,
       lastX: event.clientX,
       lastY: event.clientY,
-      yaw: viewYaw,
-      pitch: viewPitch,
+      yaw: viewRef.current.yaw,
+      pitch: viewRef.current.pitch,
     };
     setRotatingView(true);
   };
@@ -391,7 +384,7 @@ export default function BlackHoleGrowthSimulator({
       setPlaying(false);
       return;
     }
-    setProgress((current) => current >= 1 ? 0.02 : current);
+    drawProgress.current(progressRef.current >= 1 ? 0.02 : progressRef.current);
     setPlaying(true);
   };
 
@@ -435,6 +428,61 @@ export default function BlackHoleGrowthSimulator({
   const markerX = chart.xAt(progress);
   const markerY = chart.yAt(currentLogMass);
 
+  useLayoutEffect(() => {
+    const stage = visualRef.current!;
+    const section = sectionRef.current!;
+    const orbitPlanes = stage.querySelectorAll<HTMLElement>(".black-hole-orbit-plane");
+    // CSS knows the input mode before the parent's initial effect resolves it.
+    const touchView = matchMedia("(hover: none), (pointer: coarse)").matches;
+    if (touchView) for (const plane of orbitPlanes) plane.style.removeProperty("transform");
+    const line = section.querySelector<SVGLineElement>(".growth-chart-progress")!;
+    const hit = section.querySelector<SVGCircleElement>(".growth-chart-marker-hit")!;
+    const marker = section.querySelector<SVGCircleElement>(".growth-chart-marker")!;
+    const redshiftReadout = section.querySelector<HTMLElement>(".simulator-now span")!;
+    const massReadout = section.querySelector<HTMLElement>(".simulator-now strong")!;
+    const playbackButton = section.querySelector<HTMLButtonElement>(".simulator-primary-action")!;
+    // The model and artwork stay fixed during playback; only these values move.
+    drawProgress.current = (next) => {
+      progressRef.current = next;
+      const logMass = seedLogMass + model.growthDex * next;
+      const redshift = redshiftAtCosmicAge(model.seedAge + model.growthTime * next).toFixed(1);
+      const mass = formatMass(logMass, numberFormat);
+      stage.style.setProperty("--mass-scale", String(Math.max(0,
+        (logMass - VISUAL_LOG_MASS_MIN) / (VISUAL_LOG_MASS_REFERENCE_MAX - VISUAL_LOG_MASS_MIN))));
+      const x = String(chart.xAt(next));
+      const y = String(chart.yAt(logMass));
+      line.setAttribute("x1", x);
+      line.setAttribute("x2", x);
+      hit.setAttribute("cx", x);
+      hit.setAttribute("cy", y);
+      marker.setAttribute("cx", x);
+      marker.setAttribute("cy", y);
+      const percent = String(Math.round(next * 100));
+      const description = `z = ${redshift}, ${mass}`;
+      if (hit.getAttribute("aria-valuenow") !== percent) hit.setAttribute("aria-valuenow", percent);
+      if (hit.getAttribute("aria-valuetext") !== description) hit.setAttribute("aria-valuetext", description);
+      if (redshiftReadout.textContent !== `z = ${redshift}`) redshiftReadout.textContent = `z = ${redshift}`;
+      if (massReadout.textContent !== mass) massReadout.textContent = mass;
+      const label = playing ? "Pause growth" : next > 0 && next < 1 ? "Continue growth" : "Play growth";
+      if (playbackButton.textContent !== label) playbackButton.textContent = label;
+    };
+    drawView.current = (view) => {
+      viewRef.current = view;
+      if (touchView) {
+        stage.style.setProperty("--view-yaw", `${view.yaw.toFixed(1)}deg`);
+        stage.style.setProperty("--view-pitch", `${view.pitch.toFixed(1)}deg`);
+      } else {
+        // Only the planes rotate; keep desktop angle changes out of descendant styles.
+        const transform = `rotateX(${view.pitch.toFixed(1)}deg) rotateZ(${view.yaw.toFixed(1)}deg)`;
+        for (const plane of orbitPlanes) plane.style.transform = transform;
+      }
+    };
+    // Reapply after control renders and Activity restoration so React cannot
+    // overwrite a more recent animation frame with its render-time snapshot.
+    drawProgress.current(progressRef.current);
+    drawView.current(viewRef.current);
+  });
+
   const updateProgressFromChartPointer = (event: ReactPointerEvent<SVGCircleElement>) => {
     if (!chart) return;
     const svg = event.currentTarget.ownerSVGElement;
@@ -445,6 +493,7 @@ export default function BlackHoleGrowthSimulator({
   };
 
   const beginChartScrub = (event: ReactPointerEvent<SVGCircleElement>) => {
+    if (chartMarkerPointer.current !== null && event.currentTarget.hasPointerCapture(chartMarkerPointer.current)) return;
     event.preventDefault();
     setPlaying(false);
     chartMarkerPointer.current = event.pointerId;
@@ -479,14 +528,14 @@ export default function BlackHoleGrowthSimulator({
     if (event.key === "Home" || event.key === "End") {
       event.preventDefault();
       setPlaying(false);
-      setProgress(event.key === "Home" ? 0 : 1);
+      drawProgress.current(event.key === "Home" ? 0 : 1);
       return;
     }
     const increment = increments[event.key];
     if (increment === undefined) return;
     event.preventDefault();
     setPlaying(false);
-    setProgress((current) => clamp(current + increment, 0, 1));
+    drawProgress.current(clamp(progressRef.current + increment, 0, 1));
   };
 
   const visualMassScale = Math.max(
@@ -503,8 +552,6 @@ export default function BlackHoleGrowthSimulator({
     "--spin-play-state": Math.abs(spin) < 0.005 ? "paused" : "running",
     "--disk-luminosity": (0.32 + Math.min(1, eddingtonRatio / 1.5) * 0.68).toFixed(2),
     "--disk-inner-edge": `${clamp(22 - spin * 4.5, 17.5, 26.5).toFixed(1)}%`,
-    "--view-yaw": `${viewYaw.toFixed(1)}deg`,
-    "--view-pitch": `${viewPitch.toFixed(1)}deg`,
   } as CSSProperties;
   const playbackLabel = playing ? "Pause growth" : progress > 0 && progress < 1 ? "Continue growth" : "Play growth";
   const activePresetName = presets.find((preset) =>
@@ -593,26 +640,8 @@ export default function BlackHoleGrowthSimulator({
             onPointerCancel={endBlackHoleRotation}
             onLostPointerCapture={endBlackHoleRotation}
           >
-            <div className="black-hole-orbit-plane">
-              <div className="accretion-disk" aria-hidden="true">
-                <span className="accretion-texture" />
-                <span className="accretion-flow accretion-flow--outer" />
-                <span className="accretion-flow accretion-flow--middle" />
-                <span className="accretion-flow accretion-flow--inner" />
-              </div>
-            </div>
-            <div className="black-hole-core" aria-hidden="true" />
-            <div className="black-hole-photon-ring" aria-hidden="true" />
-            <div className="black-hole-orbit-plane black-hole-orbit-plane--foreground" aria-hidden="true">
-              <div className="accretion-disk accretion-disk--foreground">
-                <span className="accretion-texture" />
-                <span className="accretion-flow accretion-flow--outer" />
-                <span className="accretion-flow accretion-flow--middle" />
-                <span className="accretion-flow accretion-flow--inner" />
-              </div>
-            </div>
-            <div className="black-hole-glow" />
-          </div>), [visualMassScale, spin, eddingtonRatio, viewYaw, viewPitch, rotatingView]);
+            {sceneArtwork}
+          </div>), [visualMassScale, spin, eddingtonRatio, rotatingView]);
 
   const controls = useMemo(() => (<div className="simulator-controls">
           <SimulatorSlider
@@ -621,7 +650,7 @@ export default function BlackHoleGrowthSimulator({
             min={1}
             max={6}
             step={0.1}
-            displayValue={formatMass(seedLogMass)}
+            displayValue={formatMass(seedLogMass, numberFormat)}
             onChange={controlChanges.SeedLogMass}
           />
           <SimulatorSlider
@@ -698,7 +727,7 @@ export default function BlackHoleGrowthSimulator({
             </button>
             <button type="button" onClick={resetSimulation}>Reset</button>
           </div>
-        </div>), [seedLogMass, eddingtonRatio, seedRedshift, spin, observedRedshift, dutyCycle, advancedOpen, touchDisclosureOptimizations, playing, playbackLabel]);
+        </div>), [seedLogMass, eddingtonRatio, seedRedshift, spin, observedRedshift, dutyCycle, advancedOpen, touchDisclosureOptimizations, playing, playbackLabel, numberFormat]);
 
   const results = useMemo(() => (<dl className="simulator-results">
         <div>
@@ -711,9 +740,9 @@ export default function BlackHoleGrowthSimulator({
         </div>
         <div>
           <dt>Projected mass</dt>
-          <dd>{formatMass(model.finalLogMass)}</dd>
+          <dd>{formatMass(model.finalLogMass, numberFormat)}</dd>
         </div>
-      </dl>), [model]);
+      </dl>), [model, numberFormat]);
 
     const chartCurve = useMemo(() => (<><line className="growth-chart-axis" x1={chart.left} y1={chart.bottom} x2={chart.right} y2={chart.bottom} />
             <line className="growth-chart-axis" x1={chart.left} y1={chart.top} x2={chart.left} y2={chart.bottom} />
@@ -768,8 +797,8 @@ export default function BlackHoleGrowthSimulator({
           {scene}
 
           <div className="simulator-now" aria-live="polite">
-            <span>z = {currentRedshift.toFixed(1)}</span>
-            <strong>{formatMass(currentLogMass)}</strong>
+            <span>{`z = ${currentRedshiftLabel}`}</span>
+            <strong>{currentMassLabel}</strong>
           </div>
         </div>
 
@@ -796,7 +825,7 @@ export default function BlackHoleGrowthSimulator({
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={Math.round(progress * 100)}
-              aria-valuetext={`z = ${currentRedshift.toFixed(1)}, ${formatMass(currentLogMass)}`}
+              aria-valuetext={`z = ${currentRedshiftLabel}, ${currentMassLabel}`}
               onPointerDown={beginChartScrub}
               onPointerMove={scrubChart}
               onPointerUp={endChartScrub}
@@ -817,6 +846,28 @@ export default function BlackHoleGrowthSimulator({
     </section>
   );
 }
+
+const sceneArtwork = (<>
+  <div className="black-hole-orbit-plane">
+    <div className="accretion-disk" aria-hidden="true">
+      <span className="accretion-texture" />
+      <span className="accretion-flow accretion-flow--outer" />
+      <span className="accretion-flow accretion-flow--middle" />
+      <span className="accretion-flow accretion-flow--inner" />
+    </div>
+  </div>
+  <div className="black-hole-core" aria-hidden="true" />
+  <div className="black-hole-photon-ring" aria-hidden="true" />
+  <div className="black-hole-orbit-plane black-hole-orbit-plane--foreground" aria-hidden="true">
+    <div className="accretion-disk accretion-disk--foreground">
+      <span className="accretion-texture" />
+      <span className="accretion-flow accretion-flow--outer" />
+      <span className="accretion-flow accretion-flow--middle" />
+      <span className="accretion-flow accretion-flow--inner" />
+    </div>
+  </div>
+  <div className="black-hole-glow" />
+</>);
 
 const heading = (<header className="simulator-heading">
         <p className="simulator-kicker">Experiment 01</p>

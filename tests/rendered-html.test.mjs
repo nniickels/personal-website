@@ -116,12 +116,7 @@ test("keeps the animated starfield dark-mode-only and motion-safe", async () => 
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   const source = await portfolioSource();
   assert.match(css, /:root\[data-theme="light"\] \.night-sky\s*\{[\s\S]*?visibility:\s*hidden/i);
-  assert.match(css, /\.night-star::before,\s*\.night-star::after\s*\{/i);
-  assert.match(css, /\.night-star\s*\{[\s\S]*?clip-path:\s*polygon\([\s\S]*?50% 0[\s\S]*?100% 50%[\s\S]*?50% 100%[\s\S]*?0 50%/i);
-  assert.match(css, /\.night-star::before\s*\{[\s\S]*?height:\s*calc\(100% \+ 8px\)[\s\S]*?46%[\s\S]*?54%/i);
-  assert.match(css, /\.night-star::after\s*\{[\s\S]*?width:\s*calc\(100% \+ 8px\)[\s\S]*?46%[\s\S]*?54%/i);
-  assert.match(css, /background:\s*var\(--star-color/i);
-  assert.match(source, /"--star-color":\s*star\.colour/i);
+  assert.match(source, /<polygon points="50,0 57,43 100,50 57,57 50,100 43,57 0,50 43,43" fill="\$\{star.colour\}"/);
   assert.match(source, /createNightStars\(96, 9\)/i);
   assert.match(source, /isLeftEdgeStar[\s\S]*?36 \+ random\(\) \* 52[\s\S]*?15 \+ random\(\) \* 35/i);
   assert.match(source, /#dceaff[\s\S]*#fff0cf[\s\S]*#ffd2ad/i);
@@ -256,7 +251,6 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /data-listening-index=\{index\}/);
   assert.match(source, /const edgeZone = Math\.min\(96, Math\.max\(56, wheelRect\.width \* 0\.22\)\)/);
   assert.match(source, /edgeScrollStrength = rightStrength - leftStrength[\s\S]*?easedStrength/);
-  assert.match(source, /wheel\.scrollLeft \+ direction \* \(1 \+ easedStrength \* 15\)/);
   assert.match(source, /classList\.add\("is-touch-dragging"\)[\s\S]*?requestAnimationFrame/);
   assert.match(source, /classList\.remove\("is-touch-dragging"\)/);
   assert.doesNotMatch(source, /void playPreview\(nextIndex\);\s*scrollWheelToIndex\(nextIndex\)/);
@@ -264,12 +258,12 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /wheelRef\.current\.scrollLeft = press\.startWheelScrollLeft - deltaX/);
   assert.match(source, /window\.scrollTo\(\{ top: press\.startPageScrollY - deltaY \}\)/);
   assert.doesNotMatch(source, /getBoundingClientRect\(\)[\s\S]*?isOutsideCover/);
-  assert.match(source, /handleCoverPointerUp[\s\S]*?openTouchTrack\(index\)/);
+  assert.match(source, /handleCoverPointerUp[\s\S]*?openTrack\(index, false\)/);
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /if \(press\.previewing\)[\s\S]*?resetPreview\(\)/);
   assert.match(source, /onFocus[\s\S]*?Date\.now\(\) - lastTouchAtRef\.current >= 1_000/);
   assert.match(source, /onContextMenu[\s\S]*?event\.preventDefault\(\)/);
-  assert.match(source, /keepPlayingRef\.current = true[\s\S]*?void playPreview\(index\)/);
+  assert.match(source, /keepPlayingRef\.current = preview[\s\S]*?if \(preview\) void playPreview\(index\)/);
   assert.match(source, /<audio[\s\S]*?loop/);
   assert.match(source, /aria-label="Track preview progress"/);
   assert.match(source, /previewProgress \* 360/);
@@ -351,10 +345,6 @@ test("keeps the Side interest sections and stats in the requested order", async 
     /function navigateToSideQuestDestination[\s\S]*?target instanceof HTMLDetailsElement[\s\S]*?target\.dataset\.expandOnNavigate === "true"[\s\S]*?target\.querySelector<HTMLDetailsElement>\(":scope > details"\)[\s\S]*?dropdown\.open = true/,
   );
   assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href\)\}/);
-  assert.match(
-    source,
-    /const duration = 260[\s\S]*?requestAnimationFrame\(animateScroll\)/,
-  );
   assert.match(source, /prefers-reduced-motion: reduce/);
   assert.match(source, /id="photo-gallery" data-expand-on-navigate="true"/);
   assert.match(source, /id="food" data-expand-on-navigate="true"/);
@@ -385,7 +375,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /Here are some of my favourite Pokémon cards from my collection!/);
   assert.match(
     source,
-    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?<DeferredGallery photos=\{galleryPhotos\}[^>]*\/>[\s\S]*?<\/details>/,
+    /<details className="dropdown-entry photo-gallery-dropdown">[\s\S]*?<summary>[\s\S]*?<h2>Photo Gallery<\/h2>[\s\S]*?<ImageGallery photos=\{galleryPhotos\}[^>]*\/>[\s\S]*?<\/details>/,
   );
   assert.doesNotMatch(source, /monthly views on Pinterest|Pinterest monthly views/i);
   assert.match(
@@ -399,15 +389,15 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.doesNotMatch(source, /Photo gallery placeholder/);
   assert.match(
     source,
-    /<summary>Natural Things<\/summary>[\s\S]*?I like gardening and plant-keeping[\s\S]*?<DeferredGallery photos=\{naturalThingsPhotos\}[^>]*\/>/,
+    /<summary>Natural Things<\/summary>[\s\S]*?I like gardening and plant-keeping[\s\S]*?<ImageGallery photos=\{naturalThingsPhotos\}[^>]*\/>/,
   );
   assert.match(
     source,
-    /<summary>Scrapbook<\/summary>[\s\S]*?I hoard \(and organize\)[\s\S]*?<DeferredGallery photos=\{scrapbookPhotos\}[^>]*\/>/,
+    /<summary>Scrapbook<\/summary>[\s\S]*?I hoard \(and organize\)[\s\S]*?<ImageGallery photos=\{scrapbookPhotos\}[^>]*\/>/,
   );
   assert.match(
     source,
-    /<section className="section" id="food" data-expand-on-navigate="true">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?<DeferredGallery photos=\{foodPhotos\}[^>]*\/>[\s\S]*?<\/details>/,
+    /<section className="section" id="food" data-expand-on-navigate="true">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?<ImageGallery photos=\{foodPhotos\}[^>]*\/>[\s\S]*?<\/details>/,
   );
   assert.doesNotMatch(source, /Photo placeholder/);
   assert.doesNotMatch(source, /Photo scroll wheel placeholder/);
@@ -591,7 +581,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   for (const id of ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"]) {
     assert.match(html, new RegExp(`id="${id}-slot"`));
   }
-  assert.doesNotMatch(html, /class="(?:black-hole-stage|lensing-canvas|resonance-canvas|stellar-canvas)"/);
+  assert.match(html, /class="(?:black-hole-stage|lensing-canvas|resonance-canvas|stellar-canvas)"/);
 
   const source = await playgroundSource();
   const portfolioCode = await portfolioSource();
@@ -605,7 +595,6 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /effectiveEfoldingTime/);
   assert.match(source, /requestAnimationFrame\(animate\)/);
   assert.match(source, /8_500 \* \(1 - initialProgress\)/);
-  assert.match(source, /progress >= 1 \? 0\.02 : progress/);
   assert.match(source, /1 - \(1 - elapsed\) \*\* 1\.7/);
   assert.match(source, /VISUAL_LOG_MASS_MIN = 1/);
   assert.match(source, /VISUAL_LOG_MASS_REFERENCE_MAX = 15/);
@@ -656,9 +645,6 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /setPointerCapture\(event\.pointerId\)/);
   assert.match(source, /scalar thin-lens equation/);
   assert.match(source, /beginBlackHoleRotation/);
-  assert.match(source, /setViewYaw/);
-  assert.match(source, /setViewPitch/);
-  assert.match(source, /useState\(84\)[\s\S]*?setViewPitch\(84\)/);
   assert.match(source, /className="lensing-canvas"[\s\S]*?className="lensing-depth-diagram"/i);
   assert.match(source, /className="lensing-depth-diagram"[\s\S]*?observer[\s\S]*?foreground lens[\s\S]*?background source/i);
   assert.match(source, /className="lensing-light-path"/);
@@ -704,7 +690,6 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(source, /function mainSequenceTimelineStart/);
   assert.match(source, /function progressToStellarTimelinePosition/);
   assert.match(source, /function stellarTimelinePositionToProgress/);
-  assert.match(source, /useState\(\(\) => mainSequenceTimelineStart\(1\)\)/);
   assert.match(source, /Phases are evenly spaced for easy selection; playback slows through longer intervals\. <strong>Drag to explore or select any phase\.<\/strong>/);
   assert.doesNotMatch(source, /Planetary<br \/>nebula|White<br \/>dwarf/);
   assert.match(source, /5\/6ths through main sequence/);

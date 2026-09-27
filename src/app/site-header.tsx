@@ -1,11 +1,26 @@
 "use client";
+import type { SyntheticEvent } from "react";
 import { ThemeToggle } from "./theme-toggle";
 import { ResponsiveImage } from "./responsive-image";
 import icons from "../generated/media/icons.json";
 export type SitePage = "serious" | "fun" | "playground";
+const prefetched = new Set<string>();
+
+function prefetchDestination(event: SyntheticEvent<HTMLElement>) {
+  const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (!link || connection?.saveData || link.origin !== location.origin || link.pathname === location.pathname || prefetched.has(link.href)) return;
+  prefetched.add(link.href);
+  const hint = document.createElement("link");
+  hint.rel = "prefetch";
+  hint.as = "document";
+  hint.href = link.href;
+  document.head.append(hint);
+}
+
 export function SiteHeader({ page }: { page: SitePage }) {
   return (
-    <header className="bar topbar">
+    <header className="bar topbar" onPointerOver={prefetchDestination} onFocus={prefetchDestination} onTouchStart={prefetchDestination}>
       <div className="container topbar-content">
         <a className="text-btn home-link" href="/" aria-label="Nicole Jiang home">
           <ResponsiveImage asset={icons["/tong-calligraphy.png"]} sizes="22px" alt="" aria-hidden="true" />

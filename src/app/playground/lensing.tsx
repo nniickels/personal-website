@@ -1,37 +1,79 @@
 "use client";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { useEffect, useMemo, useRef, useState, memo } from "react";
-import { formatMass, createFrameGate, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars, LENS_CENTER } from "./shared";
-export default function GravitationalLensingSandbox({
-  limitFrameRate = false,
-}: {
-  limitFrameRate?: boolean;
-} = {}) {
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
+import { formatMass, createFrameGate, useExperimentVisibility, useMobileVisualRef, useFrameValue, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars, LENS_CENTER } from "./shared";
+
+type Position = { x: number; y: number };
+const depthLensX = 286;
+
+function calculateLensModel(position: Position, einsteinRadius: number) {
+  const dx = position.x - LENS_CENTER.x;
+  const dy = position.y - LENS_CENTER.y;
+  const beta = Math.hypot(dx, dy);
+  const directionX = beta > 0.01 ? dx / beta : 1;
+  const directionY = beta > 0.01 ? dy / beta : 0;
+  const discriminant = Math.sqrt(beta ** 2 + 4 * einsteinRadius ** 2);
+  const thetaPlus = (beta + discriminant) / 2;
+  const thetaMinus = (beta - discriminant) / 2;
+  const safeU = Math.max(beta / einsteinRadius, 0.025);
+  const magnificationTerm =
+    (safeU ** 2 + 2) / (2 * safeU * Math.sqrt(safeU ** 2 + 4));
+  const plusMagnification = 0.5 + magnificationTerm;
+  const minusMagnification = Math.abs(0.5 - magnificationTerm);
+
+  return {
+    beta,
+    einsteinRadius,
+    totalMagnification: plusMagnification + minusMagnification,
+    ringStrength: clamp(1 - beta / Math.max(1, einsteinRadius * 0.42), 0, 1),
+    angle: (Math.atan2(directionY, directionX) * 180) / Math.PI + 90,
+    imageSeparation: discriminant,
+    plus: {
+      x: LENS_CENTER.x + directionX * thetaPlus,
+      y: LENS_CENTER.y + directionY * thetaPlus,
+      magnification: plusMagnification,
+    },
+    minus: {
+      x: LENS_CENTER.x + directionX * thetaMinus,
+      y: LENS_CENTER.y + directionY * thetaMinus,
+      magnification: minusMagnification,
+    },
+    depthSourceY: 46 + clamp((position.y - LENS_CENTER.y) * 0.12, -20, 20),
+  };
+}
+
+function imageRadii(magnification: number, sourceSize: number) {
+  return {
+    tangentialRadius: clamp(sourceSize * Math.sqrt(Math.max(magnification, 0.1)) * 1.55, sourceSize, 78),
+    radialRadius: clamp(sourceSize / Math.sqrt(Math.max(magnification, 0.2)), 3.2, sourceSize),
+  };
+}
+
+export default function GravitationalLensingSandbox() {
   const [sectionRef, isExperimentVisible] = useExperimentVisibility<HTMLElement>();
   const visualRef = useMobileVisualRef<SVGSVGElement>();
   const [sourcePosition, setSourcePosition] = useState({ x: 410, y: 135 });
-  const [displaySourcePosition, setDisplaySourcePosition] = useState({ x: 410, y: 135 });
-  const displaySourceRef = useRef(displaySourcePosition);
+  const displaySourceRef = useRef({ x: 410, y: 135 });
+  const displaySourcePosition = displaySourceRef.current;
+  const displayRotationRef = useRef(-22);
+  const sourceRotation = displayRotationRef.current;
+  const drawSource = useRef<(position: Position, rotation?: number) => void>(() => {});
   const lensAnimationFrame = useRef<number | null>(null);
   const [lensLogMass, setLensLogMass] = useState(12);
   const [distanceRatio, setDistanceRatio] = useState(0.5);
   const [sourceSize, setSourceSize] = useState(10);
-  const [sourceRotation, setSourceRotation] = useState(-22);
   const activePointer = useRef<number | null>(null);
   const previousPointerX = useRef<number | null>(null);
-  const pendingPointer = useRef<{ x: number; y: number; rotation: number } | null>(null);
-  const pointerFrame = useRef<number | null>(null);
   const rotationRef = useRef(-22);
-  useEffect(() => () => {
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
-    pointerFrame.current = null;
-    pendingPointer.current = null;
-  }, []);
+  const pointerQueue = useFrameValue<Position & { rotation: number }>((next) => {
+    drawSource.current({ x: next.x, y: next.y }, next.rotation);
+  });
 
   useEffect(() => {
     if (!isExperimentVisible) return;
 
     const from = displaySourceRef.current;
+    if (from.x === sourcePosition.x && from.y === sourcePosition.y) return;
     const startedAt = performance.now();
     if (activePointer.current !== null) return;
     const duration = 260;
@@ -50,8 +92,7 @@ export default function GravitationalLensingSandbox({
         x: from.x + (sourcePosition.x - from.x) * eased,
         y: from.y + (sourcePosition.y - from.y) * eased,
       };
-      displaySourceRef.current = nextPosition;
-      setDisplaySourcePosition(nextPosition);
+      drawSource.current(nextPosition);
 
       if (elapsed < 1) {
         lensAnimationFrame.current = requestAnimationFrame(animate);
@@ -64,72 +105,74 @@ export default function GravitationalLensingSandbox({
         cancelAnimationFrame(lensAnimationFrame.current);
       }
     };
-  }, [sourcePosition, isExperimentVisible, limitFrameRate]);
+  }, [sourcePosition, isExperimentVisible]);
 
-  const lensModel = useMemo(() => {
-    const dx = displaySourcePosition.x - LENS_CENTER.x;
-    const dy = displaySourcePosition.y - LENS_CENTER.y;
-    const beta = Math.hypot(dx, dy);
-    const directionX = beta > 0.01 ? dx / beta : 1;
-    const directionY = beta > 0.01 ? dy / beta : 0;
-    const einsteinRadius = clamp(
-      55 * Math.sqrt(10 ** (lensLogMass - 12) * (distanceRatio / 0.5)),
-      18,
-      138,
-    );
-    const discriminant = Math.sqrt(beta ** 2 + 4 * einsteinRadius ** 2);
-    const thetaPlus = (beta + discriminant) / 2;
-    const thetaMinus = (beta - discriminant) / 2;
-    const safeU = Math.max(beta / einsteinRadius, 0.025);
-    const magnificationTerm =
-      (safeU ** 2 + 2) / (2 * safeU * Math.sqrt(safeU ** 2 + 4));
-    const plusMagnification = 0.5 + magnificationTerm;
-    const minusMagnification = Math.abs(0.5 - magnificationTerm);
-    const totalMagnification = plusMagnification + minusMagnification;
-    const angle = (Math.atan2(directionY, directionX) * 180) / Math.PI + 90;
-    const ringStrength = clamp(1 - beta / Math.max(1, einsteinRadius * 0.42), 0, 1);
+  const einsteinRadius = clamp(
+    55 * Math.sqrt(10 ** (lensLogMass - 12) * (distanceRatio / 0.5)),
+    18,
+    138,
+  );
+  const depthSourceX = 430 + distanceRatio * 150;
+  const lensModel = calculateLensModel(displaySourcePosition, einsteinRadius);
 
-    return {
-      beta,
-      einsteinRadius,
-      totalMagnification,
-      ringStrength,
-      angle,
-      imageSeparation: discriminant,
-      plus: {
-        x: LENS_CENTER.x + directionX * thetaPlus,
-        y: LENS_CENTER.y + directionY * thetaPlus,
-        magnification: plusMagnification,
-      },
-      minus: {
-        x: LENS_CENTER.x + directionX * thetaMinus,
-        y: LENS_CENTER.y + directionY * thetaMinus,
-        magnification: minusMagnification,
-      },
+  useLayoutEffect(() => {
+    const section = sectionRef.current!;
+    const source = section.querySelector<SVGGElement>(".lensing-source")!;
+    const ring = section.querySelector<SVGCircleElement>(".einstein-ring")!;
+    const images = ["minus", "plus"].map((name) => section.querySelector<SVGGElement>(`.lensing-image--${name}`)!);
+    const ellipses = images.map((image) => [...image.querySelectorAll("ellipse")]);
+    const label = section.querySelector<HTMLElement>(".lensing-instruction strong")!;
+    const readouts = [...section.querySelectorAll<HTMLElement>(".lensing-results dd")].slice(1);
+    const depthSource = section.querySelector<SVGGElement>(".lensing-depth-source")!;
+    const depthRotation = depthSource.querySelector("g")!;
+    const depthLabel = depthSource.querySelector("text")!;
+    const paths = [...section.querySelectorAll(".lensing-light-path")];
+
+    drawSource.current = (position, rotation = displayRotationRef.current) => {
+      displaySourceRef.current = position;
+      displayRotationRef.current = rotation;
+      const model = calculateLensModel(position, einsteinRadius);
+      source.setAttribute("transform", `translate(${position.x} ${position.y}) rotate(${rotation})`);
+      ring.style.opacity = String(model.ringStrength);
+      [model.minus, model.plus].forEach((image, index) => {
+        images[index].style.display = model.ringStrength < 0.94 ? "" : "none";
+        images[index].setAttribute("transform", `translate(${image.x} ${image.y}) rotate(${model.angle})`);
+        const { tangentialRadius, radialRadius } = imageRadii(image.magnification, sourceSize);
+        for (const [part, [x, y]] of [[1, 1], [0.56, 0.55], [0.82, 0.74]].entries()) {
+          ellipses[index][part].setAttribute("rx", String(tangentialRadius * x));
+          ellipses[index][part].setAttribute("ry", String(radialRadius * y));
+        }
+      });
+      const text = model.ringStrength > 0.82 ? "Einstein ring" : "Two-image lens";
+      if (label.textContent !== text) label.textContent = text;
+      const values = [
+        model.beta < 1 ? "> 40×" : `${model.totalMagnification.toFixed(2)}×`,
+        `${model.imageSeparation.toFixed(1)} display units`,
+      ];
+      values.forEach((value, index) => { if (readouts[index].textContent !== value) readouts[index].textContent = value; });
+      const x = depthSourceX;
+      const y = model.depthSourceY;
+      paths[0].setAttribute("d", `M ${x} ${y} Q ${(x + depthLensX) / 2} 23 ${depthLensX} 34 Q 170 43 62 46`);
+      paths[1].setAttribute("d", `M ${x} ${y} Q ${(x + depthLensX) / 2} 69 ${depthLensX} 58 Q 170 49 62 46`);
+      depthSource.setAttribute("transform", `translate(${x} ${y})`);
+      depthRotation.setAttribute("transform", `rotate(${rotation})`);
+      depthLabel.setAttribute("y", String(y > 52 ? -24 : 30));
     };
-  }, [displaySourcePosition, distanceRatio, lensLogMass]);
+    // Controls and Activity can render after a newer frame; keep that frame.
+    drawSource.current(displaySourceRef.current);
+  });
 
-  const commitPointer = () => {
-    pointerFrame.current = null;
-    const next = pendingPointer.current;
-    if (!next) return;
-    pendingPointer.current = null;
-    const position = { x: next.x, y: next.y };
-    displaySourceRef.current = position;
-    setDisplaySourcePosition(position);
-    setSourceRotation(next.rotation);
-  };
   const moveSource = (event: ReactPointerEvent<SVGSVGElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
-    pendingPointer.current = {
+    pointerQueue.push({
       x: clamp(((event.clientX - bounds.left) / bounds.width) * 620, 24, 596),
       y: clamp(((event.clientY - bounds.top) / bounds.height) * 370, 24, 346),
       rotation: rotationRef.current,
-    };
-    if (pointerFrame.current === null) pointerFrame.current = requestAnimationFrame(commitPointer);
+    });
   };
 
   const handlePointerDown = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (activePointer.current !== null && event.currentTarget.hasPointerCapture(activePointer.current)) return;
     if (lensAnimationFrame.current !== null) cancelAnimationFrame(lensAnimationFrame.current);
     activePointer.current = event.pointerId;
     previousPointerX.current = event.clientX;
@@ -149,8 +192,7 @@ export default function GravitationalLensingSandbox({
 
   const handlePointerEnd = (event: ReactPointerEvent<SVGSVGElement>) => {
     if (activePointer.current !== event.pointerId) return;
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
-    commitPointer();
+    pointerQueue.flush();
     setSourcePosition(displaySourceRef.current);
     activePointer.current = null;
     previousPointerX.current = null;
@@ -165,28 +207,20 @@ export default function GravitationalLensingSandbox({
     setDistanceRatio(0.5);
     setSourceSize(10);
     rotationRef.current = -22;
-    setSourceRotation(-22);
+    drawSource.current(displaySourceRef.current, -22);
   };
 
   const renderImage = (
     image: typeof lensModel.plus,
     className: string,
   ) => {
-    const tangentialRadius = clamp(
-      sourceSize * Math.sqrt(Math.max(image.magnification, 0.1)) * 1.55,
-      sourceSize,
-      78,
-    );
-    const radialRadius = clamp(
-      sourceSize / Math.sqrt(Math.max(image.magnification, 0.2)),
-      3.2,
-      sourceSize,
-    );
+    const { tangentialRadius, radialRadius } = imageRadii(image.magnification, sourceSize);
 
     return (
       <g
         className={`lensing-image ${className}`}
         transform={`translate(${image.x} ${image.y}) rotate(${lensModel.angle})`}
+        style={{ display: lensModel.ringStrength < 0.94 ? undefined : "none" }}
       >
         <ellipse rx={tangentialRadius} ry={radialRadius} />
         <ellipse className="lensing-image-core" rx={tangentialRadius * 0.56} ry={radialRadius * 0.55} />
@@ -195,13 +229,7 @@ export default function GravitationalLensingSandbox({
     );
   };
 
-  const depthLensX = 286;
-  const depthSourceX = 430 + distanceRatio * 150;
-  const depthSourceY = 46 + clamp(
-    (displaySourcePosition.y - LENS_CENTER.y) * 0.12,
-    -20,
-    20,
-  );
+  const { depthSourceY } = lensModel;
 
   // Reuse unchanged JSX regions so input/playback updates skip their subtrees.
   const controls = useMemo(() => (<div className="lensing-controls simulator-controls">
@@ -275,6 +303,7 @@ export default function GravitationalLensingSandbox({
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerEnd}
             onPointerCancel={handlePointerEnd}
+            onLostPointerCapture={handlePointerEnd}
           >
             {drawingDefinitions0}
 
@@ -319,8 +348,8 @@ export default function GravitationalLensingSandbox({
               style={{ opacity: lensModel.ringStrength }}
             />
 
-            {lensModel.ringStrength < 0.94 && renderImage(lensModel.minus, "lensing-image--minus")}
-            {lensModel.ringStrength < 0.94 && renderImage(lensModel.plus, "lensing-image--plus")}
+            {renderImage(lensModel.minus, "lensing-image--minus")}
+            {renderImage(lensModel.plus, "lensing-image--plus")}
 
             <g className="lensing-lens" transform={`translate(${LENS_CENTER.x} ${LENS_CENTER.y})`}>
               <ellipse className="lensing-lens-halo" rx="48" ry="34" transform="rotate(-18)" />
@@ -390,7 +419,7 @@ export default function GravitationalLensingSandbox({
         </div>
         <div>
           <dt>Image separation</dt>
-          <dd>{lensModel.imageSeparation.toFixed(1)} display units</dd>
+          <dd>{`${lensModel.imageSeparation.toFixed(1)} display units`}</dd>
         </div>
       </dl>
 

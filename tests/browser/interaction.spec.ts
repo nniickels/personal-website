@@ -86,7 +86,12 @@ test("black-hole rotation retains every delta and flushes cancellation", async (
   const x = bounds!.x + bounds!.width / 2;
   const y = bounds!.y + bounds!.height / 2;
   await page.mouse.move(x, y); await page.mouse.down();
-  const yaw = () => scene.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--view-yaw"));
+  const yaw = () => scene.evaluate((el) => {
+    const transform = el.querySelector<HTMLElement>(".black-hole-orbit-plane")!.style.transform;
+    const value = transform.match(/rotateZ\(([-\d.]+)deg\)/)?.[1]
+      ?? (el as HTMLElement).style.getPropertyValue("--view-yaw");
+    return `${parseFloat(value).toFixed(1)}deg`;
+  });
   const initial = await yaw();
   await holdFrames(page);
   for (const dx of [10, 30, 20]) {
@@ -168,6 +173,7 @@ test("orbit dragging accumulates all movements before each frame", async ({ page
   await page.mouse.move(at(0).clientX, at(0).clientY); await page.mouse.down();
   // WebKit rounds native mouse coordinates; use the same fractional event
   // coordinates for the start and subsequent samples in this precision check.
+  await scene.evaluate(element => element.releasePointerCapture(1));
   await scene.dispatchEvent("pointerdown", at(0));
   await holdFrames(page);
   for (const angle of [0.4, 0.2, Math.PI / 2]) await scene.dispatchEvent("pointermove", at(angle));
@@ -188,6 +194,8 @@ test("mobile visuals pause outside the viewport without pausing the experiment",
     ["orbital-resonance", ".resonance-canvas"],
   ]) {
     await page.goto(`/playground#${id}`);
+    // Give the final mobile drawing enough room to scroll completely offscreen.
+    await page.evaluate(() => { document.body.style.paddingBottom = "100vh"; });
     const scene = page.locator(selector);
     await scene.scrollIntoViewIfNeeded();
     await expect(scene).not.toHaveAttribute("data-visual-paused");
@@ -205,6 +213,9 @@ test("mobile visuals pause outside the viewport without pausing the experiment",
     }
     if (isMobile && id === "black-hole-growth") {
       await page.getByRole("button", { name: "Play growth", exact: true }).click();
+      // Clicking scrolls the play button into view, which can also reveal the drawing.
+      // Recreate the user's offscreen reading position after starting playback.
+      await scene.evaluate((el) => scrollTo(0, scrollY + el.getBoundingClientRect().bottom + 60));
       await expect(scene).toHaveAttribute("data-visual-paused", "");
       const progress = page.getByRole("slider", { name: "Inspect growth time" });
       await expect.poll(async () => Number(await progress.getAttribute("aria-valuenow"))).toBeLessThan(100);

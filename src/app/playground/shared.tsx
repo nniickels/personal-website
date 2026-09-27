@@ -19,15 +19,30 @@ export function createFrameGate(saveData: boolean) {
   let lastCallback: number | null = null;
   let samples = 0;
   let delayed = 0;
+  let nextFrameAt = 0;
   return (now: number, lastRenderedAt: number | null) => {
-    if (lastCallback !== null && samples < 60) {
+    if (lastCallback !== null && !saveData) {
       const elapsed = now - lastCallback;
       if (elapsed > 24 && elapsed < 200) delayed++;
       samples++;
-      if (samples >= 30 && delayed / samples > 0.25) interval = 1000 / 30;
+      if (samples === 60) {
+        const nextInterval = 1000 / (delayed / samples > 0.25 ? 30 : 60);
+        if (nextInterval !== interval) {
+          interval = nextInterval;
+          nextFrameAt = (lastRenderedAt ?? now) + interval;
+        }
+        samples = delayed = 0;
+      }
     }
     lastCallback = now;
-    return lastRenderedAt !== null && now - lastRenderedAt < interval - 0.5;
+    if (lastRenderedAt === null) {
+      nextFrameAt = now + interval;
+      return false;
+    }
+    if (now < nextFrameAt - 0.5) return true;
+    // Carry the remainder on uneven display cadences; missed frames never queue.
+    nextFrameAt += (Math.floor((now - nextFrameAt + 0.5) / interval) + 1) * interval;
+    return false;
   };
 }
 
@@ -40,8 +55,8 @@ export function useExperimentVisibility<T extends HTMLElement>() {
     if (!element) return;
     let intersects = false;
     const update = () => setIsVisible(intersects && !document.hidden);
-    const observer = new IntersectionObserver(([entry]) => {
-      intersects = entry.isIntersecting;
+    const observer = new IntersectionObserver((entries) => {
+      intersects = entries[entries.length - 1].isIntersecting;
       update();
     }, { rootMargin: "120px 0px", threshold: 0.01 });
     observer.observe(element);
@@ -70,8 +85,8 @@ export function useMobileVisualRef<T extends Element>() {
       observer?.disconnect();
       intersects = false;
       if (touch.matches) {
-        observer = new IntersectionObserver(([entry]) => {
-          intersects = entry.isIntersecting;
+        observer = new IntersectionObserver((entries) => {
+          intersects = entries[entries.length - 1].isIntersecting;
           update();
         }, { threshold: 0 });
         observer.observe(visual);
@@ -131,15 +146,14 @@ export const FrameRange = memo(function FrameRange({ value, onValueChange, ...pr
   Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "defaultValue" | "onChange" | "type"> & {
     value: number; onValueChange: (value: number) => void;
   }) {
-  const [draft, setDraft] = useState(value);
+  const input = useRef<HTMLInputElement>(null);
   const queue = useFrameValue(onValueChange);
   useLayoutEffect(() => {
-    if (!queue.hasPending()) setDraft(value);
-  }, [value, queue]);
-  return <input {...props} type="range" value={draft}
+    if (input.current && !queue.hasPending()) input.current.value = String(value);
+  }, [value, props.min, props.max, props.step, queue]);
+  return <input {...props} ref={input} type="range" defaultValue={value}
     onChange={(event) => {
       const next = Number(event.currentTarget.value);
-      setDraft(next);
       queue.push(next);
     }}
     onPointerUp={(event) => { queue.flush(); props.onPointerUp?.(event); }}
@@ -216,9 +230,10 @@ export function clamp(value: number, minimum: number, maximum: number) {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
-export function formatMass(logMass: number) {
+export function formatMass(logMass: number, numberFormat?: Intl.NumberFormat) {
   if (logMass < 6) {
-    return `${Math.round(10 ** logMass).toLocaleString()} M☉`;
+    const mass = Math.round(10 ** logMass);
+    return `${numberFormat?.format(mass) ?? mass.toLocaleString()} M☉`;
   }
 
   const exponent = Math.floor(logMass);

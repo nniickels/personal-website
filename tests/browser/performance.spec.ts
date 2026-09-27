@@ -21,12 +21,12 @@ test("home renders without side-quest or simulation code", async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("galleries defer original-size media and preserve the full viewer", async ({ page }, testInfo) => {
+test("galleries render markup upfront and preserve the full viewer", async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
   await page.goto("/side");
-  await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(0);
-  expect(requests.some((url) => /media\/photos-/.test(url))).toBe(false);
+  await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(50);
+  expect(requests.some((url) => /media\/photos-.*-(960|1600)\.webp/.test(url))).toBe(false);
   await page.locator("#photo-gallery summary").click();
   await expect(page.locator("#photo-gallery .photo-gallery-thumbnail")).toHaveCount(50);
   const first = page.locator("#photo-gallery .photo-gallery-thumbnail img").first();
@@ -51,14 +51,13 @@ test("galleries defer original-size media and preserve the full viewer", async (
   await page.screenshot({ path: testInfo.outputPath("gallery.png"), fullPage: false });
 });
 
-test("mobile initializes only the chosen experiment and preserves state", async ({ page }, testInfo) => {
+test("mobile keeps prepared experiments collapsed and preserves state", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  const requests: string[] = [];
-  page.on("request", (request) => requests.push(request.url()));
   await page.goto("/playground");
   await expect(page.locator(".mobile-experiment-toggle")).toHaveCount(4);
-  await expect(page.locator(".black-hole-stage, .stellar-canvas, .lensing-canvas, .resonance-canvas")).toHaveCount(0);
-  expect(requests.filter((url) => /chunks\/(black-hole|stellar|lensing|resonance)-/.test(url))).toEqual([]);
+  await expect(page.locator(".black-hole-stage, .stellar-canvas, .lensing-canvas, .resonance-canvas")).toHaveCount(4);
+  await expect(page.locator(".mobile-experiment-toggle[aria-expanded=true]")).toHaveCount(0);
+  await expect(page.locator(".experiment-panel:visible")).toHaveCount(0);
   const blackToggle = page.getByRole("button", { name: "Black-Hole Growth Simulator", exact: true });
   await blackToggle.click();
   await expect(page.locator(".black-hole-stage")).toBeVisible();
@@ -77,7 +76,7 @@ test("mobile initializes only the chosen experiment and preserves state", async 
   await expect(blackToggle).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("button", { name: "Rapid growth", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Variables guide", exact: true }).click();
-  expect(await page.locator(".night-star").evaluateAll((stars) => stars.some((star) => getComputedStyle(star).animationPlayState === "running" && getComputedStyle(star).animationName !== "none"))).toBe(true);
+  expect(await page.locator(".night-star").evaluateAll((stars) => stars.some((star) => star.getAnimations().some((animation) => animation.playState === "running")))).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("playground.png"), fullPage: false });
 });
 
