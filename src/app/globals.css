@@ -528,7 +528,8 @@ button {
 }
 
 .text-btn::after,
-.text-link::after {
+.text-link::after,
+.ranking-link-label::after {
   content: "";
   position: absolute;
   right: 0;
@@ -551,7 +552,9 @@ button {
 .text-btn:hover::after,
 .text-btn:focus-visible::after,
 .text-link:hover::after,
-.text-link:focus-visible::after {
+.text-link:focus-visible::after,
+.text-link:hover .ranking-link-label::after,
+.text-link:focus-visible .ranking-link-label::after {
   transform: scaleX(1);
 }
 
@@ -1538,13 +1541,33 @@ button {
   break-inside: avoid;
 }
 
+.ranking-card--tracks li:first-child {
+  break-after: avoid;
+}
+
 .ranking-card .ranking-time {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.ranking-card li span:first-child {
+/* An atomic label keeps the underline within the link's column fragment. */
+.ranking-link-label {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  line-height: 1.65;
+}
+
+.ranking-card .text-link {
+  line-height: 0;
+}
+
+.ranking-card .text-link::after {
+  content: none;
+}
+
+.ranking-card li > span:first-child {
   color: var(--line);
   font-variant-numeric: tabular-nums;
 }

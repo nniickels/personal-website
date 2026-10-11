@@ -157,7 +157,7 @@ export function FunContent() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        {items[index].name}
+                        <span className="ranking-link-label">{items[index].name}</span>
                       </a>
                     ) : (
                       <span>{items[index]?.name ?? "—"}</span>

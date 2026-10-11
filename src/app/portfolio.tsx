@@ -78,10 +78,10 @@ export function Portfolio({ mode }: { mode: Mode }) {
                   I also have many interests, collections, and hobbies outside of astrophysics and career-goal-adjacent stuff!
                 </p>
                 <p className="desktop-only">
-                  Hi!! It's Nicole again. Outside of astrophysics and career-goal-adjacent stuff, I'm
+                  Outside of astrophysics and career-goal-adjacent stuff, I'm
                   very interested in philosophy (namely metaphysics and epistemology, though
-                  interdisciplinary questions are my favourite). I have many interests, collections,
-                  and hobbies I'd like to share with you on this page... Please enjoy!
+                  interdisciplinary questions are my favourite). This page is a little collection
+                  of my interests, hobbies, and favourite things...
                 </p>
               </>
             )}

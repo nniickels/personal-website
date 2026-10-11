@@ -20,3 +20,5 @@ npm run test:browser
 `npm test` rebuilds the site. Browser tests use Chromium for desktop/phone interactions and WebKit for responsive layout and phone slider/drag checks. They use the most recent production build and start a server on `127.0.0.1:4173`, reusing an existing server there outside CI. Stop any stale server before testing a new build. Avoid rebuilding the shared `dist` directory while a production preview or browser check is running: the server can retain references to removed asset filenames. Use `npm run start` separately to preview the production site manually.
 
 Run `npm run privacy:strip-gallery-metadata` after adding gallery JPEGs. It losslessly removes EXIF, XMP, IPTC, comments, and other nonessential application metadata while preserving image pixels, JFIF data, and colour profiles.
+
+The website résumé source is `resume/resume.tex`. To rebuild `public/resume.pdf`, run `tectonic resume/resume.tex --outdir public` from the repository root, then confirm the PDF remains one page and inspect its layout before committing.
