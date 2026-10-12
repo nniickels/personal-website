@@ -6,7 +6,8 @@ import { ExternalLinkIcon } from "../icons";
 import ListeningCoverWheel from "./music-shelf";
 import PokemonCardWheel from "./pokemon-shelf";
 import ImageGallery from "./image-gallery";
-import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, foodPhotos, sideQuestNavigationRows } from "./data";
+import PlacePostcards from "./place-postcards";
+import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, sideQuestNavigationRows } from "./data";
 
 function navigateToSideQuestDestination(
   event: ReactMouseEvent<HTMLAnchorElement>,
@@ -197,54 +198,40 @@ export function FunContent() {
         </div>
       </section>
 
-      <section className="section" id="reading">
-        <h2>Reading</h2>
-        <ul className="mobile-only interest-list placeholder-copy">
-          <li><strong><cite>The Book of Laughter and Forgetting</cite></strong> — Milan Kundera (Michael Henry Heim translation)</li>
-          <li><strong><cite>Personal Identity</cite></strong> — Derek Parfit (1971)</li>
-          <li><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer"><strong>Joshua Barkman’s works</strong></a></li>
-        </ul>
-        <p className="placeholder-copy desktop-only">
-          My current favourite book is{" "}
-          <strong><cite>The Book of Laughter and Forgetting</cite></strong> by Milan Kundera (Michael Henry Heim translation).
-          I like his essayistic prose and enjoy reading other books within the realm of literary fiction, philosophical fiction,
-          and surrealism. As for papers, I recently read Derek Parfit's 1971 paper on personal identity and took a liking to his theory.
-          More casually, I like to read comics and manga also. Some favourites include the{" "}
-          <strong><cite>House of Slaughter Vol. 2</cite></strong> and the <strong><cite>Heaven's Design Team</cite></strong> series. I'm also a big fan of all of{""} <strong><cite><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer">
-                Joshua Barkman
-              </a></cite></strong>{""}'s works!
-        </p>
-        </section>
-
-      <section className="section" id="watching">
-        <h2>Watching</h2>
-        <ul className="mobile-only interest-list placeholder-copy">
-          <li><a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer"><strong>Jacob Geller</strong></a></li>
-          <li><a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer"><strong>Daryl Talks Games</strong></a></li>
-          <li><strong><cite>Mononoke</cite></strong> (2007)</li>
-          <li><strong><cite>BoJack Horseman</cite></strong></li>
-        </ul>
-        <p className="placeholder-copy desktop-only">
-          My favourite YouTube channels are{" "}
-          <strong>
-            <cite>
-              <a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer">
-                Jacob Geller
-              </a>
-            </cite>
-          </strong>{" "}
-          and{" "}
-          <strong>
-            <cite>
-              <a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer">
-                Daryl Talks Games
-              </a>
-            </cite>
-          </strong>.{" "}
-          If you like video essays about video games and/or philosophy and psychology, I highly recommend! I also really like{" "}
-          <strong><cite>BoJack Horseman</cite></strong> and the 2007 anime <strong><cite>Mononoke</cite></strong>.
-        </p>
+      <section className="section" id="collections">
+        <h2>Collections</h2>
+        <div className="dropdown-list">
+          <details className="dropdown-entry" id="natural-things">
+            <summary>Natural Things</summary>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                I like gardening and plant-keeping, so I collect dried flowers and press them sometimes also. I also like collecting rocks and fossils. Catch me at the beach with a hammer just throwing shale around.
+              </p>
+              <ImageGallery photos={naturalThingsPhotos} ariaLabel="NaturalThingsGallery" desktopColumns={6} />
+            </div>
+          </details>
+          <details className="dropdown-entry" id="scrapbook">
+            <summary>Scrapbook</summary>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                I hoard (and organize) a bunch of junk and like making scrapbooks with it. Everything has sentimental value! Here are some pages I like in particular.
+              </p>
+              <ImageGallery photos={scrapbookPhotos} ariaLabel="ScrapbookGallery" desktopColumns={3} />
+            </div>
+          </details>
+          <div className="collection-static-entry" id="pokemon-cards">
+            <h3>Pokémon Cards</h3>
+            <div className="dropdown-content">
+              <p className="placeholder-copy">
+                Here are some of my favourite Pokémon cards from my collection! You're just going to have to trust that I actually have them.
+              </p>
+              <PokemonCardWheel />
+            </div>
+          </div>
+        </div>
       </section>
+
+      <PlacePostcards />
 
       <section className="section" id="gaming">
         <h2>Gaming</h2>
@@ -334,54 +321,59 @@ export function FunContent() {
         </div>
       </section>
 
-      <section className="section" id="collections">
-        <h2>Collections</h2>
-        <div className="dropdown-list">
-          <details className="dropdown-entry" id="natural-things">
-            <summary>Natural Things</summary>
-            <div className="dropdown-content">
-              <p className="placeholder-copy">
-                I like gardening and plant-keeping, so I collect dried flowers and press them sometimes also. I also like collecting rocks and fossils. Catch me at the beach with a hammer just throwing shale around.
-              </p>
-              <ImageGallery photos={naturalThingsPhotos} ariaLabel="NaturalThingsGallery" desktopColumns={6} />
-            </div>
-          </details>
-          <details className="dropdown-entry" id="scrapbook">
-            <summary>Scrapbook</summary>
-            <div className="dropdown-content">
-              <p className="placeholder-copy">
-                I hoard (and organize) a bunch of junk and like making scrapbooks with it. Everything has sentimental value! Here are some pages I like in particular.
-              </p>
-              <ImageGallery photos={scrapbookPhotos} ariaLabel="ScrapbookGallery" desktopColumns={3} />
-            </div>
-          </details>
-          <div className="collection-static-entry" id="pokemon-cards">
-            <h3>Pokémon Cards</h3>
-            <div className="dropdown-content">
-              <p className="placeholder-copy">
-                Here are some of my favourite Pokémon cards from my collection! You're just going to have to trust that I actually have them.
-              </p>
-              <PokemonCardWheel />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="food" data-expand-on-navigate="true">
-        <h2>Food</h2>
+      <section className="section" id="reading">
+        <h2>Reading</h2>
+        <ul className="mobile-only interest-list placeholder-copy">
+          <li><strong><cite>The Book of Laughter and Forgetting</cite></strong> — Milan Kundera (Michael Henry Heim translation)</li>
+          <li><strong><cite>Personal Identity</cite></strong> — Derek Parfit (1971)</li>
+          <li><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer"><strong>Joshua Barkman’s works</strong></a></li>
+        </ul>
         <p className="placeholder-copy desktop-only">
-          I'm a big snacker, and tend to eat more appetizers and starters than fully balanced meals...
-          My family is from Chengdu, so I grew up eating Sichuan cuisine and naturally have a strong comfort attachment to snacks like jelly noodles, bell dumplings, and sour+spicy noodles.
-          However, I've been making an effort to try all sorts of foods and have found that I also really enjoy udon, laugenstange, Italian sandwiches, and French-style beef tartare!
-
+          My current favourite book is{" "}
+          <strong><cite>The Book of Laughter and Forgetting</cite></strong> by Milan Kundera (Michael Henry Heim translation).
+          I like his essayistic prose and enjoy reading other books within the realm of literary fiction, philosophical fiction,
+          and surrealism. As for papers, I recently read Derek Parfit's 1971 paper on personal identity and took a liking to his theory.
+          More casually, I like to read comics and manga also. Some favourites include the{" "}
+          <strong><cite>House of Slaughter Vol. 2</cite></strong> and the <strong><cite>Heaven's Design Team</cite></strong> series. I'm also a big fan of all of{""} <strong><cite><a className="text-link" href="https://falseknees.com/about.html" target="_blank" rel="noreferrer">
+                Joshua Barkman
+              </a></cite></strong>{""}'s works!
         </p>
-        <details className="dropdown-entry food-photo-dropdown">
-          <summary>Photos</summary>
-          <div className="dropdown-content">
-            <ImageGallery photos={foodPhotos} ariaLabel="FoodPhotoGallery" />
-          </div>
-        </details>
+        </section>
+
+      <section className="section" id="watching">
+        <h2 className="desktop-only">Watching</h2>
+        <h2 className="mobile-only"><a className="text-link watching-anilist-link" href="https://anilist.co/user/niickels/" target="_blank" rel="noreferrer">Watching<ExternalLinkIcon /></a></h2>
+        <ul className="mobile-only interest-list placeholder-copy">
+          <li><a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer"><strong>Jacob Geller</strong></a></li>
+          <li><a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer"><strong>Daryl Talks Games</strong></a></li>
+          <li><strong><cite>Mononoke</cite></strong> (2007)</li>
+          <li><strong><cite>BoJack Horseman</cite></strong></li>
+        </ul>
+        <p className="placeholder-copy desktop-only">
+          My favourite YouTube channels are{" "}
+          <strong>
+            <cite>
+              <a className="text-link" href="https://www.youtube.com/@JacobGeller" target="_blank" rel="noreferrer">
+                Jacob Geller
+              </a>
+            </cite>
+          </strong>{" "}
+          and{" "}
+          <strong>
+            <cite>
+              <a className="text-link" href="https://www.youtube.com/@DarylTalksGames" target="_blank" rel="noreferrer">
+                Daryl Talks Games
+              </a>
+            </cite>
+          </strong>.{" "}
+          If you like video essays about video games and/or philosophy and psychology, I highly recommend! I also really like{" "}
+          <strong><cite>BoJack Horseman</cite></strong> and the 2007 anime <strong><cite>Mononoke</cite></strong>.{" "}
+          Find me on{" "}
+          <a className="text-link watching-anilist-link" href="https://anilist.co/user/niickels/" target="_blank" rel="noreferrer"><strong>AniList</strong><ExternalLinkIcon /></a>
+        </p>
       </section>
+
+
     </div>
   );
 }

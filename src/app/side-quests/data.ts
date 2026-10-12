@@ -310,15 +310,15 @@ export const sideQuestNavigationRows = [
   [
     { label: "Photo Gallery", href: "#photo-gallery" },
     { label: "Listening", href: "#listening" },
-    { label: "Reading", href: "#reading" },
-    { label: "Watching", href: "#watching" },
-    { label: "Gaming", href: "#gaming" },
-  ],
-  [
     { label: "Collections", href: "#collections" },
     { label: "Natural Things", href: "#natural-things" },
     { label: "Scrapbook", href: "#scrapbook" },
+  ],
+  [
     { label: "Pokémon Cards", href: "#pokemon-cards" },
-    { label: "Food", href: "#food" },
+    { label: "Places", href: "#favourite-places" },
+    { label: "Gaming", href: "#gaming" },
+    { label: "Reading", href: "#reading" },
+    { label: "Watching", href: "#watching" },
   ],
 ] as const;

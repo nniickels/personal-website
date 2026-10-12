@@ -1000,7 +1000,9 @@ button {
   transform: translate(2px, -2px);
 }
 
-.photo-pinterest-link .external-link-icon {
+.photo-pinterest-link .external-link-icon,
+.watching-anilist-link .external-link-icon,
+.places-maps-link .external-link-icon {
   margin-left: 0.3rem;
 }
 
@@ -2118,3 +2120,111 @@ button {
 
 
 :root[data-theme="light"] .night-star { animation-play-state: paused; }
+
+/* Favourite places: a small stack of souvenir postcards. */
+.places-section { overflow-x: clip; overflow-y: visible; }
+.places-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.places-eyebrow { color: var(--muted); font-size: 0.83rem; font-style: italic; }
+.postcard-stack { position: relative; margin: 2rem auto 1.25rem; width: min(640px, calc(100% - 28px)); perspective: 1600px; }
+/* Each layer is a real postcard, so the outgoing photo remains visible. */
+.postcard-stack { height: 420px; isolation: isolate; }
+.postcard-slot { position: absolute; inset: 0; transform-origin: 50% 65%; }
+.postcard-parked { visibility: hidden; }
+.postcard-slot--0 { z-index: 3; transform: none; }
+.postcard-slot--1 { z-index: 2; transform: rotate(2.5deg) translate(4px, 4px); }
+.postcard-slot--2 { z-index: 1; transform: rotate(-4deg) translate(-3px, 6px); }
+.postcard-exiting { animation: postcard-to-back 900ms cubic-bezier(.4,0,.2,1) both; }
+.postcard-entering { animation: postcard-to-front 900ms cubic-bezier(.4,0,.2,1) both; }
+.postcard-settling { animation: postcard-settle 900ms cubic-bezier(.4,0,.2,1) both; }
+/* Going back replays the same three motions in reverse. Each card ends
+   at exactly the transform and depth of its next resting position. */
+.postcard-stack--backwards .postcard-entering { animation-name: postcard-to-back; animation-direction: reverse; }
+.postcard-stack--backwards .postcard-exiting { animation-name: postcard-to-front; animation-direction: reverse; }
+.postcard-stack--backwards .postcard-settling { animation-direction: reverse; }
+@keyframes postcard-to-back {
+  0% { z-index: 3; transform: none; }
+  1%, 49% { z-index: 4; }
+  45%, 50% { transform: translate(58%, -15%) rotate(15deg) rotateY(-18deg) scale(1.025); }
+  50%, 100% { z-index: 1; }
+  100% { transform: rotate(-4deg) translate(-3px, 6px); }
+}
+@keyframes postcard-to-front {
+  0%, 25% { transform: rotate(2.5deg) translate(4px, 4px); }
+  0%, 49% { z-index: 2; }
+  50%, 100% { z-index: 3; }
+  65%, 100% { transform: none; }
+}
+@keyframes postcard-settle {
+  0% { transform: rotate(-4deg) translate(-3px, 6px); }
+  0%, 49% { z-index: 1; }
+  50%, 100% { z-index: 2; }
+  100% { transform: rotate(2.5deg) translate(4px, 4px); }
+}
+.postcard-controls button:disabled { cursor: default; opacity: .4; }
+.place-postcard { position: relative; height: 420px; transform-style: preserve-3d; transition: transform 650ms cubic-bezier(.2,.65,.25,1); color: #413d33; }
+.place-postcard.is-flipped { transform: rotateY(180deg); }
+.postcard-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #f5f0e4; border: 1px solid #ded4bf; box-shadow: 0 12px 32px #0003; }
+.postcard-front { padding: 15px 15px 0; display: flex; flex-direction: column; }
+.postcard-photo { flex: 1; position: relative; min-height: 0; overflow: hidden; }
+.postcard-photo img { width: 100%; height: 100%; object-fit: cover; }
+.postcard-number { position: absolute; left: 14px; top: 14px; font: 10px/1.3 monospace; letter-spacing: .14em; color: #fff; text-shadow: 0 1px 6px #000; }
+.postcard-caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 16px 7px 19px; }
+.postcard-caption h3 { font-size: 1.18rem; font-weight: 500; }
+.postcard-caption p { font-style: italic; color: #756b59; font-size: .92rem; margin-top: 2px; }
+.postcard-face button { font-size: .85rem; white-space: nowrap; border-bottom: 1px solid #978b73; padding-block: 3px; }
+.postcard-face button span { margin-left: 5px; }
+.postcard-face button:hover { color: #9b552d; }
+.places-section button:focus-visible, .postcard-address a:focus-visible { outline: 2px solid #b38b52; outline-offset: 5px; }
+.postcard-back { transform: rotateY(180deg); padding: 24px 28px 18px; display: flex; flex-direction: column; }
+.postcard-back-top { display: flex; align-items: center; gap: 15px; min-height: 66px; }
+.postcard-back-top > span { font: 10px monospace; letter-spacing: .15em; color: #817766; margin-right: auto; }
+.postcard-postmark { border: 1px solid #91846b; border-radius: 50%; padding: 12px 7px; font-size: .72rem; font-style: italic; transform: rotate(-13deg); color: #8a785e; }
+.postcard-stamp { border: 2px dashed #ae9775; width: 48px; height: 58px; display: grid; place-items: center; font-size: 30px; color: #8d7352; background: #e7ddc8; }
+.postcard-letter { display: grid; grid-template-columns: 1.15fr 1fr; gap: 28px; flex: 1; padding-top: 18px; }
+.postcard-message { display: flex; flex-direction: column; gap: 15px; }
+.postcard-rating { letter-spacing: .13em; color: #957037; font-size: 1.1rem; }
+.postcard-rating small { display: block; letter-spacing: .02em; color: #8b8170; font-size: .7rem; }
+.postcard-message > p { font-size: 1.05rem; line-height: 1.6; font-style: italic; }
+.postcard-signature { font-size: 1.2rem; font-style: italic; margin-top: auto; }
+.postcard-address { border-left: 1px solid #cbbfa7; padding-left: 25px; }
+.postcard-to { color: #8a7b62; font-size: .75rem; font-style: italic; }
+.postcard-address h3 { font-size: 1.1rem; font-weight: 500; margin: 3px 0 10px; padding-bottom: 8px; border-bottom: 1px solid #d4c9b5; }
+.postcard-address p { padding: 7px 0; border-bottom: 1px solid #d4c9b5; font-size: .86rem; }
+.postcard-address strong { display: block; font-size: .65rem; letter-spacing: .05em; text-transform: uppercase; font-weight: 400; color: #8a7b62; }
+.postcard-address a { display: inline-block; font-size: .82rem; margin-top: 16px; border-bottom: 1px solid #978b73; }
+.postcard-back-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 13px; }
+.postcard-back-bottom > span { color: #8b8170; font-size: .68rem; }
+.postcard-controls { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.postcard-controls button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; font-size: 1.25rem; transition: background 150ms; }
+.postcard-controls button:hover { background: color-mix(in srgb, var(--foreground) 10%, transparent); }
+.postcard-controls > span { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.postcard-preview-note { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 8px; }
+@media (max-width: 600px) {
+  .places-heading { flex-direction: column; gap: 2px; }
+  .postcard-stack { margin-top: 1.4rem; }
+  .postcard-stack, .place-postcard { height: 450px; }
+  .postcard-front { padding: 10px 10px 0; }
+  .postcard-caption { padding: 14px 2px; gap: 8px; }
+  .postcard-caption h3 { font-size: 1rem; }
+  .postcard-caption p { font-size: .8rem; }
+  .postcard-face button { font-size: .78rem; }
+  .postcard-back { padding: 15px 18px; }
+  .postcard-back-top { min-height: 48px; }
+  .postcard-postmark { font-size: .65rem; padding: 9px 5px; }
+  .postcard-stamp { width: 38px; height: 46px; font-size: 24px; }
+  .postcard-letter { grid-template-columns: 1fr; gap: 12px; padding-top: 10px; }
+  .postcard-message { gap: 7px; }
+  .postcard-message > p { font-size: .9rem; line-height: 1.45; }
+  .postcard-rating small { display: inline; margin-left: 8px; }
+  .postcard-signature { font-size: 1rem; }
+  .postcard-address { border-left: 0; border-top: 1px solid #cbbfa7; padding: 9px 0 0; }
+  .postcard-to, .postcard-address h3 { display: none; }
+  .postcard-address p { padding: 4px 0; font-size: .8rem; }
+  .postcard-address a { margin-top: 8px; }
+  .postcard-back-bottom { padding-top: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .place-postcard { transition: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard-slot { animation-duration: 1ms; }
+}
