@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ResponsiveImage } from "../responsive-image";
-import { ExternalLinkIcon } from "../icons";
+import { ExternalLinkIcon, TurnArrowIcon } from "../icons";
 import { imageAssets } from "./gallery-assets";
 
 import { postcards } from "./place-postcards-data";
@@ -45,7 +45,7 @@ export default function PlacePostcards() {
         <h2 id="places-title">Places</h2>
       </div>
       <p className="placeholder-copy">
-        Some of my favourite places! I like earning points on Google Maps; Find me{" "}
+        Some of my favourite places! I like earning points on Google Maps; find me{" "}
         <a className="text-link places-maps-link" href="https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic" target="_blank" rel="noreferrer"><strong>here!</strong><ExternalLinkIcon /></a>
       </p>
       <div className={`postcard-stack${direction === -1 ? " is-shuffling postcard-stack--backwards" : direction === 1 ? " is-shuffling" : ""}`}>
@@ -81,7 +81,7 @@ export default function PlacePostcards() {
             </div>
             <div className="postcard-caption">
               <div><h3>{card.title}</h3><p>{card.caption}</p></div>
-              <button type="button" onClick={() => setFlipped(true)} aria-label={`Turn over ${card.title}`}>Turn over <span aria-hidden="true">↪</span></button>
+              <button type="button" onClick={() => setFlipped(true)} aria-label={`Turn over ${card.title}`}>Turn over <TurnArrowIcon /></button>
             </div>
           </div>
           <div className="postcard-face postcard-back" inert={!showBack} aria-hidden={!showBack}>
@@ -90,7 +90,7 @@ export default function PlacePostcards() {
               <div className="postcard-message"><span className="postcard-rating" aria-label="Five star rating">★★★★★</span><p>{card.note}</p><span className="postcard-signature">— nic</span></div>
               <div className="postcard-address"><span className="postcard-to">a place to remember</span><h3>{card.title}</h3><p className="postcard-location">{card.address || "\u00a0"}</p><p className="postcard-location">{card.country || "\u00a0"}</p><p className="postcard-highlight"><strong>Don’t miss</strong>{card.order}</p></div>
             </div>
-            <div className="postcard-back-bottom"><button type="button" onClick={() => setFlipped(false)}>Photo side <span aria-hidden="true">↪</span></button></div>
+            <div className="postcard-back-bottom"><button type="button" onClick={() => setFlipped(false)}>Photo side <TurnArrowIcon /></button></div>
           </div>
         </article>
           </div>

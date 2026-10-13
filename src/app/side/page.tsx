@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Portfolio } from "../portfolio";
 
 const description =
-  "Explore Nicole Jiang's photography, music, reading, games, collections, and food through interactive galleries and live listening statistics.";
+  "Explore Nicole Jiang's photography, music, collections, favourite places, games, reading, and watching through interactive galleries and live listening statistics.";
 
 const socialDescription = "Personal website and portfolio.";
 

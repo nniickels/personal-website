@@ -20,7 +20,7 @@ export const postcards = [
     // Back — your review and order
     note:
       "Perfect for a romantic evening or a quiet dinner with friends. A glass of wine ties everything together.",
-    order: "Bison wellington!!",
+    order: "Bison Wellington!!",
 
     // Address lines — street address on the first line, country on the second
     address: "100 Yonge St, Toronto, ON M5C 2W1",
@@ -40,7 +40,7 @@ export const postcards = [
 
     // Back — your review and order
     note:
-      "Signature Sichuan dishes and snacks. The perfect place to enjoy a casual meal with friends. Good value too!",
+      "Signature Sichuan dishes and snacks. The perfect place to enjoy a casual meal with friends. Good value, too!",
     order: "Jelly noodles and bell dumplings",
 
     // Address lines — street address on the first line, country on the second
@@ -61,7 +61,7 @@ export const postcards = [
 
     // Back — your review and order
     note:
-      "Super cool and fun and colourful and fascinating and awesome!!! ",
+      "Super cool and fun and colourful and fascinating and awesome!!!",
     order: "Butterfly exhibits and ant farms",
 
     // Address lines — street address on the first line, country on the second
@@ -81,11 +81,11 @@ export const postcards = [
     caption: "the spot",
 
     // Back — your review and order
-    note: "Critters galore! A quaint trail with friendly chickadees and a local herd of deer. Good for bird-watching and bird-feeding. The road trails off into the shore by the lake, with a marsh on the other side. Full of life in every season.",
+    note: "Critters galore! A quaint trail with friendly chickadees and a local herd of deer. Good for bird-watching and bird-feeding. The road trails off onto the shore by the lake, with a marsh on the other side. Full of life in every season.",
     order: "chickadees eager to land on you and check for seeds",
 
     // Address lines — street address on the first line, country on the second
-    address: "lowkey gatekeeing... you'll have to ask",
+    address: "lowkey gatekeeping... you'll have to ask",
     country: "Canada",
 
     // Stamp: "food", "nature", "tea", "bar", or "museum"
@@ -101,7 +101,7 @@ export const postcards = [
     caption: "RIP",
 
     // Back — your review and order
-    note: "Sadly closed now, but was one of my favourite restaurants in the city and was truly underrated. Unbelievably good value ($38 for a 4-course tasting menu!!) and the food and service was also exceptional. ",
+    note: "Sadly, it’s closed now, but it was one of my favourite restaurants in the city and truly underrated. It was unbelievably good value ($38 for a four-course tasting menu!!), and the food and service were also exceptional.",
     order: "Duck breast main",
 
     // Address lines — street address on the first line, country on the second
@@ -118,7 +118,7 @@ export const postcards = [
     photoPosition: "50% 66%",
     alt: "Plants and a koi pond inside Luhong Art Museum",
     title: "Luhong Art Museum",
-    caption: "carefuly curated",
+    caption: "carefully curated",
 
     // Back — your review and order
     note: "A thoughtfully designed museum with a beautiful garden. Peaceful and serene. The chocolate shop inside is also worth a visit.",
@@ -141,7 +141,7 @@ export const postcards = [
     caption: "a must-try in Chengdu",
 
     // Back — your review and order
-    note: "The zhong dumplings here are one of the yummiest things I've every tasted in my whole life. I was licking the sauce off my chopsticks!",
+    note: "The Zhong dumplings here are one of the yummiest things I've ever tasted in my whole life. I was licking the sauce off my chopsticks!",
     order: "Zhong dumplings",
 
     // Address lines — street address on the first line, country on the second
@@ -181,7 +181,7 @@ export const postcards = [
     caption: "in awe",
 
     // Back — your review and order
-    note: "Super cool and intricate classical sculptures. I really like the design and layout of the building as a whole also.",
+    note: "Super cool and intricate classical sculptures. I also really like the design and layout of the building as a whole.",
     order: "all of it",
 
     // Address lines — street address on the first line, country on the second
@@ -201,7 +201,7 @@ export const postcards = [
     caption: "lots to explore",
 
     // Back — your review and order
-    note: " A huge area with lots of trails and a beautiful view of the Don Valley. A great place to go for a walk and to enjoy nature in the city. In the woods there are also remnants of a diy obstacle course or playground of some sort.",
+    note: "A huge area with lots of trails and a beautiful view of the Don Valley. A great place to go for a walk and to enjoy nature in the city. In the woods, there are also remnants of a DIY obstacle course or playground of some sort.",
     order: "Sauriol cliff",
 
     // Address lines — street address on the first line, country on the second
@@ -221,7 +221,7 @@ export const postcards = [
     caption: "smells amazing",
 
     // Back — your review and order
-    note: "Apothecary-themed speak-easy with a great selection of herbal and floral cocktails.",
+    note: "Apothecary-themed speakeasy with a great selection of herbal and floral cocktails.",
     order: "Steak tartare and French 75",
 
     // Address lines — street address on the first line, country on the second

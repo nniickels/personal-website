@@ -525,7 +525,7 @@ test("publishes Side as its own shareable page", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>Side — Nicole Jiang<\/title>/i);
-  assert.match(html, /name="description"[^>]*photography, music, reading, games, collections, and food/i);
+  assert.match(html, /name="description"[^>]*photography, music, collections, favourite places, games, reading, and watching/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side"/i);
   assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
   assert.match(html, /aria-label="Pinterest"/i);

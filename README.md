@@ -28,10 +28,12 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | Route | Description |
 |-------|-------------|
 | `/` | Main — résumé-style education, research, projects, and service |
-| `/side` | Side — expandable photos, listening previews and lifetime stats, reading, watching, recently played Steam game names, collections, and food |
+| `/side` | Side — Photo Gallery, Listening, Collections, Places postcards, Gaming, Reading, and Watching |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
 
 The previous `/side-quests` route permanently redirects to `/side`.
+
+Places replaces the old Food photo gallery with 11 favourite-place postcards. Each has a photo and caption on the front, with a review, address, country, “Don’t miss” recommendation, and category stamp on the back. Arrow controls cycle through the stack; selecting the current number lets visitors jump to a card. See [Places postcards](docs/places.md) for entry editing, photo crops, and performance behavior.
 
 All pages include a motion-safe colored four-point starfield in dark mode, responsive navigation, the Canadian Webring widget, and a combined GoatCounter view count.
 

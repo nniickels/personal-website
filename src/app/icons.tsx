@@ -100,6 +100,14 @@ function SocialIcon({ name }: { name: IconName }) {
   );
 }
 
+export function TurnArrowIcon() {
+  return (
+    <svg className="postcard-turn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 5v5a4 4 0 0 0 4 4h12m-4-4 4 4-4 4" />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon() {
   return (
     <>

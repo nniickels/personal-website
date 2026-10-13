@@ -2173,6 +2173,7 @@ button {
 .postcard-caption p { font-style: italic; color: #756b59; font-size: .92rem; margin-top: 2px; }
 .postcard-face button { font-size: .85rem; white-space: nowrap; border-bottom: 1px solid #978b73; padding-block: 3px; }
 .postcard-face button span { margin-left: 5px; }
+.postcard-turn-icon { display: inline-block; width: 1em; height: 1em; margin-left: 5px; vertical-align: -.12em; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .postcard-face button:hover { color: #9b552d; }
 .places-section button:focus-visible { outline: 2px solid #b38b52; outline-offset: 5px; }
 .postcard-back { transform: rotateY(180deg); padding: 24px 28px 18px; display: flex; flex-direction: column; }
