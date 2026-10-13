@@ -61,7 +61,7 @@ export function Portfolio({ mode }: { mode: Mode }) {
             {mode === "serious" ? (
               <>
                 <p className="mobile-only">
-                  Hello! Welcome to my personal website (best experienced on desktop). Below is a quick overview of my academic profile.
+                  Hello! Welcome to my personal website. Below is a quick overview of my academic profile.
                 </p>
                 <p className="desktop-only">
                   Hello! I'm Nicole, an Astronomy and Physics Specialist student at the University
