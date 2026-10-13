@@ -211,11 +211,11 @@ test("keeps the Side interest sections and stats in the requested order", async 
   const headings = [
     "<h2>Photo Gallery</h2>",
     "<h2>Listening</h2>",
-    "<h2>Reading</h2>",
-    "<h2>Watching</h2>",
-    "<h2>Gaming</h2>",
     "<h2>Collections</h2>",
-    "<h2>Food</h2>",
+    "<PlacePostcards />",
+    "<h2>Gaming</h2>",
+    "<h2>Reading</h2>",
+    '<h2 className="desktop-only">Watching</h2>',
   ];
   const positions = headings.map((heading) => source.indexOf(heading));
 
@@ -334,7 +334,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
 
   assert.match(
     source,
-    /const sideQuestNavigationRows[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"[\s\S]*?href: "#gaming"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#food"/,
+    /const sideQuestNavigationRows[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#favourite-places"[\s\S]*?href: "#gaming"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"/,
   );
   assert.match(source, /<nav className="side-quest-index" aria-label="Side sections">/);
   assert.match(source, /id="natural-things"/);
@@ -347,7 +347,6 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href\)\}/);
   assert.match(source, /prefers-reduced-motion: reduce/);
   assert.match(source, /id="photo-gallery" data-expand-on-navigate="true"/);
-  assert.match(source, /id="food" data-expand-on-navigate="true"/);
   assert.doesNotMatch(source, /id="collections" data-expand-on-navigate/);
 
   assert.match(source, /The Book of Laughter and Forgetting/);
@@ -395,10 +394,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
     source,
     /<summary>Scrapbook<\/summary>[\s\S]*?I hoard \(and organize\)[\s\S]*?<ImageGallery photos=\{scrapbookPhotos\}[^>]*\/>/,
   );
-  assert.match(
-    source,
-    /<section className="section" id="food" data-expand-on-navigate="true">[\s\S]*?<details className="dropdown-entry food-photo-dropdown">[\s\S]*?<summary>Photos<\/summary>[\s\S]*?<ImageGallery photos=\{foodPhotos\}[^>]*\/>[\s\S]*?<\/details>/,
-  );
+  assert.match(source, /<PlacePostcards \/>/);
   assert.doesNotMatch(source, /Photo placeholder/);
   assert.doesNotMatch(source, /Photo scroll wheel placeholder/);
   assert.equal((source.match(/https:\/\/www\.tcgcollector\.com\/cards\//g) ?? []).length, 15);
@@ -450,12 +446,13 @@ test("keeps the Side interest sections and stats in the requested order", async 
     assert.ok(photo.length > 20_000);
   }
 
-  const foodAssets = await readdir(new URL("../public/food-photos/", import.meta.url));
-  assert.equal(foodAssets.length, 37);
-  assert.match(source, /const foodPhotoOrder = \[[\s\S]*?32, 36, 37,[\s\S]*?\] as const/);
-  for (const asset of foodAssets) {
-    const photo = await readFile(new URL(`../public/food-photos/${asset}`, import.meta.url));
-    assert.ok(photo.length > 20_000);
+  const postcardAssets = await readdir(new URL("../public/postcard-photos/", import.meta.url));
+  assert.equal(postcardAssets.length, 11);
+  for (const asset of postcardAssets) {
+    const photo = await readFile(new URL(`../public/postcard-photos/${asset}`, import.meta.url));
+    assert.ok(photo.length > 1_000);
+    assert.equal(photo[0], 0xff);
+    assert.equal(photo[1], 0xd8);
   }
 
   const photoAssets = await readdir(new URL("../public/photos/", import.meta.url));
@@ -537,7 +534,7 @@ test("publishes Side as its own shareable page", async () => {
   assert.match(html, /aria-label="Google Maps"/i);
   assert.equal(
     (html.match(/href="https:\/\/maps\.app\.goo\.gl\/qet6vnym45NpTQ2XA\?g_st=ic"/g) ?? []).length,
-    1,
+    2,
   );
   assert.doesNotMatch(html, /google\.com\/maps\/contrib/i);
   assert.match(html, /property="og:title"[^>]*content="Nicole Jiang"/i);

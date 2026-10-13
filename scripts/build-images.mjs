@@ -6,7 +6,7 @@ import sharp from "sharp";
 // Originals remain the source of truth. Filenames include the source and recipe
 // hash, so generated assets can be cached immutably without stale replacements.
 const recipe = `webp-v2-${sharp.versions.sharp}-thumb78-full86`;
-const groups = ["photos", "food-photos", "natural-things", "scrapbook", "music-covers", "pokemon-cards"];
+const groups = ["photos", "postcard-photos", "natural-things", "scrapbook", "music-covers", "pokemon-cards"];
 const outputRoot = "public/media";
 await mkdir(outputRoot, { recursive: true });
 await mkdir("src/generated/media", { recursive: true });
@@ -38,7 +38,7 @@ for (const group of [...groups, "icons"]) {
     const targetWidth = group === "icons" ? (isScienceCentre ? 280 : 128) : width;
     const widths = group === "icons"
       ? [targetWidth]
-      : [...new Set([160, 320, 480, 960, width].filter((w) => w <= width))].sort((a, b) => a - b);
+      : [...new Set((group === "postcard-photos" ? [160, 320, 480, 960, 1440, 1920, width] : [160, 320, 480, 960, width]).filter((w) => w <= width))].sort((a, b) => a - b);
     // Match the full input/recipe digest, widths and icon-specific quality rule.
     const cacheKey = `${sourceHash}:${widths.join(",")}:${group === "icons"}`;
     let sources = generatedSources.get(cacheKey);

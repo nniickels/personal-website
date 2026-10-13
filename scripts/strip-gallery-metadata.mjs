@@ -3,7 +3,7 @@ import path from "node:path";
 
 const galleryDirectories = [
   "public/photos",
-  "public/food-photos",
+  "public/postcard-photos",
   "public/natural-things",
   "public/scrapbook",
 ];

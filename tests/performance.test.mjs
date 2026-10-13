@@ -14,6 +14,25 @@ const env = { CLASH_ROYALE_API_TOKEN: "test-token", STEAM_WEB_API_KEY: "test-key
 const request = () => new Request("https://example.test/api/stats");
 const pending = [];
 const context = { waitUntil(promise) { pending.push(promise); }, passThroughOnException() {} };
+
+test("Places serves a bounded stack with lazy optimized photos", async () => {
+  const response = await worker.fetch(new Request("https://example.test/side"), {}, context);
+  const html = await response.text();
+  const section = html.match(/<section[^>]*id="favourite-places"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(section);
+  assert.equal((section.match(/<article /g) ?? []).length, 4);
+  const images = section.match(/<img\b[^>]*>/g) ?? [];
+  assert.equal(images.length, 4);
+  assert.equal(images.filter(image => /loading="lazy"/.test(image)).length, 3);
+  assert.equal(images.filter(image => /loading="eager"/.test(image)).length, 1);
+  for (const image of images) {
+
+    assert.match(image, /src="\/media\/postcard-photos-[^"]+\.webp"/);
+    assert.match(image, /srcSet=|srcset=/);
+    assert.match(image, /width="\d+" height="\d+"/);
+  }
+});
+
 class MemoryCache {
   entries = new Map();
   async match(key) { return this.entries.get(key.url)?.clone(); }

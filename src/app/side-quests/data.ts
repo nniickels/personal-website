@@ -296,16 +296,6 @@ export const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => (
   alt: `Scrapbook photo ${index + 1} of ${scrapbookPhotoOrder.length}`,
 }));
 
-export const foodPhotoOrder = [
-  18, 15, 2, 34, 22, 35, 24, 26, 13, 28, 17, 11, 19, 1, 27, 6,
-  30, 7, 4, 9, 33, 31, 10, 23, 3, 8, 29, 14, 16, 12, 25, 21, 32, 36, 37,
-] as const;
-
-export const foodPhotos = foodPhotoOrder.map((photoNumber, index) => ({
-  src: `/food-photos/food-${String(photoNumber).padStart(2, "0")}.jpg`,
-  alt: `Food gallery photo ${index + 1} of ${foodPhotoOrder.length}`,
-}));
-
 export const sideQuestNavigationRows = [
   [
     { label: "Photo Gallery", href: "#photo-gallery" },

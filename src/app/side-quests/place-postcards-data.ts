@@ -1,412 +1,234 @@
-// Fill in these 20 postcard entries with your favourite places.
-// Front: photo, alt, title, caption.
-// Back: note, order, memory, mark (postmark text), stamp (a symbol), mapsHref.
-// Photo paths start at public/: public/food-photos/food-18.jpg → /food-photos/food-18.jpg.
-// Use an existing gallery photo here; its responsive images are generated automatically.
+// Your favourite places. Copy an entry below to add another postcard.
+// Front: photo, photoPosition (crop focal point), alt, title, caption.
+// Back: note (your review), order (Don’t miss), address, country, stamp (a category).
+// Photo paths start at public/: public/postcard-photos/lucie.jpg → /postcard-photos/lucie.jpg.
+// Add photos to public/postcard-photos; restart npm run dev to generate responsive images.
+// Leave photo empty for a paper placeholder.
+// photoPosition uses horizontal / vertical percentages; 50% 50% centres the crop.
+// Stamp icons: food = fork + spoon, nature = tree, tea = teacup, bar = cocktail, museum = museum.
 // Entries appear in this order. The counter and navigation use the number of entries.
 
 export const postcards = [
   {
     // Postcard 1 — front
-    photo: "/food-photos/food-18.jpg",
-    alt: "Two colourful dishes on a restaurant table",
-    title: "Just one more bite",
-    caption: "would come back for the starters alone",
+    photo: "/postcard-photos/lucie.jpg",
+    photoPosition: "53% 68%",
+    alt: "Wellington with mashed potatoes at Lucie",
+    title: "Lucie",
+    caption: "warm and intimate",
 
-    // Back — your review, order, and memory
+    // Back — your review and order
     note:
-      "The kind of place where I would happily order a table full of starters and call it dinner. Something crunchy, something spicy, and a little bit of everything.",
-    order: "A few starters to share",
-    memory: "An entire table of little things to try.",
+      "Perfect for a romantic evening or a quiet dinner with friends. A glass of wine ties everything together.",
+    order: "Bison wellington!!",
 
-    // Decorative details
-    mark: "a little feast",
-    stamp: "✳",
+    // Address lines — street address on the first line, country on the second
+    address: "100 Yonge St, Toronto, ON M5C 2W1",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "food",
   },
 
   {
     // Postcard 2 — front
-    photo: "/food-photos/food-15.jpg",
-    alt: "Tartare and toasted bread on a ceramic plate",
-    title: "A slow afternoon",
-    caption: "a little tartare, a lot of lingering",
+    photo: "/postcard-photos/miss-fu.jpg",
+    photoPosition: "50% 60%",
+    alt: "Jelly noodles topped with chilli oil and herbs at Miss Fu",
+    title: "Miss Fu in Chengdu",
+    caption: "my go-to comfort food spot",
 
-    // Back — your review, order, and memory
+    // Back — your review and order
     note:
-      "A sunny table, something lovely on a plate, and absolutely no rush to leave. This is the sort of afternoon I would like to keep in a pocket.",
-    order: "Tartare and toast",
-    memory: "The light falling across the table.",
+      "Signature Sichuan dishes and snacks. The perfect place to enjoy a casual meal with friends. Good value too!",
+    order: "Jelly noodles and bell dumplings",
 
-    // Decorative details
-    mark: "stay a while",
-    stamp: "☼",
+    // Address lines — street address on the first line, country on the second
+    address: "637 Yonge St, Toronto, ON M4Y 1Z5",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "food",
   },
 
   {
     // Postcard 3 — front
-    photo: "/food-photos/food-02.jpg",
-    alt: "Pastry wrapped beef with mashed potatoes at dinner",
-    title: "Worth making plans for",
-    caption: "already thinking about the next visit",
+    photo: "/postcard-photos/insectarium.jpg",
+    photoPosition: "50% 57%",
+    alt: "Magnifying lens among plants inside the Insectarium",
+    title: "Insectarium de Montréal",
+    caption: "whimsical and curious",
 
-    // Back — your review, order, and memory
+    // Back — your review and order
     note:
-      "Some dinners become little occasions. The first bite, the conversation, and the inevitable discussion of what to order when we come back.",
-    order: "Something worth sharing",
-    memory: "A dinner that turned into an evening.",
+      "Super cool and fun and colourful and fascinating and awesome!!! ",
+    order: "Butterfly exhibits and ant farms",
 
-    // Decorative details
-    mark: "see you again",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "4581 R. Sherbrooke E, Montréal, QC H1X 2B2",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "museum",
   },
 
   {
     // Postcard 4 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 04",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/wild-beach.jpg",
+    photoPosition: "50% 65%",
+    alt: "Deer among trees and tall grasses at Wild beach",
+    title: "Wild beach",
+    caption: "the spot",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "Critters galore! A quaint trail with friendly chickadees and a local herd of deer. Good for bird-watching and bird-feeding. The road trails off into the shore by the lake, with a marsh on the other side. Full of life in every season.",
+    order: "chickadees eager to land on you and check for seeds",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "lowkey gatekeeing... you'll have to ask",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "nature",
   },
 
   {
     // Postcard 5 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 05",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/ngogo.jpg",
+    photoPosition: "42% 58%",
+    alt: "Sliced duck with grains and sauce at NGOGO",
+    title: "NGOGO",
+    caption: "RIP",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "Sadly closed now, but was one of my favourite restaurants in the city and was truly underrated. Unbelievably good value ($38 for a 4-course tasting menu!!) and the food and service was also exceptional. ",
+    order: "Duck breast main",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "646 Queen St W, Toronto, ON M6J 1E4",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "food",
   },
 
   {
     // Postcard 6 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 06",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/luhong.jpg",
+    photoPosition: "50% 66%",
+    alt: "Plants and a koi pond inside Luhong Art Museum",
+    title: "Luhong Art Museum",
+    caption: "carefuly curated",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "A thoughtfully designed museum with a beautiful garden. Peaceful and serene. The chocolate shop inside is also worth a visit.",
+    order: "Koi pond and black swans!",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "Shunyi District, Beijing, 101312",
+    country: "China",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "museum",
   },
 
   {
     // Postcard 7 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 07",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/chen-mapo.jpg",
+    photoPosition: "85% 68%",
+    alt: "Sichuan dishes shared around a table at Chen Mapo",
+    title: "Chen Mapo",
+    caption: "a must-try in Chengdu",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "The zhong dumplings here are one of the yummiest things I've every tasted in my whole life. I was licking the sauce off my chopsticks!",
+    order: "Zhong dumplings",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "10 Qinghua Rd, 青羊宫商圈 Qingyang District, Chengdu, Sichuan, 610032",
+    country: "China",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "food",
   },
 
   {
     // Postcard 8 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 08",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/sora45.jpg",
+    photoPosition: "50% 58%",
+    alt: "Bao and small dishes beside the city view at Sora 45",
+    title: "Sora 45",
+    caption: "drinks with a great view",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "Cocktails, snacks, and a view of the city from the 45th floor. Enjoying the sunset with friends was a wonderful experience.",
+    order: "Beef & oyster tartare",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "1 Pl. Ville-Marie, Montréal, QC H3B 4E8",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "bar",
   },
 
   {
     // Postcard 9 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 09",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/glyptothek.jpg",
+    photoPosition: "55% 50%",
+    alt: "Classical columns and sculpture on the Glyptothek exterior",
+    title: "Glyptothek",
+    caption: "in awe",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "Super cool and intricate classical sculptures. I really like the design and layout of the building as a whole also.",
+    order: "all of it",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "Königsplatz 3, 80333 München-Maxvorstadt",
+    country: "Germany",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "museum",
   },
 
   {
     // Postcard 10 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 10",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/sauriol.jpg",
+    photoPosition: "50% 58%",
+    alt: "Wooded valley and river viewed from Charles Sauriol Conservation Area",
+    title: "Charles Sauriol Conservation Area",
+    caption: "lots to explore",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: " A huge area with lots of trails and a beautiful view of the Don Valley. A great place to go for a walk and to enjoy nature in the city. In the woods there are also remnants of a diy obstacle course or playground of some sort.",
+    order: "Sauriol cliff",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "1191 Lawrence Ave E, North York, ON M3A 3P9",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "nature",
   },
 
   {
     // Postcard 11 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 11",
-    caption: "Add a short caption",
+    photo: "/postcard-photos/prequel.jpg",
+    photoPosition: "50% 15%",
+    alt: "Cocktails and tartare on toast at Prequel",
+    title: "PREQUEL & CO. APOTHECARY",
+    caption: "smells amazing",
 
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
+    // Back — your review and order
+    note: "Apothecary-themed speak-easy with a great selection of herbal and floral cocktails.",
+    order: "Steak tartare and French 75",
 
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
+    // Address lines — street address on the first line, country on the second
+    address: "1036 Queen St W, Toronto, ON M6J 1H7",
+    country: "Canada",
 
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
+    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    stamp: "bar",
   },
-
-  {
-    // Postcard 12 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 12",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 13 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 13",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 14 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 14",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 15 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 15",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 16 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 16",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 17 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 17",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 18 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 18",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 19 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 19",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
-  {
-    // Postcard 20 — front
-    photo: "/food-photos/food-18.jpg", // Replace with your photo path
-    alt: "Two colourful dishes on a restaurant table", // Describe your photo
-    title: "Place 20",
-    caption: "Add a short caption",
-
-    // Back — your review, order, and memory
-    note: "Write your review or a little note about this place here.",
-    order: "Add your favourite order",
-    memory: "Add something you remember",
-
-    // Decorative details
-    mark: "Add a city or a short phrase",
-    stamp: "☆",
-
-    // Link to this place or your review on Google Maps
-    mapsHref: "https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic",
-  },
-
 ] as const;
