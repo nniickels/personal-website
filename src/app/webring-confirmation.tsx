@@ -25,7 +25,7 @@ export function WebringConfirmation() {
     <dialog ref={dialog} className="webring-confirmation" aria-labelledby="webring-confirmation-title">
       <h2 id="webring-confirmation-title">
         {destination && new URL(destination).pathname !== "/"
-          ? "Redirect to WeBring member?" : "Redirect to WeBring?"}
+          ? "Redirect to WebRing member?" : "Redirect to WebRing?"}
       </h2>
       <div className="webring-confirmation-actions">
         <button type="button" autoFocus onClick={() => dialog.current?.close()}>No</button>
