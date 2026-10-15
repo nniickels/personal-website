@@ -1,7 +1,7 @@
-export type PostcardStampKind = "food" | "nature" | "tea" | "bar" | "museum";
+export type PostcardStampKind = "food" | "nature" | "cities" | "bar" | "museum";
 
 const labels: Record<PostcardStampKind, string> = {
-  food: "good food", nature: "outdoors", tea: "tea & treats", bar: "cheers", museum: "exhibits",
+  food: "good food", nature: "outdoors", cities: "cities", bar: "cheers", museum: "exhibits",
 };
 
 // Small engraved illustrations, drawn in the stamp's ink colour.
@@ -16,10 +16,15 @@ const drawings = {
     <path d="M10.5 18v4h3v-4" fill="currentColor" fillOpacity=".35" />
     <path d="M12 6v10m0-5-2-2m2 5 3-3M7 23h10" strokeWidth=".8" />
   </>,
-  tea: <>
-    <path d="M4 10h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Z" fill="currentColor" fillOpacity=".15" />
-    <path d="M17 11h2a3 3 0 0 1 0 6h-2M2 22h20M8 2c-2 2 2 3 0 5m5-5c-2 2 2 3 0 5" />
-    <path d="M8 15c2-2 4-1 5-2 0 3-2 5-5 2Zm0 0 3 1" strokeWidth=".8" />
+  cities: <>
+    <circle cx="18.5" cy="4.5" r="2" strokeWidth=".7" opacity=".65" />
+    <path d="M2.5 21V12L5.5 9l3 3v9M9 21V8l3-4 3 4v13M16 21V11h2V8h3v13"
+      fill="currentColor" fillOpacity=".14" />
+    <path d="M12 1.5V4M8.5 8h7M2 21.5h20M1 23h22" strokeWidth=".85" />
+    <circle cx="12" cy="10.5" r="1.5" strokeWidth=".75" />
+    <path d="M12 9.5v1l.75.5M4.5 13.5h2m-2 3h2m4-2h3m-3 2.5h3M18 12h1m-1 3h1m-1 3h1"
+      strokeWidth=".7" />
+    <path d="M11 21v-2a1 1 0 0 1 2 0v2M5 21v-2h1v2" strokeWidth=".85" />
   </>,
   bar: <>
     <path d="M3 8h18c-1 4-4 6-9 6S4 12 3 8Z" fill="currentColor" fillOpacity=".2" /><path d="M12 14v7m-4 1h8M8 3l3 5" />

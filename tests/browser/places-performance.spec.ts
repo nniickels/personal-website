@@ -9,7 +9,7 @@ test("Places loads only nearby optimized photos and remains interactive", async 
   await page.route("https://webring.ca/**", route => route.fulfill({ body: "" }));
   const photos = new Set<string>();
   page.on("request", request => { if (/\/media\/postcard-photos-/.test(request.url())) photos.add(request.url()); });
-  await page.goto("/side");
+  await page.goto("/side", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(500);
   const initial = [...photos];
   await page.locator("#favourite-places").scrollIntoViewIfNeeded();

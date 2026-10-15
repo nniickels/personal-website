@@ -1,10 +1,10 @@
 # Places postcards
 
-Places lives at `/side#favourite-places`, after Collections and before Gaming. It replaces the old Food gallery. The current stack has 11 entries; the counter, direct jumps, and wraparound navigation derive their total from the entries array.
+Places lives at `/side#favourite-places`, after Collections and before Gaming. It replaces the old Food gallery. The current stack has 11 photographed entries, ending with PREQUEL & CO. APOTHECARY. The counter, direct jumps, and wraparound navigation derive their total from the entries array.
 
 ## Edit or add a place
 
-Edit `src/app/side-quests/place-postcards-data.ts`. Entries appear in array order, independently of photo filenames. Copy an existing entry to add a place, or remove its entire object to delete it; there are no numbered placeholder cards to maintain.
+Edit `src/app/side-quests/place-postcards-data.ts`. Entries appear in array order, independently of photo filenames. Update the place details, copy an existing entry to add a place, or remove its entire object to delete it. Leave `photo` empty to display a paper placeholder.
 
 | Field | Purpose |
 |-------|---------|
@@ -23,7 +23,7 @@ Edit `src/app/side-quests/place-postcards-data.ts`. Entries appear in array orde
 |----------|--------------------|------------|
 | `food` | Fork and spoon | good food |
 | `nature` | Tree | outdoors |
-| `tea` | Teacup | tea & treats |
+| `cities` | City skyline | cities |
 | `bar` | Cocktail glass | cheers |
 | `museum` | Exhibition building | exhibits |
 

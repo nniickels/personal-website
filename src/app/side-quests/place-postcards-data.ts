@@ -5,7 +5,7 @@
 // Add photos to public/postcard-photos; restart npm run dev to generate responsive images.
 // Leave photo empty for a paper placeholder.
 // photoPosition uses horizontal / vertical percentages; 50% 50% centres the crop.
-// Stamp icons: food = fork + spoon, nature = tree, tea = teacup, bar = cocktail, museum = museum.
+// Stamp icons: food = fork + spoon, nature = tree, cities = skyline, bar = cocktail, museum = museum.
 // Entries appear in this order. The counter and navigation use the number of entries.
 
 export const postcards = [
@@ -26,7 +26,7 @@ export const postcards = [
     address: "100 Yonge St, Toronto, ON M5C 2W1",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "food",
   },
 
@@ -47,7 +47,7 @@ export const postcards = [
     address: "637 Yonge St, Toronto, ON M4Y 1Z5",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "food",
   },
 
@@ -68,7 +68,7 @@ export const postcards = [
     address: "4581 R. Sherbrooke E, Montréal, QC H1X 2B2",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "museum",
   },
 
@@ -88,7 +88,7 @@ export const postcards = [
     address: "lowkey gatekeeping... you'll have to ask",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "nature",
   },
 
@@ -108,7 +108,7 @@ export const postcards = [
     address: "646 Queen St W, Toronto, ON M6J 1E4",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "food",
   },
 
@@ -128,7 +128,7 @@ export const postcards = [
     address: "Shunyi District, Beijing, 101312",
     country: "China",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "museum",
   },
 
@@ -148,7 +148,7 @@ export const postcards = [
     address: "10 Qinghua Rd, 青羊宫商圈 Qingyang District, Chengdu, Sichuan, 610032",
     country: "China",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "food",
   },
 
@@ -168,7 +168,7 @@ export const postcards = [
     address: "1 Pl. Ville-Marie, Montréal, QC H3B 4E8",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "bar",
   },
 
@@ -188,7 +188,7 @@ export const postcards = [
     address: "Königsplatz 3, 80333 München-Maxvorstadt",
     country: "Germany",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "museum",
   },
 
@@ -208,7 +208,7 @@ export const postcards = [
     address: "1191 Lawrence Ave E, North York, ON M3A 3P9",
     country: "Canada",
 
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
+    // Stamp: "food", "nature", "cities", "bar", or "museum"
     stamp: "nature",
   },
 
@@ -219,16 +219,11 @@ export const postcards = [
     alt: "Cocktails and tartare on toast at Prequel",
     title: "PREQUEL & CO. APOTHECARY",
     caption: "smells amazing",
-
-    // Back — your review and order
     note: "Apothecary-themed speakeasy with a great selection of herbal and floral cocktails.",
     order: "Steak tartare and French 75",
-
-    // Address lines — street address on the first line, country on the second
     address: "1036 Queen St W, Toronto, ON M6J 1H7",
     country: "Canada",
-
-    // Stamp: "food", "nature", "tea", "bar", or "museum"
     stamp: "bar",
   },
+
 ] as const;

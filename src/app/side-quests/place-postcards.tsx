@@ -45,7 +45,7 @@ export default function PlacePostcards() {
         <h2 id="places-title">Places</h2>
       </div>
       <p className="placeholder-copy">
-        Some of my favourite places! I like earning points on Google Maps; find me{" "}
+        A few places I’ve been that are worth a mention! I like earning points on Google Maps; find me{" "}
         <a className="text-link places-maps-link" href="https://maps.app.goo.gl/qet6vnym45NpTQ2XA?g_st=ic" target="_blank" rel="noreferrer"><strong>here!</strong><ExternalLinkIcon /></a>
       </p>
       <div className={`postcard-stack${direction === -1 ? " is-shuffling postcard-stack--backwards" : direction === 1 ? " is-shuffling" : ""}`}>
