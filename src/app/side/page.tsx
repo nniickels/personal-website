@@ -14,22 +14,22 @@ export const metadata: Metadata = {
     type: "website",
     url: "/side",
     siteName: "Nicole Jiang",
-    title: "Nicole Jiang",
+    title: "Nicole Jiang - Personal Website",
     description: socialDescription,
     images: [
       {
-        url: "/og.png?v=8",
+        url: "/og.png?v=9",
         width: 1200,
         height: 630,
-        alt: "Nicole Jiang — astrophysics at U of T",
+        alt: "Edge-on black hole with a glowing accretion disc",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nicole Jiang",
+    title: "Nicole Jiang - Personal Website",
     description: socialDescription,
-    images: ["/og.png?v=8"],
+    images: ["/og.png?v=9"],
   },
 };
 
