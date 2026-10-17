@@ -6,7 +6,7 @@ const projects = [
     title: "Early Black-Hole Growth Constraints from JWST",
     dates: "Feb 2026 - Present",
     description:
-      "Built a standardized, provenance-tracked catalogue of JWST-identified accreting black holes and candidates at high redshift to evaluate objects against different growth scenarios. Mentored by Prof. Pratika Dayal (CITA, DAA-Dunlap).",
+      "Built a standardized, assumption-tracked catalogue of JWST-identified high-redshift black holes and black-hole candidates, with analyses of their growth requirements under different seed masses, growth onset times, and radiative efficiencies.",
   },
   {
     title: "Galaxy Star-Formation Main Sequence Analysis with Cosmological Simulations",
