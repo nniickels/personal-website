@@ -29,6 +29,27 @@ const projects = [
   },
 ] as const;
 
+const talks = [
+  {
+    title: "Early Black-Hole Growth Constraints from JWST",
+    event: "Canadian Astronomical Society Emerging Researchers Showcase",
+    date: "Oct 28, 2026",
+    dateTime: "2026-10-28",
+  },
+  {
+    title: "Early Black-Hole Growth Constraints from JWST (Poster)",
+    event: "Canadian Undergraduate Research Conference",
+    date: "Oct 16, 2026",
+    dateTime: "2026-10-16",
+  },
+  {
+    title: "A Peek Into Astronomy Research at UofT",
+    event: "PHY000 PhysU Orientation",
+    date: "Sep 3, 2026",
+    dateTime: "2026-09-03",
+  },
+] as const;
+
 const experience = [
   {
     organization: "Royal Astronomical Society of Canada (RASC)",
@@ -107,6 +128,23 @@ export function SeriousContent() {
                 <p className="entry-dates">{project.dates}</p>
               </div>
               <p className="project-description">{project.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section" id="talks">
+        <h2>Talks</h2>
+        <div className="entries">
+          {talks.map((talk) => (
+            <article className="resume-item subsection-item" key={`${talk.title}-${talk.dateTime}`}>
+              <div className="entry-head">
+                <h3>{talk.title}</h3>
+                <p className="entry-dates">
+                  <time dateTime={talk.dateTime}>{talk.date}</time>
+                </p>
+              </div>
+              <p><i>{talk.event}</i></p>
             </article>
           ))}
         </div>
