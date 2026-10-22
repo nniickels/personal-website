@@ -7,11 +7,6 @@
   font-display: block;
 }
 
-html[data-title-font-loading] .hero h1,
-html[data-title-font-loading] .playground-intro h1 {
-  visibility: hidden;
-}
-
 :root {
   color-scheme: dark;
   --header-height: 48px;

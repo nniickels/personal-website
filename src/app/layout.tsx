@@ -56,8 +56,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-title-font-loading="" suppressHydrationWarning>
       <head>
+        <style>{`html[data-title-font-loading] .hero h1,html[data-title-font-loading] .playground-intro h1{visibility:hidden}`}</style>
+        <noscript>
+          <style>{`.hero h1,.playground-intro h1{visibility:visible!important}`}</style>
+        </noscript>
         <link
           rel="preload"
           href="/fonts/mrs-saint-delafield-titles.woff2"
@@ -67,7 +71,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.setAttribute('data-title-font-loading','');document.addEventListener('DOMContentLoaded',function(){document.fonts.load('400 16px "Mrs Saint Delafield"','Nicole Jiang Playground').then(function(fonts){if(fonts.length)document.documentElement.removeAttribute('data-title-font-loading')}).catch(function(){})},{once:true});`,
+            __html: `(function(){function ready(){document.fonts.load('400 16px "Mrs Saint Delafield"','Nicole Jiang Playground').then(function(fonts){if(fonts.length)document.documentElement.removeAttribute('data-title-font-loading')}).catch(function(){})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready()})()`,
           }}
         />
         <script
