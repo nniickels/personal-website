@@ -10,9 +10,12 @@
 }
 
 .playground-intro h1 {
-  font-size: 3.3rem;
-  font-weight: 560;
-  line-height: 1.1;
+  font-family: "Mrs Saint Delafield", cursive;
+  font-size: 6rem;
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
+  line-height: 1.2;
 }
 
 .playground-intro p {
@@ -903,6 +906,10 @@
 }
 
 @media (max-width: 700px) {
+  .playground-intro h1 {
+    font-size: 5.2rem;
+  }
+
   .simulator-workspace {
     grid-template-columns: 1fr;
   }
@@ -940,7 +947,7 @@
   }
 
   .playground-intro h1 {
-    font-size: 2.45rem;
+    font-size: clamp(3.4rem, 14vw, 4.3rem);
   }
 
   .playground-intro p {
@@ -996,6 +1003,12 @@
   .simulator-results > div + div {
     border-top: 1px solid var(--line);
     border-left: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .playground-intro h1 {
+    font-size: clamp(3rem, 13vw, 3.3rem);
   }
 }
 

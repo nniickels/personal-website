@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Mrs Saint Delafield";
+  src: url("/fonts/mrs-saint-delafield.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --header-height: 48px;
@@ -724,9 +732,12 @@ button {
 }
 
 .hero h1 {
-  font-size: 3.3rem;
-  font-weight: 560;
-  line-height: 1.1;
+  font-family: "Mrs Saint Delafield", cursive;
+  font-size: 6rem;
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
+  line-height: 1.2;
 }
 
 .hero-heading {
@@ -1663,7 +1674,7 @@ button {
   }
 
   .hero h1 {
-    font-size: 2.75rem;
+    font-size: 5.2rem;
   }
 
   .hero-heading {
@@ -1838,7 +1849,7 @@ button {
 
   .hero h1 {
     flex: 0 1 auto;
-    font-size: clamp(2rem, 10vw, 2.25rem);
+    font-size: clamp(3.4rem, 14vw, 4.3rem);
     white-space: nowrap;
   }
 
@@ -2125,8 +2136,8 @@ button {
 }
 
 @media (max-width: 360px) {
-  .mode-serious .hero h1 {
-    font-size: clamp(1.75rem, 9vw, 2rem);
+  .hero h1 {
+    font-size: clamp(3rem, 13vw, 3.3rem);
   }
 }
 
