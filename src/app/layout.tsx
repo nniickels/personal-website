@@ -58,6 +58,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link
+          rel="preload"
+          href="/fonts/mrs-saint-delafield-titles.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.setAttribute('data-title-font-loading','');document.addEventListener('DOMContentLoaded',function(){document.fonts.load('400 16px "Mrs Saint Delafield"','Nicole Jiang Playground').then(function(fonts){if(fonts.length)document.documentElement.removeAttribute('data-title-font-loading')}).catch(function(){})},{once:true});`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('portfolio-theme-override');var d=(t==='dark'||t==='light')?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=d}catch(e){}})()`,

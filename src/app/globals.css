@@ -1,9 +1,15 @@
 @font-face {
   font-family: "Mrs Saint Delafield";
-  src: url("/fonts/mrs-saint-delafield.ttf") format("truetype");
+  /* Subset contains the characters in "Nicole Jiang" and "Playground". */
+  src: url("/fonts/mrs-saint-delafield-titles.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
+}
+
+html[data-title-font-loading] .hero h1,
+html[data-title-font-loading] .playground-intro h1 {
+  visibility: hidden;
 }
 
 :root {

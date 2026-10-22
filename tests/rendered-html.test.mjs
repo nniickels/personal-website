@@ -143,13 +143,13 @@ test("keeps the phone layout compact without changing wider breakpoints", async 
     css,
     /@media \(max-width: 520px\) \{[\s\S]*?\.layout\.container\s*\{[\s\S]*?width:\s*calc\(100% - 1\.25rem\)/,
   );
-  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(2rem, 10vw, 2\.25rem\)/);
+  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(3\.4rem, 14vw, 4\.3rem\)/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.listening-cover-wheel-item\s*\{[\s\S]*?flex-basis:\s*88px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.pokemon-card-wheel-item\s*\{[\s\S]*?flex-basis:\s*78px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.home-link,[\s\S]*?\.page-links \.text-btn,[\s\S]*?\.theme-toggle\s*\{[\s\S]*?min-height:\s*44px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.social-link\s*\{[\s\S]*?width:\s*44px[\s\S]*?height:\s*44px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.side-quest-index-link\s*\{[\s\S]*?min-height:\s*32px/);
-  assert.match(css, /@media \(max-width: 360px\) \{[\s\S]*?\.mode-serious \.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(1\.75rem, 9vw, 2rem\)/);
+  assert.match(css, /@media \(max-width: 360px\) \{[\s\S]*?\.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(3rem, 13vw, 3\.3rem\)/);
   assert.match(source, /\{"\\u2060"\}[\s\S]*?className="external-link-icon"/);
 });
 
