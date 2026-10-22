@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-title-font-loading="" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" data-title-font-loading="" suppressHydrationWarning>
       <head>
         <style>{`html[data-title-font-loading] .hero h1,html[data-title-font-loading] .playground-intro h1{visibility:hidden}`}</style>
         <noscript>
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('portfolio-theme-override');var d=(t==='dark'||t==='light')?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=d}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem('portfolio-theme-override');document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:'dark'}catch(e){}})()`,
           }}
         />
       </head>

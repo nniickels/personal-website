@@ -160,16 +160,14 @@ test("keeps dates secondary and quiets the starfield behind reading content", as
   assert.match(css, /\.layout::before\s*\{[\s\S]*?color-mix\(in srgb, var\(--background\) 72%, transparent\)/);
 });
 
-test("follows live device color-scheme changes", async () => {
+test("defaults to dark mode and preserves explicit theme choices", async () => {
   const toggle = await readFile(new URL("../src/app/theme-toggle.tsx", import.meta.url), "utf8");
   const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
 
-  assert.match(toggle, /matchMedia\("\(prefers-color-scheme: dark\)"\)/);
-  assert.match(toggle, /addEventListener\("change", handleSystemThemeChange\)/);
-  assert.match(toggle, /overrideTheme && overrideTheme !== nextSystemTheme/);
-  assert.match(toggle, /localStorage\.removeItem\(storedThemeKey\)/);
-  assert.match(toggle, /setTheme\(nextSystemTheme\)/);
+  assert.doesNotMatch(toggle, /prefers-color-scheme/);
+  assert.match(toggle, /localStorage\.setItem\(storedThemeKey, nextTheme\)/);
+  assert.match(await (await render()).text(), /data-theme="dark"/);
   assert.match(layout, /portfolio-theme-override/);
   assert.match(css, /:root\[data-theme="light"\][\s\S]*?--home-logo-filter:\s*invert\(1\)/i);
   assert.match(css, /\.home-link img\s*\{[\s\S]*?filter:\s*var\(--home-logo-filter\)/i);

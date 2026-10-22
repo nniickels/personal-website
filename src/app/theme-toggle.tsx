@@ -11,13 +11,7 @@ export function ThemeToggle() {
 
   useEffect(() => {
     const themeToggle = toggleRef.current;
-    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const storedTheme = localStorage.getItem(storedThemeKey);
-    let overrideTheme: Theme | null =
-      storedTheme === "light" || storedTheme === "dark" ? storedTheme : null;
-
-    const getSystemTheme = (): Theme => (systemThemeQuery.matches ? "dark" : "light");
 
     const applyTheme = (nextTheme: Theme) => {
       document.documentElement.dataset.theme = nextTheme;
@@ -38,31 +32,20 @@ export function ThemeToggle() {
 
     const handleToggle = () => {
       const currentTheme =
-        (document.documentElement.dataset.theme as Theme | undefined) ?? getSystemTheme();
-      overrideTheme = currentTheme === "dark" ? "light" : "dark";
-      localStorage.setItem(storedThemeKey, overrideTheme);
-      setTheme(overrideTheme);
+        (document.documentElement.dataset.theme as Theme | undefined) ?? "dark";
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(storedThemeKey, nextTheme);
+      } catch {
+        // The toggle still works when browser storage is unavailable.
+      }
+      setTheme(nextTheme);
     };
 
-    const handleSystemThemeChange = () => {
-      const nextSystemTheme = getSystemTheme();
-
-      if (overrideTheme && overrideTheme !== nextSystemTheme) {
-        overrideTheme = null;
-        localStorage.removeItem(storedThemeKey);
-      }
-
-      if (!overrideTheme) {
-        setTheme(nextSystemTheme);
-      }
-    };
-
-    applyTheme(overrideTheme ?? getSystemTheme());
+    applyTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
     themeToggle?.addEventListener("click", handleToggle);
-    systemThemeQuery.addEventListener("change", handleSystemThemeChange);
     return () => {
       themeToggle?.removeEventListener("click", handleToggle);
-      systemThemeQuery.removeEventListener("change", handleSystemThemeChange);
     };
   }, []);
 
