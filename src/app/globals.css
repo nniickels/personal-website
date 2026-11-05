@@ -1653,6 +1653,10 @@ button {
   margin-top: 0.45rem;
 }
 
+.gaming-widget .gaming-source {
+  font-size: 0.75rem;
+}
+
 .clash-player-name {
   font-size: 0.78rem;
 }

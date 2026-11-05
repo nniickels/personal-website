@@ -279,6 +279,7 @@ export function FunContent() {
                   </>
                 : clashRoyale?.message ?? "Loading live data…"}
             </p>
+            <p className="data-note gaming-source">via RoyaleAPI</p>
           </article>
           <article className="gaming-widget">
             <h3>Steam</h3>
@@ -317,6 +318,7 @@ export function FunContent() {
                 ? ""
                 : steam?.message ?? "Loading live data…"}
             </p>
+            <p className="data-note gaming-source">via Steam API</p>
           </article>
         </div>
       </section>
