@@ -1850,11 +1850,12 @@ button {
 
   .hero-heading {
     gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   .hero h1 {
     flex: 0 1 auto;
-    font-size: clamp(3.4rem, 14vw, 4.3rem);
+    font-size: clamp(3.4rem, 16vw, 4.75rem);
     white-space: nowrap;
   }
 
@@ -1863,6 +1864,7 @@ button {
     grid-template-columns: repeat(3, 28px);
     gap: 0.4rem 0.5rem;
     justify-content: end;
+    margin-inline-start: auto;
   }
 
   .social-link {
@@ -2137,12 +2139,6 @@ button {
 
   .shooting-star {
     display: none;
-  }
-}
-
-@media (max-width: 360px) {
-  .hero h1 {
-    font-size: clamp(3rem, 13vw, 3.3rem);
   }
 }
 
