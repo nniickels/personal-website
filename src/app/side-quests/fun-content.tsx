@@ -119,7 +119,7 @@ export function FunContent() {
               Find me on{" "}
               <a
                 className="text-link photo-pinterest-link"
-                href="https://ca.pinterest.com/nnickelsj/"
+                href="https://www.pinterest.com/nnickelsj/_created/"
                 target="_blank"
                 rel="noreferrer"
               >

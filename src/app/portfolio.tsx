@@ -17,7 +17,7 @@ const seriousLinks: readonly SocialLink[] = [
 ] as const;
 
 const funLinks: readonly SocialLink[] = [
-  { name: "Pinterest", href: "https://ca.pinterest.com/nnickelsj/", icon: "pinterest" },
+  { name: "Pinterest", href: "https://www.pinterest.com/nnickelsj/_created/", icon: "pinterest" },
   { name: "Spotify", href: "https://stats.fm/user/nnickels?range=lifetime", icon: "spotify" },
   {
     name: "Google Maps",
