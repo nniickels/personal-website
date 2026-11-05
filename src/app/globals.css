@@ -816,12 +816,11 @@ button {
 .hero-description {
   width: 100%;
   max-width: none;
-  padding: 1.55rem 0 1.1rem;
+  padding-block-end: 1.1rem;
 }
 
 .mode-serious .hero-description {
-  max-width: none;
-  padding-block: 2rem 1.5rem;
+  padding-block-end: 1.5rem;
   line-height: 1.85;
 }
 
@@ -1709,10 +1708,6 @@ button {
     flex-basis: 96px;
   }
 
-  .hero-description {
-    padding-top: 1.25rem;
-  }
-
   .entry-head {
     align-items: flex-start;
   }
@@ -1904,7 +1899,7 @@ button {
 
   .hero-description,
   .mode-serious .hero-description {
-    padding-block: 1.05rem 0.75rem;
+    padding-block-end: 0.75rem;
     line-height: 1.68;
   }
 
