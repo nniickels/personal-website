@@ -19,7 +19,7 @@ export const postcards = [
 
     // Back — your review and order
     note:
-      "Perfect for a romantic evening or a quiet dinner with friends. A glass of wine ties everything together.",
+      "Really nice place for a romantic evening or a quiet dinner with friends~~ A glass of wine ties everything together!",
     order: "Bison Wellington!!",
 
     // Address lines — street address on the first line, country on the second
@@ -40,7 +40,7 @@ export const postcards = [
 
     // Back — your review and order
     note:
-      "Signature Sichuan dishes and snacks. The perfect place to enjoy a casual meal with friends. Good value, too!",
+      "Yummy Sichuan dishes and snacks! My favourite place to enjoy a casual meal with friends.",
     order: "Jelly noodles and bell dumplings",
 
     // Address lines — street address on the first line, country on the second
@@ -61,7 +61,7 @@ export const postcards = [
 
     // Back — your review and order
     note:
-      "Super cool and fun and colourful and fascinating and awesome!!!",
+      "Super cool and fun and colourful and fascinating and awesome!!!!!",
     order: "Butterfly exhibits and ant farms",
 
     // Address lines — street address on the first line, country on the second
@@ -118,10 +118,10 @@ export const postcards = [
     photoPosition: "50% 66%",
     alt: "Plants and a koi pond inside Luhong Art Museum",
     title: "Luhong Art Museum",
-    caption: "carefully curated",
+    caption: "peaceful and serene",
 
     // Back — your review and order
-    note: "A thoughtfully designed museum with a beautiful garden. Peaceful and serene. The chocolate shop inside is also worth a visit.",
+    note: "A thoughtfully designed museum with a beautiful garden! The chocolate shop inside is also worth a visit.",
     order: "Koi pond and black swans!",
 
     // Address lines — street address on the first line, country on the second
@@ -161,7 +161,7 @@ export const postcards = [
     caption: "drinks with a great view",
 
     // Back — your review and order
-    note: "Cocktails, snacks, and a view of the city from the 45th floor. Enjoying the sunset with friends was a wonderful experience.",
+    note: "Cocktails, snacks, and a view of Montréal from the 45th floor! Enjoying the sunset with friends was a wonderful experience!!",
     order: "Beef & oyster tartare",
 
     // Address lines — street address on the first line, country on the second
@@ -178,7 +178,7 @@ export const postcards = [
     photoPosition: "55% 50%",
     alt: "Classical columns and sculpture on the Glyptothek exterior",
     title: "Glyptothek",
-    caption: "in awe",
+    caption: "statues and stuff",
 
     // Back — your review and order
     note: "Super cool and intricate classical sculptures. I also really like the design and layout of the building as a whole.",
