@@ -296,19 +296,15 @@ export const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => (
   alt: `Scrapbook photo ${index + 1} of ${scrapbookPhotoOrder.length}`,
 }));
 
-export const sideQuestNavigationRows = [
-  [
-    { label: "Photo Gallery", href: "#photo-gallery" },
-    { label: "Listening", href: "#listening" },
-    { label: "Collections", href: "#collections" },
-    { label: "Natural Things", href: "#natural-things" },
-    { label: "Scrapbook", href: "#scrapbook" },
-  ],
-  [
-    { label: "Pokémon Cards", href: "#pokemon-cards" },
-    { label: "Postcards", href: "#favourite-places" },
-    { label: "Gaming", href: "#gaming" },
-    { label: "Reading", href: "#reading" },
-    { label: "Watching", href: "#watching" },
-  ],
+export const sideQuestNavigation = [
+  { label: "Photo Gallery", href: "#photo-gallery" },
+  { label: "Listening", href: "#listening" },
+  { label: "Collections", href: "#collections" },
+  { label: "Natural Things", href: "#natural-things" },
+  { label: "Scrapbook", href: "#scrapbook" },
+  { label: "Pokémon Cards", href: "#pokemon-cards" },
+  { label: "Postcards", href: "#favourite-places" },
+  { label: "Gaming", href: "#gaming" },
+  { label: "Reading", href: "#reading" },
+  { label: "Watching", href: "#watching" },
 ] as const;

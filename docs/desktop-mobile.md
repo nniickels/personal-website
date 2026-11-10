@@ -1,14 +1,14 @@
 # Desktop and mobile differences
 
-Layout responds to viewport dimensions, while touch-specific behavior responds to pointer and hover capabilities. The phone copy and compact navigation apply at widths up to 520px; the Playground accordion uses the separate rules below.
+Phone copy and compact header spacing apply at widths up to 520px. The Playground accordion uses the rules below.
 
 ## Wide and compact layouts
 
 | Feature | Wide layout | Compact layout |
 |---------|-----------|----------|
-| Layout and navigation | Uses wider gutters and larger type and media. Navigation uses “Main”, “Side”, and “Play”; the Play page retains its “Playground” title. | Uses compact gutters and smaller type and media, with the same navigation labels. |
+| Layout and navigation | Wider gutters, larger type and media. The header links are `main`, `side`, and `play`. | Smaller gutters, type, and media. |
 | Main copy | Shows the full introduction, project descriptions, and service descriptions. | Uses a shorter introduction and hides project and service descriptions at phone widths. |
-| Side section index | Spreads section and subsection links across the available width. | Fits the complete index within the narrow viewport using more compact labels and spacing. |
+| Side section index | A sticky sidebar links to sections and highlights the current section. | Scroll through the sections. |
 | Side profile icons | Shows Pinterest, Spotify, Google Maps, AniList, and Instagram in one row. AniList links to `https://anilist.co/user/niickels/` and uses a smaller logo to balance its visual weight. | At phone widths, uses two rows: Pinterest, Spotify, and Google Maps above AniList and Instagram, with 8px horizontal and 6.4px vertical gaps. |
 | Side copy and rankings | Shows full introductory and interest paragraphs and expanded listening rankings. The first two tracks stay together across column breaks; link underlines animate beneath their labels within the same column. | Uses a shorter introduction and interest lists; Watching and Gaming lists use two columns. Top Tracks stays expanded, while artist and genre rankings use disclosures. Watching links to AniList through its heading; the Places introduction remains visible, and the two gaming widgets remain side by side. |
 | Side lifecycle | Gallery markup renders upfront; viewers load on demand. | Same lifecycle, with smaller responsive image candidates selected for the displayed size and screen density. |

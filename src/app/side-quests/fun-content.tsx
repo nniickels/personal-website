@@ -7,7 +7,7 @@ import ListeningCoverWheel from "./music-shelf";
 import PokemonCardWheel from "./pokemon-shelf";
 import ImageGallery from "./image-gallery";
 import PlacePostcards from "./place-postcards";
-import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, sideQuestNavigationRows } from "./data";
+import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, sideQuestNavigation } from "./data";
 
 const desktopIndexQuery = "(min-width: 701px) and (min-height: 521px), (min-width: 701px) and (pointer: fine)";
 
@@ -38,7 +38,7 @@ function SideQuestIndex() {
 
   useEffect(() => {
     const desktop = matchMedia(desktopIndexQuery);
-    const targets = sideQuestNavigationRows.flat().flatMap(({ href }) => {
+    const targets = sideQuestNavigation.flatMap(({ href }) => {
       const section = document.getElementById(href.slice(1));
       return section ? [{ href, section }] : [];
     });
@@ -90,22 +90,16 @@ function SideQuestIndex() {
   return (
     <nav className="side-quest-index" aria-label="Side sections">
       <h2 className="side-quest-index-title">Section index</h2>
-      {sideQuestNavigationRows.map((row, rowIndex) => (
-        <div className="side-quest-index-row" key={rowIndex}>
-          {row.map((item, itemIndex) => (
-            <span className="side-quest-index-item" key={item.href}>
-              {itemIndex > 0 && <span className="side-quest-index-divider" aria-hidden="true">|</span>}
-              <a
-                className="text-link side-quest-index-link"
-                href={item.href}
-                aria-current={current === item.href ? "location" : undefined}
-                onClick={(event) => navigateToSideQuestDestination(event, item.href, setCurrent)}
-              >
-                {item.label}
-              </a>
-            </span>
-          ))}
-        </div>
+      {sideQuestNavigation.map((item) => (
+        <a
+          key={item.href}
+          className="side-quest-index-link"
+          href={item.href}
+          aria-current={current === item.href ? "location" : undefined}
+          onClick={(event) => navigateToSideQuestDestination(event, item.href, setCurrent)}
+        >
+          {item.label}
+        </a>
       ))}
     </nav>
   );

@@ -149,7 +149,7 @@ test("keeps the phone layout compact without changing wider breakpoints", async 
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.pokemon-card-wheel-item\s*\{[\s\S]*?flex-basis:\s*78px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.home-link,[\s\S]*?\.page-links \.text-btn,[\s\S]*?\.theme-toggle\s*\{[\s\S]*?min-height:\s*44px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.social-link\s*\{[\s\S]*?width:\s*44px[\s\S]*?height:\s*44px/);
-  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.side-quest-index-link\s*\{[\s\S]*?min-height:\s*32px/);
+  assert.match(css, /\.side-quest-index\s*\{\s*display:\s*none;/);
   assert.match(source, /\{"\\u2060"\}[\s\S]*?className="external-link-icon"/);
 });
 
@@ -332,7 +332,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
 
   assert.match(
     source,
-    /const sideQuestNavigationRows[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#favourite-places"[\s\S]*?href: "#gaming"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"/,
+    /const sideQuestNavigation[\s\S]*?href: "#photo-gallery"[\s\S]*?href: "#listening"[\s\S]*?href: "#collections"[\s\S]*?href: "#natural-things"[\s\S]*?href: "#scrapbook"[\s\S]*?href: "#pokemon-cards"[\s\S]*?href: "#favourite-places"[\s\S]*?href: "#gaming"[\s\S]*?href: "#reading"[\s\S]*?href: "#watching"/,
   );
   assert.match(source, /<nav className="side-quest-index" aria-label="Side sections">/);
   assert.match(source, /id="natural-things"/);
