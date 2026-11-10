@@ -2,6 +2,7 @@
 
 import { Activity, useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType, MouseEvent } from "react";
+import { PageTitle } from "../page-title";
 import BlackHoleGrowthSimulator from "./black-hole";
 import StellarEvolutionExplorer from "./stellar";
 import GravitationalLensingSandbox from "./lensing";
@@ -41,17 +42,17 @@ function ExperimentSlot({ experiment, mobile, touch, saveData, numberFormat, ope
 }
 
 export function Playground() {
-  // Render the complete page on the server. CSS keeps phone panels collapsed
-  // until hydration resolves the layout; Activity then pauses their effects.
+  // Render all experiments on the server. Activity pauses collapsed phone
+  // panels after hydration, while desktop models use viewport visibility.
   const [mobile, setMobile] = useState<boolean | null>(null);
   const [touch, setTouch] = useState(false);
   const [saveData, setSaveData] = useState(false);
   // Share the server's formatter through hydration, then use the browser default.
   const [numberFormat, setNumberFormat] = useState(() => new Intl.NumberFormat("en-US"));
   const [open, setOpen] = useState<string | null>(null);
-  const [destination, setDestination] = useState<string | null>(null);
-  const [navigationRun, setNavigationRun] = useState(0);
-  const scrollBehavior = useRef<ScrollBehavior>("instant");
+  const [scrollRequest, setScrollRequest] = useState<{ id: string; behavior: ScrollBehavior } | null>(null);
+  const [current, setCurrent] = useState<string>(experiments[0].id);
+  const experimentList = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const connection = (navigator as Navigator & { connection?: EventTarget & { saveData?: boolean } }).connection;
     const update = () => setSaveData(connection?.saveData === true);
@@ -67,8 +68,11 @@ export function Playground() {
     const followHash = () => {
       const id = location.hash.slice(1);
       if (experiments.some((experiment) => experiment.id === id)) {
-        scrollBehavior.current = "instant";
-        setOpen(id); setDestination(id); setNavigationRun((run) => run + 1);
+        setOpen(id);
+        setScrollRequest({ id, behavior: "instant" });
+      } else {
+        setOpen(null);
+        setScrollRequest(null);
       }
     };
     update(); followHash();
@@ -77,44 +81,64 @@ export function Playground() {
     return () => { layout.removeEventListener("change", update); input.removeEventListener("change", update); window.removeEventListener("hashchange", followHash); };
   }, []);
   useEffect(() => {
-    if (!destination || mobile === null) return;
-    const frame = requestAnimationFrame(() => document.getElementById(`${destination}-slot`)?.scrollIntoView({ block: "start", behavior: scrollBehavior.current }));
+    if (mobile !== false || !experimentList.current) return;
+    const slots = Array.from(experimentList.current.querySelectorAll<HTMLElement>(".experiment-slot"));
+    const visible = new Set<Element>();
+    const top = getComputedStyle(slots[0]).scrollMarginTop;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
+      }
+      const firstVisible = slots.find((slot) => visible.has(slot));
+      if (firstVisible) setCurrent(firstVisible.id.replace(/-slot$/, ""));
+    }, { rootMargin: `-${top} 0px 0px 0px` });
+    slots.forEach((slot) => observer.observe(slot));
+    return () => observer.disconnect();
+  }, [mobile]);
+  useEffect(() => {
+    if (!scrollRequest || mobile === null) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`${scrollRequest.id}-slot`)?.scrollIntoView({ block: "start", behavior: scrollRequest.behavior });
+      setScrollRequest(null);
+    });
     return () => cancelAnimationFrame(frame);
-  }, [destination, mobile, navigationRun]);
+  }, [mobile, scrollRequest]);
   const navigate = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    scrollBehavior.current = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-    setOpen(id); setDestination(id); setNavigationRun((run) => run + 1);
+    setOpen(id);
+    const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    setScrollRequest({ id, behavior });
     history.replaceState(null, "", `#${id}`);
   };
   return <main className="container layout playground-layout">
     <section className="playground-intro">
-      <h1>Playground</h1>
+      <PageTitle title="playground" />
       <p>Play with some interactive astronomy experiments and simulations! These are simplified,
         illustrative toy models, and some visual cues are exaggerated or added for clarity rather
         than being physically precise or necessary to the simulation.</p>
     </section>
-    <nav className="side-quest-index playground-index" aria-label="Playground experiments">
-      <div className="side-quest-index-row playground-index-row">
-        {experiments.map((experiment, index) => <span className="side-quest-index-item" key={experiment.id}>
-          {index > 0 && <span className="side-quest-index-divider">|</span>}
-          <a className="text-link side-quest-index-link" href={`#${experiment.id}`} onClick={(event) => navigate(event, experiment.id)}>{experiment.label}</a>
-        </span>)}
+    <div className="playground-workspace">
+      <nav className="playground-index" aria-label="Playground experiments">
+        <h2>Experiment index</h2>
+        <ul>
+          {experiments.map((experiment) => <li key={experiment.id}>
+            <a href={`#${experiment.id}`} aria-current={current === experiment.id ? "true" : undefined}
+              onClick={(event) => navigate(event, experiment.id)}>{experiment.label}</a>
+          </li>)}
+        </ul>
+      </nav>
+      <div className="playground-experiments mobile-playground-accordion" ref={experimentList}>
+        {experiments.map((experiment) => <ExperimentSlot key={experiment.id} experiment={experiment} mobile={mobile} touch={touch} saveData={saveData} numberFormat={numberFormat}
+          open={open === experiment.id}
+          toggle={() => {
+            const next = open === experiment.id ? null : experiment.id;
+            setOpen(next);
+            setScrollRequest(next ? { id: next, behavior: "instant" } : null);
+            if (next) history.replaceState(null, "", `#${next}`);
+          }} />)}
       </div>
-    </nav>
-    <div className="playground-experiments mobile-playground-accordion">
-      {experiments.map((experiment) => <ExperimentSlot key={experiment.id} experiment={experiment} mobile={mobile} touch={touch} saveData={saveData} numberFormat={numberFormat}
-        open={open === experiment.id}
-        toggle={() => {
-          const next = open === experiment.id ? null : experiment.id;
-          setOpen(next);
-          if (next) {
-            scrollBehavior.current = "instant";
-            setDestination(next); setNavigationRun((run) => run + 1);
-            history.replaceState(null, "", `#${next}`);
-          }
-        }} />)}
     </div>
   </main>;
 }

@@ -42,7 +42,7 @@ export default function PlacePostcards() {
   return (
     <section className="section places-section" id="favourite-places" aria-labelledby="places-title">
       <div className="places-heading">
-        <h2 id="places-title">Places</h2>
+        <h2 id="places-title">Postcards</h2>
       </div>
       <p className="placeholder-copy">
         A few places I’ve been that are worth a mention! I like earning points on Google Maps; find me{" "}
@@ -98,7 +98,7 @@ export default function PlacePostcards() {
         })}
       </div>
       <div className="postcard-controls">
-        <button type="button" aria-label="Previous favourite place" disabled={direction !== null} onClick={() => move(-1)}>←</button>
+        <button type="button" aria-label="Previous postcard" disabled={direction !== null} onClick={() => move(-1)}>←</button>
         <span className="postcard-counter">
           {editingNumber ? <input className="postcard-number-input" type="text" inputMode="numeric" pattern="[0-9]*"
             maxLength={String(postcards.length).length} aria-label={`Postcard number (1 to ${postcards.length})`}
@@ -116,7 +116,7 @@ export default function PlacePostcards() {
             </button>}
           <span aria-hidden="true"> / {postcards.length}</span>
         </span>
-        <button type="button" aria-label="Next favourite place" disabled={direction !== null} onClick={() => move(1)}>→</button>
+        <button type="button" aria-label="Next postcard" disabled={direction !== null} onClick={() => move(1)}>→</button>
       </div>
     </section>
   );

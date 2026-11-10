@@ -9,9 +9,12 @@ import ImageGallery from "./image-gallery";
 import PlacePostcards from "./place-postcards";
 import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, sideQuestNavigationRows } from "./data";
 
+const desktopIndexQuery = "(min-width: 701px) and (min-height: 521px), (min-width: 701px) and (pointer: fine)";
+
 function navigateToSideQuestDestination(
   event: ReactMouseEvent<HTMLAnchorElement>,
   href: string,
+  onNavigate: (href: string) => void,
 ) {
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
@@ -27,9 +30,97 @@ function navigateToSideQuestDestination(
   target.scrollIntoView({
     behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
   });
+  if (matchMedia(desktopIndexQuery).matches) onNavigate(href);
+}
+
+function SideQuestIndex() {
+  const [current, setCurrent] = useState<string | null>(null);
+
+  useEffect(() => {
+    const desktop = matchMedia(desktopIndexQuery);
+    const targets = sideQuestNavigationRows.flat().flatMap(({ href }) => {
+      const section = document.getElementById(href.slice(1));
+      return section ? [{ href, section }] : [];
+    });
+    const first = targets[0];
+    if (!first) return;
+
+    const fromBottom = [...targets].reverse();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      const line = atBottom ? window.innerHeight : parseFloat(getComputedStyle(first.section).scrollMarginTop) + 4;
+      // A jump near the footer may reach the scroll limit before its heading
+      // reaches the reading line. Honor the destination while it is in view.
+      const anchored = atBottom && targets.find(({ href, section }) => {
+        if (href !== location.hash) return false;
+        const top = section.getBoundingClientRect().top;
+        return top >= 0 && top <= line;
+      });
+      const visible = fromBottom.find(({ section }) => section.getBoundingClientRect().top <= line);
+      setCurrent((anchored || visible || first).href);
+    };
+    const schedule = () => {
+      if (desktop.matches && !frame) frame = requestAnimationFrame(update);
+    };
+    const changeLayout = () => {
+      if (desktop.matches) schedule();
+      else {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        setCurrent(null);
+      }
+    };
+    const resize = new ResizeObserver(schedule);
+    if (first.section.parentElement) resize.observe(first.section.parentElement);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    desktop.addEventListener("change", changeLayout);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      desktop.removeEventListener("change", changeLayout);
+    };
+  }, []);
+
+  return (
+    <nav className="side-quest-index" aria-label="Side sections">
+      <h2 className="side-quest-index-title">Section index</h2>
+      {sideQuestNavigationRows.map((row, rowIndex) => (
+        <div className="side-quest-index-row" key={rowIndex}>
+          {row.map((item, itemIndex) => (
+            <span className="side-quest-index-item" key={item.href}>
+              {itemIndex > 0 && <span className="side-quest-index-divider" aria-hidden="true">|</span>}
+              <a
+                className="text-link side-quest-index-link"
+                href={item.href}
+                aria-current={current === item.href ? "location" : undefined}
+                onClick={(event) => navigateToSideQuestDestination(event, item.href, setCurrent)}
+              >
+                {item.label}
+              </a>
+            </span>
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
 }
 
 export function FunContent() {
+  return (
+    <div className="side-workspace">
+      <SideQuestIndex />
+      <SideSections />
+    </div>
+  );
+}
+
+function SideSections() {
   const [stats, setStats] = useState<PublicStatsResponse | null>(null);
 
   useEffect(() => {
@@ -90,25 +181,6 @@ export function FunContent() {
       className="mode-content fun-content"
       aria-label="Side content"
     >
-      <nav className="side-quest-index" aria-label="Side sections">
-        {sideQuestNavigationRows.map((row, rowIndex) => (
-          <div className="side-quest-index-row" key={rowIndex}>
-            {row.map((item, itemIndex) => (
-              <span className="side-quest-index-item" key={item.href}>
-                {itemIndex > 0 && <span className="side-quest-index-divider">|</span>}
-                <a
-                  className="text-link side-quest-index-link"
-                  href={item.href}
-                  onClick={(event) => navigateToSideQuestDestination(event, item.href)}
-                >
-                  {item.label}
-                </a>
-              </span>
-            ))}
-          </div>
-        ))}
-      </nav>
-
       <section className="section" id="photo-gallery" data-expand-on-navigate="true">
         <details className="dropdown-entry photo-gallery-dropdown">
           <summary>

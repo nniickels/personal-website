@@ -14,7 +14,7 @@ test("home renders without side-quest or simulation code", async ({ page }) => {
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("request", (request) => { if (request.resourceType() === "script") scripts.push(request.url()); });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Nicole Jiang", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "nicole jiang", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /Switch to .* mode/ }).click();
   expect(errors).toEqual([]);
   expect(scripts.filter((url) => /fun-content|music-shelf|pokemon-shelf|black-hole|stellar|lensing|resonance/.test(url))).toEqual([]);
@@ -116,10 +116,22 @@ test("offscreen orbit animation stops and resumes", async ({ page }, testInfo) =
 test("all experiment content and scientific explanations remain available", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop");
   await page.goto("/playground");
+  const index = page.getByRole("navigation", { name: "Playground experiments" });
+  await expect(page.locator(".experiment-panel:visible")).toHaveCount(4);
   for (const id of ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"]) {
-    await page.locator(`#${id}-slot`).scrollIntoViewIfNeeded();
-    await expect(page.locator(`#${id}`)).toBeAttached();
+    const link = index.locator(`a[href="#${id}"]`);
+    await link.click();
+    await expect(link).toHaveAttribute("aria-current", "true");
+    await expect(page.locator(`#${id} .simulator-heading`)).toBeInViewport();
+    if (id === "black-hole-growth") {
+      const preset = page.getByRole("button", { name: "Rapid growth", exact: true });
+      await preset.click();
+      await expect(preset).toHaveAttribute("aria-pressed", "true");
+    }
   }
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(index.getByRole("link", { name: "Black-Hole Growth", exact: true })).toHaveAttribute("aria-current", "true");
+  await expect(page.getByRole("button", { name: "Rapid growth", exact: true })).toHaveAttribute("aria-pressed", "true");
   const html = await page.locator("body").innerHTML();
   assert.match(html, /id="black-hole-growth"/i);
   assert.match(html, /id="gravitational-lensing"/i);
@@ -155,7 +167,8 @@ test("all experiment content and scientific explanations remain available", asyn
   assert.match(html, /Pause orbits/i);
   assert.match(html, /Mass presets:/i);
   assert.match(html, /Initial mass/i);
-  await expect(page.getByRole("slider", { name: "Evolution progress", exact: true })).toBeAttached();
+  await index.getByRole("link", { name: "Stellar Evolution", exact: true }).click();
+  await expect(page.getByRole("slider", { name: "Evolution progress", exact: true })).toBeVisible();
   assert.match(html, /Play evolution/i);
   assert.match(html, /Main-sequence lifetime/i);
   assert.match(html, /Main-sequence luminosity/i);
@@ -188,7 +201,7 @@ test("all experiment content and scientific explanations remain available", asyn
   assert.match(html, /Play growth/i);
   assert.match(html, /Drag to rotate in 3D/i);
   assert.match(html, /Drag to move and rotate the source galaxy/i);
-  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main<\/span><span class="mobile-only">Main<\/span><\/a>/i);
+  assert.match(html, /href="\/"[^>]*><span class="desktop-only">main<\/span><span class="mobile-only">main<\/span><\/a>/);
   assert.match(html, /href="\/side"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
 
 });

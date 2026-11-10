@@ -61,19 +61,21 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /rel="icon"[^>]*href="\/favicon-32\.png\?v=3"[^>]*sizes="32x32"/i);
   assert.match(html, /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon\.png\?v=3"/i);
   assert.doesNotMatch(html, /favicon\.svg/i);
-  assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
-  assert.match(html, /aria-label="LinkedIn"/i);
-  assert.match(html, /aria-label="GitHub"/i);
-  assert.match(html, /aria-label="Email"/i);
+  assert.match(html, /<h1[^>]*><span class="visually-hidden">nicole jiang<\/span><img[^>]*src="\/title-art\/nicole-jiang\.webp"[^>]*><\/h1>/i);
+  assert.match(html, /<a[^>]*href="https:\/\/www\.linkedin\.com\/in\/nicolejitong-jiang\/"[^>]*aria-label="LinkedIn"/);
+  assert.match(html, /<a[^>]*href="https:\/\/github\.com\/nniickels"[^>]*aria-label="GitHub"/);
+  assert.match(html, /<a[^>]*href="mailto:[^"]+"[^>]*aria-label="Email"/);
   assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
-  assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">Play<\/span><span class="mobile-only">Play<\/span><\/a>/i);
-  assert.match(html, /href="\/side"[^>]*><span class="desktop-only">Side<\/span><span class="mobile-only">Side<\/span><\/a>/i);
-  assert.ok(html.indexOf(">Play</span>") < html.indexOf(">Side</span>"));
+  assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">play<\/span><span class="mobile-only">play<\/span><\/a>/);
+  assert.match(html, /href="\/side"[^>]*><span class="desktop-only">side<\/span><span class="mobile-only">side<\/span><\/a>/);
+  assert.ok(html.indexOf(">play</span>") < html.indexOf(">side</span>"));
   assert.match(html, /aria-label="Nicole Jiang home"[^>]*>[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?icons-tong-calligraphy[^" ]*\.webp[\s\S]*?<\/a>/i);
   assert.doesNotMatch(html, />\s*同同\s*<\/a>/i);
   assert.match(html, /astrophysics undergrad @ uoft/i);
-  assert.match(html, /href="\/resume\.pdf"[^>]*target="_blank"[\s\S]*?class="external-link-icon"/i);
+  const subtitle = html.match(/<p class="subtitle">([\s\S]*?)<\/p>/)?.[1] ?? "";
+  assert.match(subtitle, /^astrophysics undergrad @ uoft/);
+  assert.match(subtitle, /<a[^>]*href="\/resume\.pdf"[^>]*target="_blank"[^>]*>resume[\s\S]*?class="external-link-icon"/);
   assert.match(html, /src="\/media\/icons-university-of-toronto[^" ]*\.webp"/i);
   assert.match(html, /src="\/media\/icons-ontario-science-centre[^" ]*\.webp"/i);
   assert.match(html, /Ontario Science Centre Science School/i);
@@ -143,7 +145,6 @@ test("keeps the phone layout compact without changing wider breakpoints", async 
     css,
     /@media \(max-width: 520px\) \{[\s\S]*?\.layout\.container\s*\{[\s\S]*?width:\s*calc\(100% - 1\.25rem\)/,
   );
-  assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.hero h1\s*\{[\s\S]*?font-size:\s*clamp\(3\.4rem, 16vw, 4\.75rem\)/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.listening-cover-wheel-item\s*\{[\s\S]*?flex-basis:\s*88px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.pokemon-card-wheel-item\s*\{[\s\S]*?flex-basis:\s*78px/);
   assert.match(css, /@media \(max-width: 520px\) \{[\s\S]*?\.home-link,[\s\S]*?\.page-links \.text-btn,[\s\S]*?\.theme-toggle\s*\{[\s\S]*?min-height:\s*44px/);
@@ -341,7 +342,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
     source,
     /function navigateToSideQuestDestination[\s\S]*?target instanceof HTMLDetailsElement[\s\S]*?target\.dataset\.expandOnNavigate === "true"[\s\S]*?target\.querySelector<HTMLDetailsElement>\(":scope > details"\)[\s\S]*?dropdown\.open = true/,
   );
-  assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href\)\}/);
+  assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href, setCurrent\)\}/);
   assert.match(source, /prefers-reduced-motion: reduce/);
   assert.match(source, /id="photo-gallery" data-expand-on-navigate="true"/);
   assert.doesNotMatch(source, /id="collections" data-expand-on-navigate/);
@@ -496,7 +497,6 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(css, /\.mode-content\s*\{[\s\S]*?padding-bottom:\s*4rem/i);
   assert.match(css, /@view-transition\s*\{[\s\S]*?navigation:\s*auto/i);
   assert.match(css, /\.gaming-widget h3\s*\{[\s\S]*?color:\s*var\(--muted\)/i);
-  assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.hero h1\s*\{[\s\S]*?white-space:\s*nowrap/i);
   assert.match(css, /@media \(max-width: 520px\)[\s\S]*?\.social-links\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3, 28px\)/i);
   assert.match(css, /\.pokemon-card-wheel\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto/i);
   assert.match(css, /\.photo-gallery-grid\s*\{[\s\S]*?display:\s*grid[\s\S]*?grid-template-columns:\s*repeat\(5, minmax\(0, 1fr\)\)[\s\S]*?gap:\s*0\.5rem/i);
@@ -524,7 +524,7 @@ test("publishes Side as its own shareable page", async () => {
   assert.match(html, /<title>Side — Nicole Jiang<\/title>/i);
   assert.match(html, /name="description"[^>]*photography, music, collections, favourite places, games, reading, and watching/i);
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side"/i);
-  assert.match(html, /<h1[^>]*>Nicole Jiang<\/h1>/i);
+  assert.match(html, /<h1[^>]*><span class="visually-hidden">nicole jiang<\/span><img[^>]*src="\/title-art\/nicole-jiang\.webp"[^>]*><\/h1>/i);
   assert.match(html, /aria-label="Pinterest"/i);
   assert.match(html, /aria-label="Spotify"/i);
   assert.match(html, /aria-label="Instagram"/i);
@@ -543,7 +543,7 @@ test("publishes Side as its own shareable page", async () => {
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
   assert.doesNotMatch(html, /"@type":"WebSite"/i);
   assert.doesNotMatch(html, /aria-label="LinkedIn"|aria-label="GitHub"|aria-label="Email"/i);
-  assert.match(html, /href="\/"[^>]*><span class="desktop-only">Main<\/span><span class="mobile-only">Main<\/span><\/a>/i);
+  assert.match(html, /href="\/"[^>]*><span class="desktop-only">main<\/span><span class="mobile-only">main<\/span><\/a>/);
   assert.match(html, /aria-label="Side content"/i);
 });
 
@@ -563,7 +563,7 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(html, /name="twitter:title"[^>]*content="Nicole Jiang - Personal Website"/i);
   assert.doesNotMatch(html, /"@type":"ProfilePage"/i);
   assert.doesNotMatch(html, /"@type":"WebSite"/i);
-  assert.match(html, /<h1[^>]*>Playground<\/h1>/i);
+  assert.match(html, /<h1[^>]*><span class="visually-hidden">playground<\/span><img[^>]*src="\/title-art\/playground\.webp"[^>]*><\/h1>/i);
   assert.match(html, /These are simplified,[\s\S]*?illustrative toy models[\s\S]*?visual cues are exaggerated or added for clarity/i);
   assert.match(html, /aria-label="Playground experiments"/i);
   assert.match(html, /class="[^"]*mobile-playground-accordion"/i);
@@ -754,10 +754,10 @@ test("publishes an interactive, shareable astronomy Playground", async () => {
   assert.match(css, /\.resonance-canvas\s*\{[\s\S]*?touch-action:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.resonance-workspace\s*\{[\s\S]*?grid-template-columns:\s*1fr/i);
   assert.match(css, /\.stellar-workspace\s*\{[\s\S]*?grid-template-columns:/i);
-  assert.match(css, /\.playground-index-row\s*\{[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/i);
+  assert.match(css, /\.playground-workspace\s*\{[^}]*display:\s*grid/i);
   assert.match(css, /\.playground-intro\s*\{[\s\S]*?gap:\s*1\.25rem/i);
   assert.doesNotMatch(css, /\.playground-intro\s*\{[^}]*padding-bottom:/i);
-  assert.match(css, /\.playground-index\s*\{[\s\S]*?margin-block:\s*-0\.6rem -1\.2rem/i);
+  assert.match(css, /\.playground-index\s*\{[^}]*position:\s*sticky/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?max-height: 520px[\s\S]*?pointer: coarse[\s\S]*?\.mobile-playground-accordion\s*\{[\s\S]*?display:\s*grid/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.playground-index\s*\{[\s\S]*?display:\s*none/i);
   assert.match(css, /@media \(max-width: 700px\) and \(orientation: portrait\),[\s\S]*?\.mobile-playground-accordion \.simulator-advanced-reveal[\s\S]*?transition:\s*none/i);

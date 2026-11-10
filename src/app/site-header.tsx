@@ -30,19 +30,19 @@ export function SiteHeader({ page }: { page: SitePage }) {
           <nav className="page-links" aria-label="Primary navigation">
             {page !== "playground" && (
               <a className="text-btn mode-switch" href="/playground">
-                <span className="desktop-only">Play</span>
-                <span className="mobile-only">Play</span>
+                <span className="desktop-only">play</span>
+                <span className="mobile-only">play</span>
               </a>
             )}
             {page === "playground" ? (
               <>
                 <a className="text-btn mode-switch" href="/">
-                  <span className="desktop-only">Main</span>
-                  <span className="mobile-only">Main</span>
+                  <span className="desktop-only">main</span>
+                  <span className="mobile-only">main</span>
                 </a>
                 <a className="text-btn mode-switch" href="/side">
-                  <span className="desktop-only">Side</span>
-                  <span className="mobile-only">Side</span>
+                  <span className="desktop-only">side</span>
+                  <span className="mobile-only">side</span>
                 </a>
               </>
             ) : (
@@ -51,8 +51,8 @@ export function SiteHeader({ page }: { page: SitePage }) {
                 href={page === "serious" ? "/side" : "/"}
                 aria-label={`Switch to ${page === "serious" ? "Side" : "Main"}`}
               >
-                <span className="desktop-only">{page === "serious" ? "Side" : "Main"}</span>
-                <span className="mobile-only">{page === "serious" ? "Side" : "Main"}</span>
+                <span className="desktop-only">{page === "serious" ? "side" : "main"}</span>
+                <span className="mobile-only">{page === "serious" ? "side" : "main"}</span>
               </a>
             )}
           </nav>

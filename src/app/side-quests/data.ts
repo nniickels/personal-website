@@ -306,7 +306,7 @@ export const sideQuestNavigationRows = [
   ],
   [
     { label: "Pokémon Cards", href: "#pokemon-cards" },
-    { label: "Places", href: "#favourite-places" },
+    { label: "Postcards", href: "#favourite-places" },
     { label: "Gaming", href: "#gaming" },
     { label: "Reading", href: "#reading" },
     { label: "Watching", href: "#watching" },

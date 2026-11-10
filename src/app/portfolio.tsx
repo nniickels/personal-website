@@ -2,17 +2,14 @@ import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { NightSky } from "./night-sky";
 import { ExternalLinkIcon, SocialLinks } from "./icons";
+import { PageTitle } from "./page-title";
 import { SeriousContent } from "./serious-content";
 import { FunContent } from "./side-quests/fun-content";
 import type { SocialLink } from "./icons";
 type Mode = "serious" | "fun";
-const seriousLinks: readonly SocialLink[] = [
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/in/nicolejitong-jiang/",
-    icon: "linkedin",
-  },
+const profileLinks: readonly SocialLink[] = [
   { name: "GitHub", href: "https://github.com/nniickels", icon: "github" },
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/nicolejitong-jiang/", icon: "linkedin" },
   { name: "Email", href: "mailto:nicolejiang9474@gmail.com", icon: "email" },
 ] as const;
 
@@ -29,8 +26,6 @@ const funLinks: readonly SocialLink[] = [
 ] as const;
 
 export function Portfolio({ mode }: { mode: Mode }) {
-  const socialLinks = mode === "serious" ? seriousLinks : funLinks;
-
   return (
     <>
       <SiteHeader page={mode} />
@@ -39,24 +34,23 @@ export function Portfolio({ mode }: { mode: Mode }) {
 
       <main className={`container layout mode-${mode}`}>
         <section className="hero">
-          <div className="hero-heading">
-            <h1>Nicole Jiang</h1>
-            <SocialLinks links={socialLinks} />
-          </div>
-          <p className="subtitle">
+          <div className="hero-profile">
+            <div className="hero-heading">
+              <PageTitle title="nicole jiang" />
+              <SocialLinks links={mode === "serious" ? profileLinks : funLinks} />
+            </div>
             {mode === "serious" ? (
-              <>
+              <p className="subtitle">
                 astrophysics undergrad @ uoft
-                <span className="subtitle-separator" aria-hidden="true">
-                  |
-                </span>
+                <span className="subtitle-separator" aria-hidden="true">{"\u00a0|\u00a0"}</span>
                 <a className="text-link" href="/resume.pdf" target="_blank" rel="noreferrer">
-                  resume
-                  <ExternalLinkIcon />
+                  resume<ExternalLinkIcon />
                 </a>
-              </>
-            ) : "nic / nickel / nickels / nnickels / nnickelsj"}
-          </p>
+              </p>
+            ) : (
+              <p className="subtitle">aliases: nic / nickel / nickels / nnickels / nnickelsj</p>
+            )}
+          </div>
           <div className="hero-description">
             {mode === "serious" ? (
               <>

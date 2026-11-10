@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 // Keep postcard media bounded without changing the native page/animation model.
-test("Places loads only nearby optimized photos and remains interactive", async ({ page }, testInfo) => {
+test("Postcards loads only nearby optimized photos and remains interactive", async ({ page }, testInfo) => {
   test.setTimeout(60_000);
   test.skip(!["desktop", "mobile"].includes(testInfo.project.name));
   await page.route("**/api/stats", route => route.fulfill({ contentType: "application/json", body: "{}" }));
@@ -12,7 +12,7 @@ test("Places loads only nearby optimized photos and remains interactive", async 
   await page.goto("/side", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(500);
   const initial = [...photos];
-  await page.locator("#favourite-places").scrollIntoViewIfNeeded();
+  await page.getByRole("region", { name: "Postcards", exact: true }).scrollIntoViewIfNeeded();
   const image = page.locator(".postcard-slot--0 .postcard-photo img");
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.waitForTimeout(250);
@@ -27,7 +27,7 @@ test("Places loads only nearby optimized photos and remains interactive", async 
   expect(visible.length).toBeLessThanOrEqual(4);
   expect(visible.every(url => /-(320|480|960|1440|1920)\.webp$/.test(url))).toBe(true);
   expect(await page.locator(".postcard-photo img").count()).toBeLessThanOrEqual(4);
-  for (const name of ["Next favourite place", "Previous favourite place", "Previous favourite place", "Next favourite place"]) {
+  for (const name of ["Next postcard", "Previous postcard", "Previous postcard", "Next postcard"]) {
     await page.getByRole("button", { name, exact: true }).click();
     await expect(page.getByRole("button", { name, exact: true })).toBeEnabled();
   }
@@ -41,8 +41,8 @@ test("Places loads only nearby optimized photos and remains interactive", async 
   await expect(page.locator(".postcard-number-display")).toHaveText("11");
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.getByRole("button", { name: "Next favourite place", exact: true }).click();
+  await page.getByRole("button", { name: "Next postcard", exact: true }).click();
   await expect(page.locator(".postcard-number-display")).toHaveText("1");
-  await expect(page.getByRole("button", { name: "Next favourite place", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Next postcard", exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
