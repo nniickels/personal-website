@@ -1,0 +1,56 @@
+{
+  "description": "Soft pixel-art meadow based on the supplied earlier site reference, with three heavily snow-covered peaks. Grass meets the mountain bases directly.",
+  "pixelWidth": 240,
+  "pixelHeight": 135,
+  "mountains": [
+    {
+      "peakX": 0.27,
+      "peakY": 0.25,
+      "left": 0.08,
+      "right": 0.49,
+      "base": 0.56
+    },
+    {
+      "peakX": 0.71,
+      "peakY": 0.2,
+      "left": 0.45,
+      "right": 0.95,
+      "base": 0.56
+    },
+    {
+      "peakX": 0.46,
+      "peakY": 0.14,
+      "left": 0.25,
+      "right": 0.73,
+      "base": 0.56
+    }
+  ],
+  "trees": [
+    {
+      "kind": "oak",
+      "x": 0.14,
+      "y": 0.43,
+      "rx": 0.1,
+      "ry": 0.23,
+      "base": 0.7
+    },
+    {
+      "kind": "oak",
+      "x": 0.9,
+      "y": 0.44,
+      "rx": 0.07,
+      "ry": 0.2,
+      "base": 0.7
+    },
+    {
+      "kind": "cherry",
+      "x": 0.365,
+      "y": 0.53,
+      "rx": 0.045,
+      "ry": 0.09,
+      "base": 0.77
+    }
+  ],
+  "sources": [],
+  "sceneSha256": "40bd95b87fc32526dc4711b7f87a2c03192ea85e9653395e79d9ae6b8f7560f7"
+}

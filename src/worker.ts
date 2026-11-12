@@ -2,8 +2,12 @@
 import handler from "vinext/server/app-router-entry";
 import type { StatsEnv } from "./api-stats";
 import { serveStats } from "./stats-cache";
+import { serveGuestbook } from "./guestbook-store";
+import type { GuestbookNamespace } from "./guestbook-store";
+export { Guestbook } from "./guestbook-store";
 
 interface Env extends StatsEnv {
+  GUESTBOOK?: GuestbookNamespace;
   GOATCOUNTER_CODE?: string;
   ASSETS: { fetch(request: Request): Promise<Response> };
 
@@ -66,6 +70,8 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/guestbook") return serveGuestbook(request, env?.GUESTBOOK);
 
     if (url.pathname.startsWith("/gc/")) {
       return proxyGoatCounter(request, env);

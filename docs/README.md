@@ -2,6 +2,7 @@
 
 - [Local development](local-development.md) — setup, production builds, tests, and image metadata cleanup.
 - [Places postcards](places.md) — entry editing, photo assets, crop settings, navigation, and performance.
+- [Buttons and guestbook](guestbook.md) — site buttons, stickers, placement zones, and storage.
 - [Runtime variables](runtime-variables.md) — environment configuration and secrets.
 - [API routes](api-routes.md) — public endpoints and their purposes.
 - [Desktop and mobile differences](desktop-mobile.md) — layouts, touch controls, and animation behavior.

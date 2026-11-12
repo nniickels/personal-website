@@ -1,0 +1,67 @@
+{
+  "credit": "Pok\u00e9mon sprites \u00a9 Nintendo / Creatures / GAME FREAK. Hosted by Pok\u00e9API.",
+  "repository": "https://github.com/PokeAPI/sprites",
+  "sprites": [
+    {
+      "id": "celebi",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/251.png",
+      "sourceFile": "supplied/celebi-original.png",
+      "sourceSha256": "004fce671894609bdbb92df123e9c3aa87b4a7f0e3e0eefddde264e1d7488202"
+    },
+    {
+      "id": "mew",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/151.png",
+      "sourceFile": "supplied/mew-original.png",
+      "sourceSha256": "dfbeeafd632403044da8f1a981425612d3fde80fb0bfcf6cc25de7d150b025ba"
+    },
+    {
+      "id": "leafeon",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/470.png",
+      "sourceFile": "supplied/leafeon-original.png",
+      "sourceSha256": "dc4699891713ce44a6dc4e433ba40075c081675947d9fdebcda37e662438c236"
+    },
+    {
+      "id": "absol",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/359.png",
+      "sourceFile": "supplied/absol-original.png",
+      "sourceSha256": "e08e8fa7c90d52bbc79859342b1c88f353a80eff273a5ce7d3960a6e8374da38"
+    },
+    {
+      "id": "lilligant",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/549.png",
+      "sourceFile": "supplied/lilligant-original.png",
+      "sourceSha256": "0bde2be0af161a54d37828f2df84fbe16b24a28e8a560d9793d686f7dc72edda"
+    },
+    {
+      "id": "turtwig",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/387.png",
+      "sourceFile": "supplied/turtwig-original.png",
+      "sourceSha256": "b42ab2e44f46f3bbf0934f513129db4e21cd1dfd61a22b4537a52f667e45d1d9"
+    },
+    {
+      "id": "glaceon",
+      "game": "Black/White battle sprite",
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/471.png",
+      "sourceFile": "supplied/glaceon-original.png",
+      "sourceSha256": "54d2d8cdc5f0ed5d2f5da3c4006e4defa226bdd196e30dd4f54c2dd5321de266"
+    },
+    {
+      "id": "xerneas",
+      "game": "User-supplied rainbow-antler Xerneas sprite",
+      "sourceFile": "supplied/xerneas.png",
+      "sourceSha256": "be8922db0b9843634e0b87db8a467328fa2107e92592c66760f06cbcf1472f51"
+    },
+    {
+      "id": "alolan-vulpix",
+      "game": "User-supplied Alolan Vulpix sprite",
+      "sourceFile": "supplied/alolan-vulpix.png",
+      "sourceSha256": "0a61fdb82e8881d1a868b06d7d25ca42c4cfd76bd4fbe073855b8dd23554f204"
+    }
+  ]
+}

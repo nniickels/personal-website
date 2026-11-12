@@ -3,6 +3,8 @@
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/stats` | Combines stats.fm listening data, Clash Royale trophies, and Steam activity |
+| `GET /api/guestbook` | Returns the shared landscape stickers |
+| `POST /api/guestbook` | Validates and saves a sticker with its name, optional message, position, and date |
 | `GET /media/*` | Serves content-hashed WebP thumbnails and enlarged images with immutable caching |
 | `GET /gc/count.js` | Proxies the GoatCounter browser tracker |
 | `POST /gc/count` | Records page visits without exposing the GoatCounter site code in source URLs |

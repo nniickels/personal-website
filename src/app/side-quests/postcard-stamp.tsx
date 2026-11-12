@@ -1,7 +1,7 @@
 export type PostcardStampKind = "food" | "nature" | "cities" | "bar" | "museum";
 
 const labels: Record<PostcardStampKind, string> = {
-  food: "good food", nature: "outdoors", cities: "cities", bar: "cheers", museum: "exhibits",
+  food: "good food", nature: "outdoors", cities: "cities", bar: "bars", museum: "exhibits",
 };
 
 // Small engraved illustrations, drawn in the stamp's ink colour.

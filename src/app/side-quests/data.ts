@@ -296,6 +296,11 @@ export const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => (
   alt: `Scrapbook photo ${index + 1} of ${scrapbookPhotoOrder.length}`,
 }));
 
+export const siteButtons: readonly { name: string; href: string; image: string }[] = [
+  { name: "laggy — Boris Kafidov", href: "https://kafidov.dev/", image: "/buttons/laggy.svg" },
+  { name: "Wildlife in the forest — Morten Hilmer", href: "https://www.youtube.com/watch?v=F0GOOP82094", image: "/buttons/bunny-stream.svg" },
+];
+
 export const sideQuestNavigation = [
   { label: "Photo Gallery", href: "#photo-gallery" },
   { label: "Listening", href: "#listening" },
@@ -307,4 +312,6 @@ export const sideQuestNavigation = [
   { label: "Gaming", href: "#gaming" },
   { label: "Reading", href: "#reading" },
   { label: "Watching", href: "#watching" },
+  { label: "Buttons", href: "#buttons" },
+  { label: "Guestbook", href: "#guestbook" },
 ] as const;

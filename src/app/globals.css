@@ -890,6 +890,30 @@ button {
   gap: 0.58rem;
 }
 
+.fun-content #buttons { margin-bottom: 2rem; }
+
+.site-buttons-description { margin: 0 0 .75rem; }
+
+.site-button-wall {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.site-button-wall a { position: static; }
+.site-button-url { display: none; position: absolute; z-index: 20; bottom: calc(100% + 8px); left: 0; width: max-content; max-width: min(19rem, 100%); padding: .3rem .45rem; border: 1px solid var(--line); background: var(--background); color: var(--foreground); font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; pointer-events: none; }
+.site-button-wall a:is(:hover, :focus-visible) .site-button-url { display: block; }
+
+.site-button-wall a:active { transform: translate(1px, 1px); }
+
+.site-button-wall img {
+  display: block;
+  width: 88px;
+  height: 31px;
+  image-rendering: pixelated;
+}
 
 .side-quest-index {
   display: none;
@@ -926,6 +950,12 @@ button {
     color: var(--muted);
     font-size: 0.82rem;
     font-weight: 500;
+  }
+
+  .side-quest-index-visitors {
+    margin-block-start: 0.85rem;
+    padding-block-start: 0.8rem;
+    border-block-start: 1px solid var(--line);
   }
 
   .side-quest-index-link {

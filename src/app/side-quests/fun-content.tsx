@@ -1,12 +1,14 @@
 "use client";
 import type { MouseEvent as ReactMouseEvent } from "react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { PublicStatsResponse } from "../../api-stats";
 import { ExternalLinkIcon } from "../icons";
 import ListeningCoverWheel from "./music-shelf";
 import PokemonCardWheel from "./pokemon-shelf";
 import ImageGallery from "./image-gallery";
 import PlacePostcards from "./place-postcards";
+import Guestbook from "./guestbook";
+import SiteButtons from "./site-buttons";
 import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos, sideQuestNavigation } from "./data";
 
 const desktopIndexQuery = "(min-width: 701px) and (min-height: 521px), (min-width: 701px) and (pointer: fine)";
@@ -89,10 +91,11 @@ function SideQuestIndex() {
 
   return (
     <nav className="side-quest-index" aria-label="Side sections">
-      <h2 className="side-quest-index-title">Section index</h2>
+      <h2 className="side-quest-index-title">About me</h2>
       {sideQuestNavigation.map((item) => (
+        <Fragment key={item.href}>
+          {item.href === "#buttons" && <h2 className="side-quest-index-title side-quest-index-visitors">Visitors</h2>}
         <a
-          key={item.href}
           className="side-quest-index-link"
           href={item.href}
           aria-current={current === item.href ? "location" : undefined}
@@ -100,6 +103,7 @@ function SideQuestIndex() {
         >
           {item.label}
         </a>
+        </Fragment>
       ))}
     </nav>
   );
@@ -441,7 +445,8 @@ function SideSections() {
         </p>
       </section>
 
-
+      <SiteButtons />
+      <Guestbook />
     </div>
   );
 }

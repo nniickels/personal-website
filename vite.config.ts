@@ -8,6 +8,9 @@ const needsPolling = process.platform === "darwin" || process.env.CODEX_SANDBOX 
 const localBindingConfig = {
   main: "./src/worker.ts",
   compatibility_flags: ["nodejs_compat"],
+  assets: { run_worker_first: ["/api/guestbook"] },
+  durable_objects: { bindings: [{ name: "GUESTBOOK", class_name: "Guestbook" }] },
+  migrations: [{ tag: "guestbook-v1", new_sqlite_classes: ["Guestbook"] }],
 };
 
 export default defineConfig(async () => {
