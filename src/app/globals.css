@@ -1716,7 +1716,7 @@ button {
 
 .gaming-widget-value {
   margin-top: 0.35rem !important;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .recently-played-placeholder {
@@ -2085,6 +2085,10 @@ button {
   .gaming-widget {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .gaming-widget-value {
+    font-size: 0.94rem;
   }
 
   .pokemon-card-lightbox,
