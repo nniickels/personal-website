@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("guestbook asks for a name after placement and keeps confirmed entries", async ({ page }) => {
+test("guestbook asks for a name after placement and keeps confirmed entries", async ({ page, isMobile }) => {
   const entries: Record<string, unknown>[] = [];
   await page.route("**/api/guestbook", async (route) => {
     if (route.request().method() === "POST") {
@@ -14,7 +14,7 @@ test("guestbook asks for a name after placement and keeps confirmed entries", as
   const loaded = page.waitForResponse("**/api/guestbook");
   await section.scrollIntoViewIfNeeded();
   await loaded;
-  await expect.poll(() => page.locator(".guestbook-sticker-options button").count()).toBe(12);
+  await expect.poll(() => page.locator(".guestbook-sticker-options button").count()).toBe(isMobile ? 14 : 12);
   await expect(section.locator(".guestbook-description")).toHaveText("You made it to the end! Grab a sticker and place it on the landscape for everyone to see.");
   await expect(page.getByText("A little landscape for everyone who passes through.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Choose a sticker, then click a spot in the landscape.", { exact: true })).toHaveCount(0);
@@ -49,7 +49,7 @@ test("guestbook asks for a name after placement and keeps confirmed entries", as
   await section.scrollIntoViewIfNeeded();
   const sticker = page.locator(".guestbook-placed");
   await expect(sticker).toHaveCount(1);
-  await sticker.focus();
+  await sticker.evaluate(el => el.focus({ preventScroll: true }));
   await expect(page.locator(".guestbook-entry-label")).toBeVisible();
   await expect(sticker).toContainText("Garden visitor");
   await expect(page.locator(".guestbook-entry-label")).not.toContainText("Hello from the garden!");
@@ -67,6 +67,7 @@ test("sticker picker follows the responsive landscape layout without page overfl
   await page.route("**/api/guestbook", route => route.fulfill({ json: { entries: [] } }));
   await page.goto("/side");
   await page.locator("#guestbook").scrollIntoViewIfNeeded();
+  await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(isMobile ? 14 : 12);
   while (!await page.getByRole("button", { name: "Cat", exact: true }).count()) {
     await page.getByRole("button", { name: "Next sticker page", exact: true }).click();
   }
@@ -75,7 +76,7 @@ test("sticker picker follows the responsive landscape layout without page overfl
     await page.getByRole("button", { name: "Next sticker page", exact: true }).click();
   }
   await expect(page.getByRole("button", { name: "Mew", exact: true })).toBeVisible();
-  await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(5);
+  await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(isMobile ? 9 : 5);
   await expect(page.getByRole("button", { name: "Next sticker page", exact: true })).toBeDisabled();
   const scene = await page.locator(".guestbook-picture-frame").boundingBox();
   const picker = await page.locator(".guestbook-picker").boundingBox();
@@ -98,6 +99,13 @@ test("sticker picker follows the responsive landscape layout without page overfl
   }
   expect(await page.locator(".guestbook-sticker-options").evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" ").length)).toBe(isMobile ? 7 : 3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  if (!isMobile) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(9);
+    await expect(page.locator(".guestbook-pagination")).toContainText("5 / 5");
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(12);
+  }
 });
 
 test("snow stickers can only be placed on the snowy mountain", async ({ page }) => {
@@ -154,7 +162,7 @@ test("scrolling dismisses picker and placed sticker labels", async ({ page, isMo
   await expect(placed.getByRole("tooltip")).not.toBeVisible();
 });
 
-test("bird placement opens confirmation on grass and retired stickers stay out of the picker", async ({ page }) => {
+test("bird placement opens confirmation on grass and retired stickers stay out of the picker", async ({ page, isMobile }) => {
   await page.route("**/api/guestbook", route => route.fulfill({ json: { entries: [] } }));
   const loaded = page.waitForResponse("**/api/guestbook");
   await page.goto("/side");
@@ -168,8 +176,8 @@ test("bird placement opens confirmation on grass and retired stickers stay out o
     if (!await page.getByRole("button", { name: "Next sticker page", exact: true }).isEnabled()) break;
     await page.getByRole("button", { name: "Next sticker page", exact: true }).click();
   } while (true);
-  expect(pageCounts.slice(0, -1).every(count => count === 12)).toBe(true);
-  expect(pageCounts.at(-1)).toBe(5);
+  expect(pageCounts.slice(0, -1).every(count => count === (isMobile ? 14 : 12))).toBe(true);
+  expect(pageCounts.at(-1)).toBe(isMobile ? 9 : 5);
   expect(labels.indexOf("Lotus flower")).toBeLessThan(labels.indexOf("Bloodroot"));
   expect(labels.indexOf("Sunflower")).toBeLessThan(labels.indexOf("Cloud"));
   expect(labels.indexOf("Black swan")).toBeLessThan(labels.indexOf("Cat"));
@@ -292,7 +300,7 @@ for (const fallback of [false, true]) {
     await page.getByRole("button", { name: "Exit fullscreen", exact: true }).click();
     await expect(section).not.toHaveClass(/is-expanded/);
     expect(await page.evaluate(() => document.fullscreenElement)).toBeNull();
-    await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(12);
+    await expect(page.locator(".guestbook-sticker-options button")).toHaveCount(isMobile ? 14 : 12);
     await expect(page.getByRole("button", { name: "Fullscreen", exact: true })).toHaveAttribute("aria-pressed", "false");
   });
 }

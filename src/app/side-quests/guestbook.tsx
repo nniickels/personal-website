@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, FormEvent, MouseEvent, PointerEvent } from "react";
-import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookPickerStickers, guestbookStickersPerPage, guestbookStickerPages, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers } from "../../guestbook-model";
+import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookPickerStickers, guestbookStickersPerPage, guestbookMobileStickersPerPage, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers } from "../../guestbook-model";
 import type { GuestbookEntry, GuestbookStickerId } from "../../guestbook-model";
 import GuestbookSticker from "./guestbook-art";
 import "./guestbook.css";
@@ -65,6 +65,7 @@ export default function Guestbook() {
   const [pickerLabel, setPickerLabel] = useState<{ sticker: GuestbookStickerId; text: string; x: number; top: number; bottom: number } | null>(null);
   const landscapePointer = useRef<{ x: number; y: number; at: number } | null>(null);
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState<number>(guestbookStickersPerPage);
   const pointerDrag = useRef<{ sticker: GuestbookStickerId; pointerId: number; x: number; y: number; active: boolean } | null>(null);
   const skipPickerClick = useRef(false);
   const [dragging, setDragging] = useState<{ sticker: GuestbookStickerId; x: number; y: number } | null>(null);
@@ -84,9 +85,22 @@ export default function Guestbook() {
   const [message, setMessage] = useState("");
   const [loadError, setLoadError] = useState("");
   const id = useId();
-  const visibleStickers = expanded ? guestbookPickerStickers : guestbookStickerPages[page];
+  const pageCount = Math.ceil(guestbookPickerStickers.length / pageSize);
+  const visibleStickers = expanded ? guestbookPickerStickers : guestbookPickerStickers.slice(page * pageSize, (page + 1) * pageSize);
   const valid = position && allowsGuestbookPlacement(stickerId, position.x, position.y);
   const occupied = position && guestbookPlacementOccupied(entries, position.x, position.y);
+
+  useEffect(() => {
+    const phone = window.matchMedia("(max-width: 600px)");
+    function resizePages() {
+      const size = phone.matches ? guestbookMobileStickersPerPage : guestbookStickersPerPage;
+      setPageSize(size);
+      setPage(current => Math.min(current, Math.ceil(guestbookPickerStickers.length / size) - 1));
+    }
+    resizePages();
+    phone.addEventListener("change", resizePages);
+    return () => phone.removeEventListener("change", resizePages);
+  }, []);
 
   useEffect(() => {
     const sheet = picker.current;
@@ -205,7 +219,7 @@ export default function Guestbook() {
 
   function selectSticker(sticker: GuestbookStickerId) {
     setStickerId(sticker);
-    setPage(Math.floor(guestbookPickerStickers.findIndex(item => item.id === sticker) / guestbookStickersPerPage));
+    setPage(Math.floor(guestbookPickerStickers.findIndex(item => item.id === sticker) / pageSize));
     setMessage("");
   }
 
@@ -388,8 +402,8 @@ export default function Guestbook() {
           </div>
           {!expanded && <nav className="guestbook-pagination" aria-label="Sticker pages">
             <button type="button" aria-label="Previous sticker page" disabled={page === 0} onClick={() => setPage(current => Math.max(0, current - 1))}>‹</button>
-            <span aria-live="polite">{page + 1} / {guestbookStickerPages.length}</span>
-            <button type="button" aria-label="Next sticker page" disabled={page + 1 >= guestbookStickerPages.length} onClick={() => setPage(current => Math.min(guestbookStickerPages.length - 1, current + 1))}>›</button>
+            <span aria-live="polite">{page + 1} / {pageCount}</span>
+            <button type="button" aria-label="Next sticker page" disabled={page + 1 >= pageCount} onClick={() => setPage(current => Math.min(pageCount - 1, current + 1))}>›</button>
           </nav>}
         </aside>
         <StickerHistory entries={entries} expanded={expanded} />

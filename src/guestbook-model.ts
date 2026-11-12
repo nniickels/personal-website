@@ -131,10 +131,7 @@ const pickerOrder: readonly GuestbookStickerId[] = [
 ];
 export const guestbookPickerStickers = pickerOrder.map(id => guestbookStickers.find(item => item.id === id)!);
 export const guestbookStickersPerPage = 12;
-export const guestbookStickerPages = Array.from(
-  { length: Math.ceil(guestbookPickerStickers.length / guestbookStickersPerPage) },
-  (_, page) => guestbookPickerStickers.slice(page * guestbookStickersPerPage, (page + 1) * guestbookStickersPerPage),
-);
+export const guestbookMobileStickersPerPage = 14;
 
 export function guestbookStickerImage(id: string) {
   return `/guestbook/stickers/${id}${guestbookPokemonIds.has(id) ? "" : "-soft"}.svg`;

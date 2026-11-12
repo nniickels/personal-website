@@ -24,7 +24,8 @@ opposite the shared sticker count. The glassine sticker sheet has a spaced dashe
 and italic STIX Two Text label, with separate light and dark colours.
 Fullscreen shows only the landscape, all stickers in a compact scrollable
 grid, and an exit control. On phones, controls sit above the landscape, with a compact picker below.
-The phone picker has extra space above its label and a tighter gap before pagination.
+The phone picker holds 14 stickers per page in two rows of seven; desktop pages hold 12.
+It has extra space above its label and a tighter gap before pagination.
 Fullscreen expands the picker into a scrollable grid below the landscape. Browsers without the Fullscreen API use an expanded view.
 
 `src/guestbook-model.ts` defines stickers, category order, and three size tiers.
