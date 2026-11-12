@@ -50,6 +50,9 @@
 .guestbook-dialog input, .guestbook-dialog textarea { box-sizing: border-box; width: 100%; min-height: 42px; padding: .4rem .55rem; border: 1px solid var(--muted); border-radius: 2px; color: var(--foreground); background: var(--background); font: inherit; }
 .guestbook-optional { color: var(--muted); }
 .guestbook-dialog textarea { display: block; resize: vertical; }
+@media (pointer: coarse) {
+  .guestbook-dialog input, .guestbook-dialog textarea { font-size: max(16px, 1em); }
+}
 .guestbook-dialog-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1rem; }
 .guestbook-action { padding: .4rem .75rem; border: 1px solid var(--muted); border-radius: 2px; min-height: 40px; }
 .guestbook-action:disabled { opacity: .5; }
