@@ -13,6 +13,7 @@ Visitors choose a pixel-art sticker from the paginated grid and click the
 landscape, or drag a sticker onto it. A popup asks for their name, an optional message, and confirmation. Invalid spots show
 a placement message. Names have a 20-character limit; optional messages allow 150 characters.
 Both fields show live character counts.
+Sticker images disable the browser’s long-press image menu so touch dragging stays uninterrupted.
 Hover or focus a placed sticker to see its name and date. History below
 the controls lists date, name, message, sticker, and placement number. It opens at the
 latest entries at the top; scrolling down shows older entries. The log uses

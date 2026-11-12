@@ -26,6 +26,8 @@
 .guestbook-art-wrap { position: relative; display: block; flex-shrink: 0; width: calc(var(--sticker-size, 32px) + var(--sticker-growth, 0px)); height: calc(var(--sticker-size, 32px) + var(--sticker-growth, 0px)); transition: width 140ms steps(2, end), height 140ms steps(2, end); }
 .guestbook-art-wrap::before { content: ""; position: absolute; inset: 0; background: var(--sticker-image) center / contain no-repeat; image-rendering: pixelated; image-rendering: crisp-edges; filter: drop-shadow(0 0 4px #f3ffca); opacity: var(--sticker-glow, 0); pointer-events: none; transition: opacity 140ms ease; }
 .guestbook-sticker-art { position: relative; display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; image-rendering: crisp-edges; }
+.guestbook-art-wrap, .guestbook-sticker-art, .guestbook-sticker-options button { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.guestbook-sticker-art { pointer-events: none; -webkit-user-drag: none; }
 .guestbook-pagination { display: flex; align-items: center; justify-content: space-between; gap: 2px; margin-top: 0.4rem; font-size: 0.8rem; }
 .guestbook-pagination button { min-width: 28px; min-height: 32px; font-size: 1.3rem; }
 .guestbook-pagination button:disabled { opacity: .25; }

@@ -279,7 +279,7 @@ for (const fallback of [false, true]) {
   });
 }
 
-async function dragGuestbookSticker(page: import("@playwright/test").Page, name: string, destination: { x: number; y: number }, touch: boolean) {
+async function dragGuestbookSticker(page: import("@playwright/test").Page, name: string, destination: { x: number; y: number }, touch: boolean, holdMs = 0) {
   const button = page.getByRole("button", { name, exact: true });
   const box = (await button.boundingBox())!;
   const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
@@ -288,6 +288,7 @@ async function dragGuestbookSticker(page: import("@playwright/test").Page, name:
   if (touch) {
     const session = await page.context().newCDPSession(page);
     await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    if (holdMs) await page.waitForTimeout(holdMs);
     for (const point of moves) await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [point] });
     await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     await session.detach();
@@ -313,7 +314,7 @@ test("dragging an unselected sticker asks for a name before saving", async ({ pa
   await page.locator("#guestbook").scrollIntoViewIfNeeded();
   await loaded;
   const box = (await page.locator(".guestbook-landscape").boundingBox())!;
-  await dragGuestbookSticker(page, "Oxeye daisy", { x: box.x + box.width * .34, y: box.y + box.height * .75 }, isMobile);
+  await dragGuestbookSticker(page, "Oxeye daisy", { x: box.x + box.width * .34, y: box.y + box.height * .75 }, isMobile, 750);
   await expect(page.getByRole("dialog")).toContainText("Leave your sticker here?");
   expect(entries).toHaveLength(0);
   await expect(page.locator(".guestbook-drag-ghost")).toHaveCount(0);

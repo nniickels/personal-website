@@ -361,7 +361,7 @@ export default function Guestbook() {
         </button>
           <span className="guestbook-count" aria-live="polite">{loaded ? entries.length : "—"} {entries.length === 1 ? "sticker" : "stickers"} placed</span>
         </div>
-        <aside ref={picker} className="guestbook-picker" aria-label="Sticker collection">
+        <aside ref={picker} className="guestbook-picker" aria-label="Sticker collection" onContextMenu={event => event.preventDefault()}>
           <span className="guestbook-picker-title">sticker sheet</span>
           <div className="guestbook-sticker-options" onScroll={() => setPickerLabel(null)}>
             {visibleStickers.map((item) => (
