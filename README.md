@@ -39,6 +39,6 @@ All pages include a motion-safe colored four-point starfield in dark mode, respo
 
 - [Boris Kafidov](https://kafidov.dev/) — general portfolio design template (also helped me with performance optimization!! ^_^)
 - [Kevin Thottumkal](https://www.kevinthottumkal.com/) — dark-mode background effects
-- [Stanley Pang](https://stanleyp.dev/) — photo galleries and visual details
+- [Stanley Pang](https://stanleyp.dev/) — photo galleries, chat log, and visual details
 - [Ryan Alumkal](https://ryanalumkal.github.io/) — horizontal media shelf
 - [Alvina Yang](https://www.alvinayang.com/blogs) — interactive simulation widgets
