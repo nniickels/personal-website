@@ -136,6 +136,24 @@ test("sticker names appear on hover with scale and glow", async ({ page, isMobil
   expect(await fern.evaluate(el => getComputedStyle(el).borderWidth)).toBe("0px");
 });
 
+test("scrolling dismisses picker and placed sticker labels", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Hover is a desktop interaction");
+  await page.route("**/api/guestbook", route => route.fulfill({ json: { entries: [{
+    id: "scroll-label", sticker: "fern", name: "Visitor", x: .3, y: .8, placedAt: "2026-11-11T12:00:00Z",
+  }] } }));
+  await page.goto("/side");
+  await page.locator("#guestbook").scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Fern", exact: true }).hover();
+  await expect(page.locator(".guestbook-picker-label")).toBeVisible();
+  await page.mouse.wheel(0, -180);
+  await expect(page.locator(".guestbook-picker-label")).not.toBeVisible();
+  const placed = page.locator(".guestbook-placed");
+  await placed.hover();
+  await expect(placed.getByRole("tooltip")).toBeVisible();
+  await page.mouse.wheel(0, -180);
+  await expect(placed.getByRole("tooltip")).not.toBeVisible();
+});
+
 test("bird placement opens confirmation on grass and retired stickers stay out of the picker", async ({ page }) => {
   await page.route("**/api/guestbook", route => route.fulfill({ json: { entries: [] } }));
   const loaded = page.waitForResponse("**/api/guestbook");

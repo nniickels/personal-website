@@ -163,6 +163,16 @@ export default function Guestbook() {
     tooltip.style.top = (pickerLabel.top > box.height + 12 ? pickerLabel.top - box.height - 6 : pickerLabel.bottom + 6) + "px";
   }, [pickerLabel]);
 
+  useEffect(() => {
+    function dismissLabels() {
+      setPickerLabel(null);
+      section.current?.querySelectorAll<HTMLElement>(".guestbook-entry-label:popover-open").forEach(label => label.hidePopover());
+      inspectedEntry.current = null;
+    }
+    window.addEventListener("scroll", dismissLabels, true);
+    return () => window.removeEventListener("scroll", dismissLabels, true);
+  }, []);
+
   function showPickerLabel(target: HTMLButtonElement, sticker: GuestbookStickerId, text: string) {
     const box = target.getBoundingClientRect();
     setPickerLabel({ sticker, text, x: box.left + box.width / 2, top: box.top, bottom: box.bottom });
