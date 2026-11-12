@@ -1699,31 +1699,31 @@ button {
 .steam-empty-state {
   margin-top: 0.35rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   line-height: 1.65;
 }
 
 .gaming-widget h3 {
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .gaming-widget-label {
   margin-top: 0.3rem !important;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
 }
 
 .gaming-widget-value {
   margin-top: 0.35rem !important;
-  font-size: 1.35rem;
+  font-size: 0.9rem;
 }
 
 .recently-played-placeholder {
   margin-top: 0.35rem;
   padding: 0;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   line-height: 1.65;
   list-style-position: inside;
 }
@@ -1733,7 +1733,7 @@ button {
 }
 
 .gaming-widget .gaming-source {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .clash-player-name {
