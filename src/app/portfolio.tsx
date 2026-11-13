@@ -69,13 +69,12 @@ export function Portfolio({ mode }: { mode: Mode }) {
             ) : (
               <>
                 <p className="mobile-only">
-                  I also have many interests, collections, and hobbies outside of astrophysics and career-goal-adjacent stuff!
+                  A little collection of all things personal (outside of astrophysics and career-goal-adjacent stuff)!
                 </p>
                 <p className="desktop-only">
-                  Outside of astrophysics and career-goal-adjacent stuff, I'm
-                  very interested in philosophy (namely metaphysics and epistemology, though
-                  interdisciplinary questions are my favourite). This page is a little collection
-                  of my interests, hobbies, and favourite things...
+                  Welcome! This page is a little collection
+                  of all things personal (outside of astrophysics and career-goal-adjacent stuff). I'm also very interested in philosophy (namely metaphysics and epistemology, though interdisciplinary questions are my favourite). 
+                  I like being able to put whatever I want here as the webmaster :D
                 </p>
               </>
             )}

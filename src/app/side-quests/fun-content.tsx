@@ -94,7 +94,7 @@ function SideQuestIndex() {
       <h2 className="side-quest-index-title">About me</h2>
       {sideQuestNavigation.map((item) => (
         <Fragment key={item.href}>
-          {item.href === "#buttons" && <h2 className="side-quest-index-title side-quest-index-visitors">Visitors</h2>}
+          {item.href === "#buttons" && <h2 className="side-quest-index-title side-quest-index-visitors">For visitors</h2>}
         <a
           className="side-quest-index-link"
           href={item.href}

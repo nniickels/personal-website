@@ -10,7 +10,7 @@ export default function SiteButtons() {
           {siteButtons.map((site, index) => (
             <a key={site.href} href={site.href} target="_blank" rel="noopener noreferrer" aria-label={site.name} aria-describedby={"site-button-url-" + index}>
               <img src={site.image} alt={site.name} width={88} height={31} loading="lazy" />
-              <span className="site-button-url" role="tooltip" id={"site-button-url-" + index}>{site.href}</span>
+              <span className="site-button-url" role="tooltip" id={"site-button-url-" + index}>{site.name}</span>
             </a>
           ))}
         </div>

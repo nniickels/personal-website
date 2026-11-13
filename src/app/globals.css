@@ -902,11 +902,17 @@ button {
   align-items: center;
 }
 
-.site-button-wall a { position: static; }
-.site-button-url { display: none; position: absolute; z-index: 20; bottom: calc(100% + 8px); left: 0; width: max-content; max-width: min(19rem, 100%); padding: .3rem .45rem; border: 1px solid var(--line); background: var(--background); color: var(--foreground); font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; pointer-events: none; }
+.site-button-wall a { position: relative; }
+.site-button-url { display: none; position: absolute; z-index: 20; bottom: calc(100% + 8px); left: 50%; width: max-content; max-width: min(19rem, calc(100vw - 2rem)); padding: .3rem .45rem; border: 1px solid var(--line); background: var(--background); color: var(--foreground); font-size: .75rem; line-height: 1.4; overflow-wrap: anywhere; pointer-events: none; transform: translateX(-50%); }
 .site-button-wall a:is(:hover, :focus-visible) .site-button-url { display: block; }
 
 .site-button-wall a:active { transform: translate(1px, 1px); }
+
+@media (hover: hover) and (pointer: fine) {
+  .site-button-wall a { transition: transform 180ms ease; }
+  .site-button-wall a:hover { transform: translate(1px, 1px); }
+  .site-button-wall a:active { transform: none; }
+}
 
 .site-button-wall img {
   display: block;
