@@ -297,11 +297,14 @@ export const scrapbookPhotos = scrapbookPhotoOrder.map((photoNumber, index) => (
 }));
 
 export const siteButtons: readonly { name: string; href: string; image: string }[] = [
-  { name: "boris' portfolio!!", href: "https://kafidov.dev/", image: "/buttons/laggy.svg" },
-  { name: "nature livestream", href: "https://www.youtube.com/watch?v=F0GOOP82094", image: "/buttons/bunny-stream.svg" },
-  { name: "astro pic of the day", href: "https://science.nasa.gov/apod/", image: "/buttons/moon-button-top.svg" },
-  { name: "language of flowers", href: "https://www.gutenberg.org/cache/epub/31591/pg31591-images.html", image: "/buttons/floral-button.svg" },
+  { name: "boris' portfolio!!", href: "https://kafidov.dev/", image: "/buttons/boris-button.svg" },
+  { name: "nature livestream", href: "https://www.youtube.com/watch?v=F0GOOP82094", image: "/buttons/bunny-button.svg" },
   { name: "random bird wiki", href: "https://randomincategory.toolforge.org/Birds_described_in_1758?type=page", image: "/buttons/bird-button.svg" },
+  { name: "astro pic of the day", href: "https://science.nasa.gov/apod/", image: "/buttons/moon-button.svg" },
+  { name: "language of flowers", href: "https://www.gutenberg.org/cache/epub/31591/pg31591-images.html", image: "/buttons/floral-button.svg" },
+  { name: "galaxy zoo", href: "https://www.zooniverse.org/projects/zookeeper/galaxy-zoo", image: "/buttons/galaxy-button.svg" },
+  { name: "messier objects", href: "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/", image: "/buttons/black-hole-button.svg" },
+
 
 
 ];
