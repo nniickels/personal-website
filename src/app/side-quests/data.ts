@@ -304,7 +304,7 @@ export const siteButtons: readonly { name: string; href: string; image: string }
   { name: "language of flowers", href: "https://www.gutenberg.org/cache/epub/31591/pg31591-images.html", image: "/buttons/floral-button.svg" },
   { name: "galaxy zoo", href: "https://www.zooniverse.org/projects/zookeeper/galaxy-zoo", image: "/buttons/galaxy-button.svg" },
   { name: "messier objects", href: "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/", image: "/buttons/black-hole-button.svg" },
-
+  { name: "neocities profile", href: "https://neocities.org/site/nickels", image: "/buttons/flowers-water-button.svg" },
 
 
 ];

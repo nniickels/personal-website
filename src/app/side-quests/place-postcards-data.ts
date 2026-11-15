@@ -226,4 +226,130 @@ export const postcards = [
     stamp: "bar",
   },
 
+    {
+    // Postcard 12 — front
+    photo: "/postcard-photos/munich.jpg",
+    photoPosition: "50% 60%",
+    alt: "gothic architecture",
+    title: "Munich",
+    caption: "very nice and orderly...",
+    note: "Lecker bierchen!",
+    order: "BEEER!!!!!",
+    address: "Munich, Bavaria",
+    country: "Germany",
+    stamp: "cities",
+  },
+
+      {
+    // Postcard 13 — front
+    photo: "/postcard-photos/augsburg.jpg",
+    photoPosition: "50% 50%",
+    alt: "architecture and moon",
+    title: "Augsburg",
+    caption: "i love bread",
+    note: "Really good bread...",
+    order: "laugenstangen",
+    address: "Augsburg, Bavaria",
+    country: "Germany",
+    stamp: "cities",
+  },
+
+        {
+    // Postcard 14 — front
+    photo: "/postcard-photos/vienna.jpg",
+    photoPosition: "50% 50%",
+    alt: "natural history museum",
+    title: "Vienna",
+    caption: "grand 0.o",
+    note: "Beautiful and ornate architecture.",
+    order: "Natural History Museum",
+    address: "Vienna",
+    country: "Austria",
+    stamp: "cities",
+  },
+
+          {
+    // Postcard 15 — front
+    photo: "/postcard-photos/sandiego.jpg",
+    photoPosition: "5% 70%",
+    alt: "ocean and cliff",
+    title: "San Diego",
+    caption: "i love the ocean!!!!!",
+    note: "Tried to outrun the waves but the tide is faster than me.",
+    order: "The ocean",
+    address: "San Diego, California",
+    country: "USA",
+    stamp: "cities",
+  },
+
+            {
+    // Postcard 16 — front
+    photo: "/postcard-photos/toronto.jpg",
+    photoPosition: "50% 50%",
+    alt: "toronto skyline at night",
+    title: "Toronto",
+    caption: "a lively city with much to do",
+    note: "One of the best city skylines in the world (in my opinion), and there's a huge variety of food and cuisines too.",
+    order: "The lakeshore",
+    address: "Toronto, Ontario",
+    country: "Canada",
+    stamp: "cities",
+  },
+
+              {
+    // Postcard 17 — front
+    photo: "/postcard-photos/zhangjiajie.jpg",
+    photoPosition: "50% 70%",
+    alt: "zhangjiajie mountain landscape",
+    title: "Zhangjiajie",
+    caption: "cool mountains",
+    note: "Unique landscapes and rock formations. ",
+    order: "The mountains",
+    address: "Zhangjiajie, Hunan",
+    country: "China",
+    stamp: "cities",
+  },
+
+                {
+    // Postcard 18 — front
+    photo: "/postcard-photos/chongqing.jpg",
+    photoPosition: "50% 60%",
+    alt: "chongqing cityscape",
+    title: "Chongqing",
+    caption: "there is no ground floor",
+    note: "All the stairs you have to walk works up the appetite for all the food you want to eat.",
+    order: "Spicy sour sweet potato noodles",
+    address: "Chongqing, Sichuan",
+    country: "China",
+    stamp: "cities",
+  },
+
+                  {
+    // Postcard 19 — front
+    photo: "/postcard-photos/xian.jpg",
+    photoPosition: "50% 60%",
+    alt: "xian cityscape",
+    title: "Xi'An",
+    caption: "historical stuff",
+    note: "Vibrant night markets and interesting historical sites.",
+    order: "Historical plays and theatre",
+    address: "Xi'An, Shaanxi",
+    country: "China",
+    stamp: "cities",
+  },
+
+                    {
+    // Postcard 20 — front
+    photo: "/postcard-photos/chengdu.jpg",
+    photoPosition: "50% 70%",
+    alt: "chengdu cityscape from river",
+    title: "Chengdu",
+    caption: "all in one",
+    note: "Pretty nature, cool cityscapes, and lots of yummy food.",
+    order: "Snacks and street food",
+    address: "Chengdu, Sichuan",
+    country: "China",
+    stamp: "cities",
+  },
+
 ] as const;

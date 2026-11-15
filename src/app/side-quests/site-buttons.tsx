@@ -4,7 +4,7 @@ export default function SiteButtons() {
   return (
     <section className="section" id="buttons">
       <h2>Buttons</h2>
-      <p className="site-buttons-description">Cool people and sites and stuff~</p>
+      <p className="site-buttons-description">Cool people and miscellaneous sites and stuff~</p>
       {siteButtons.length ? (
         <div className="site-button-wall">
           {siteButtons.map((site, index) => (
