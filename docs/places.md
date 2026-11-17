@@ -1,6 +1,6 @@
 # Places postcards
 
-Places lives at `/side#favourite-places`, after Collections and before Gaming. It replaces the old Food gallery. The current stack has 11 photographed entries, ending with PREQUEL & CO. APOTHECARY. The counter, direct jumps, and wraparound navigation derive their total from the entries array.
+Places lives at `/side#favourite-places`, after Collections and before Gaming. It replaces the old Food gallery. The counter, direct jumps, and wraparound navigation derive their total from the entries array.
 
 ## Edit or add a place
 
@@ -43,16 +43,22 @@ The previous and next arrows cycle through the stack in either direction. “Tur
 
 The counter normally displays plain text. Click or tap its current number to edit it; Enter or leaving the field jumps to a valid number, and Escape cancels. Invalid values leave the current card selected. Navigation and direct jumps return the selected card to its photo side.
 
-Only the three visible layers and the previous card are mounted. Visible photos use native lazy loading; the previous photo is prepared for backward navigation. Responsive image sizes account for the extra scaling caused by mobile cover crops. Versioned WebP files retain the immutable cache headers in `public/_headers`. There are no autoplay timers or additional animation dependencies; shuffles use CSS transforms, and reduced motion removes the flip transition and shortens the shuffle.
+“Unstack” shows a compact library grouped by continent and country: three columns on desktop, two on phones. Add new countries to `postcardContinents`. Selecting a preview opens its original stack position; “Stack” preserves the current card and side. The reversible transform animation settles immediately on scroll and removes its temporary layers and listener. Reduced motion swaps views immediately.
+
+The library loads small previews. Stacking loads the top photo eagerly at high priority and replaces its growing preview with the decoded full-size image as soon as it is ready. Animation copies remain low priority.
+
+Stack view mounts only the three visible cards and the previous card. The previous photo is prepared for backward navigation; visible photos initially use native lazy loading. Responsive image sizes account for mobile cover crops. Versioned WebP files use the immutable cache headers in `public/_headers`. No autoplay timers or animation dependencies are added; reduced motion removes the flip transition and shortens shuffles.
 
 ## Source and checks
 
-- `src/app/side-quests/place-postcards.tsx`: stack, flipping, and counter interactions.
+- `src/app/side-quests/place-postcards.tsx`: stack, library, flipping, and counter interactions.
+- `src/app/side-quests/postcard-view-transition.ts`: view animation, image upgrades, and scroll cleanup.
 - `src/app/side-quests/place-postcards-data.ts`: entries and crop focal points.
 - `src/app/side-quests/postcard-stamp.tsx`: illustrated category stamps.
 - `src/app/icons.tsx`: shared SVG turn arrow.
 - `src/app/globals.css`: card layouts, animation, and mobile styling.
 - `tests/performance.test.mjs`: bounded rendered stack and optimized image checks.
-- `tests/browser/places-performance.spec.ts`: desktop/mobile media loading, navigation, flips, direct jumps, and reduced-motion wraparound.
+- `tests/browser/places-performance.spec.ts`: media loading, transition cleanup, navigation, and reduced-motion wraparound.
+- `tests/browser/interaction.spec.ts`: library selection, reversible animation, scroll cancellation, and top-photo priority.
 
 Run `npm test` and `npm run typecheck` for build and source validation. After building, run `npx playwright test tests/browser/places-performance.spec.ts --project=desktop --project=mobile` for postcard interactions. See [local development](local-development.md) for browser installation and preview-server lifecycle rules.

@@ -9,7 +9,7 @@ export default defineConfig({
   projects: [
     { name: "desktop", testIgnore: "**/responsive.spec.ts", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } } },
     { name: "mobile", testIgnore: "**/responsive.spec.ts", use: { ...devices["Pixel 7"] } },
-    { name: "tablet-webkit", testMatch: "**/responsive.spec.ts", use: { ...devices["iPad Air"] } },
+    { name: "tablet-webkit", testMatch: "**/responsive.spec.ts", use: { ...devices["iPad (gen 11)"] } },
     { name: "phone-webkit", testMatch: "**/interaction.spec.ts", use: { ...devices["iPhone 13"] } },
   ],
   webServer: {

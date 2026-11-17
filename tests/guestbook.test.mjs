@@ -154,8 +154,8 @@ test("native-resolution artwork regions match allowed placements", async () => {
 
 test("source sprites have transparent padding", async () => {
   const directory = new URL("../public/guestbook/stickers/", import.meta.url);
-  const files = (await readdir(directory)).filter(file => file.endsWith(".png"));
-  assert.equal(files.length, 59);
+  const files = (await readdir(directory)).filter(file => file.endsWith(".png") && !file.endsWith("-soft.png") && !file.endsWith("-pixel.png"));
+  assert.equal(files.length, 58);
   for (const file of files) {
     const { data, info } = await sharp(fileURLToPath(new URL(file, directory))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const size = 64;
@@ -283,7 +283,7 @@ test("sprite assets contain only rebuild sources and displayed artwork", async (
   const ids = [...model.matchAll(/id: "([^"]+)"[^\n]+sprite: /g)].map(match => match[1]);
   const manifest = JSON.parse(await readFile(new URL("../public/guestbook/pokemon-sources.json", import.meta.url), "utf8"));
   const pokemon = new Set(manifest.sprites.map(item => item.id));
-  const expected = ids.flatMap(id => pokemon.has(id) ? [id + ".svg"] : [id + ".png", id + "-soft.svg"]);
+  const expected = ids.flatMap(id => pokemon.has(id) ? [id + ".svg", id + "-pixel.png"] : [id + ".png", id + "-soft.svg", id + "-soft.png"]);
   const files = await readdir(new URL("../public/guestbook/stickers/", import.meta.url));
   assert.deepEqual(files.sort(), expected.sort());
 });
@@ -322,7 +322,7 @@ test("Usagi belongs on grass", async () => {
 test("scalable sticker artwork has solid cells without image filters", async () => {
   const directory = new URL("../public/guestbook/stickers/", import.meta.url);
   const files = (await readdir(directory)).filter(file => file.endsWith("-soft.svg"));
-  assert.equal(files.length, 59);
+  assert.equal(files.length, 58);
   for (const file of files) {
     const svg = await readFile(new URL(file, directory));
     assert.match(svg.toString(), file === "usagi-soft.svg" ? /viewBox="0 0 80 80" shape-rendering="crispEdges"/ : /viewBox="0 0 64 64" shape-rendering="crispEdges"/);
@@ -453,22 +453,31 @@ test("visitor names accept 20 characters and reject 21", async () => {
 });
 
 
-test("the laggy button embeds Boris's original favicon artwork", async () => {
-  const original = await readFile(new URL("../public/buttons/boris-favicon.svg", import.meta.url));
-  assert.equal(createHash("sha1").update(`blob ${original.length}\0`).update(original).digest("hex"), "0349d8cbd0b99e0a519be3695b5bf2fa369b8c8e");
-  const button = await readFile(new URL("../public/buttons/laggy.svg", import.meta.url), "utf8");
-  for (const path of original.toString().matchAll(/<path[^>]+>/g)) assert.ok(button.includes(path[0]));
+test("site buttons render their current artwork at native 88×31 dimensions", async () => {
+  const source = await readFile(new URL("../src/app/side-quests/data.ts", import.meta.url), "utf8");
+  const files = [...source.matchAll(/image: "(\/buttons\/[^"]+)"/g)].map(match => match[1]);
+  assert.equal(files.length, 8);
+  for (const file of files) {
+    const svg = await readFile(new URL(`../public${file}`, import.meta.url));
+    assert.doesNotMatch(svg.toString(), /<script|https?:[^"]+\.(?:png|jpg|webp)/);
+    const image = await sharp(svg).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(image.info.width, 88, file);
+    assert.equal(image.info.height, 31, file);
+    assert.ok(image.data.some((value, index) => index % 4 === 3 && value), file);
+  }
 });
 
-test("the bunny button uses solid-colour vector cells", async () => {
-  const svg = await readFile(new URL("../public/buttons/bunnies.svg", import.meta.url), "utf8");
-  assert.match(svg, /shape-rendering="crispEdges"/);
-  assert.doesNotMatch(svg, /<image|<filter|gradient|fill-opacity|stroke=/);
-  const { data } = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const colours = new Set();
-  for (let i = 0; i < data.length; i += 4) {
-    assert.ok(data[i + 3] === 0 || data[i + 3] === 255);
-    if (data[i + 3]) colours.add([...data.subarray(i, i + 3)].join(","));
+test("displayed PNG stickers preserve every source SVG pixel", async () => {
+  const model = await readFile(new URL("../src/guestbook-model.ts", import.meta.url), "utf8");
+  const ids = [...model.matchAll(/id: "([^"]+)"[^\n]+sprite: /g)].map(match => match[1]);
+  const manifest = JSON.parse(await readFile(new URL("../public/guestbook/pokemon-sources.json", import.meta.url), "utf8"));
+  const pokemon = new Set(manifest.sprites.map(item => item.id));
+  const directory = new URL("../public/guestbook/stickers/", import.meta.url);
+  for (const id of ids) {
+    const svg = await sharp(await readFile(new URL(`${id}${pokemon.has(id) ? "" : "-soft"}.svg`, directory))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const png = await sharp(await readFile(new URL(`${id}${pokemon.has(id) ? "-pixel" : "-soft"}.png`, directory))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(png.info.width, svg.info.width, id);
+    assert.equal(png.info.height, svg.info.height, id);
+    assert.deepEqual(png.data, svg.data, id);
   }
-  assert.equal(colours.size, 1);
 });

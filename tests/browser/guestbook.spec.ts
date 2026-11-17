@@ -49,7 +49,9 @@ test("guestbook asks for a name after placement and keeps confirmed entries", as
   await section.scrollIntoViewIfNeeded();
   const sticker = page.locator(".guestbook-placed");
   await expect(sticker).toHaveCount(1);
-  await sticker.evaluate(el => el.focus({ preventScroll: true }));
+  await sticker.scrollIntoViewIfNeeded();
+  if (isMobile) await sticker.tap();
+  else await sticker.focus();
   await expect(page.locator(".guestbook-entry-label")).toBeVisible();
   await expect(sticker).toContainText("Garden visitor");
   await expect(page.locator(".guestbook-entry-label")).not.toContainText("Hello from the garden!");
@@ -94,7 +96,7 @@ test("sticker picker follows the responsive landscape layout without page overfl
   if (isMobile) await expect(sidebar).not.toBeVisible();
   else {
     await expect(sidebar.getByRole("heading", { name: "About me", exact: true })).toBeVisible();
-    await expect(sidebar.getByRole("heading", { name: "Visitors", exact: true })).toBeVisible();
+    await expect(sidebar.getByRole("heading", { name: "For visitors", exact: true })).toBeVisible();
     expect(await sidebar.locator(".side-quest-index-visitors").evaluate(el => el.nextElementSibling?.getAttribute("href"))).toBe("#buttons");
   }
   expect(await page.locator(".guestbook-sticker-options").evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" ").length)).toBe(isMobile ? 7 : 3);
@@ -216,7 +218,7 @@ test("placed stickers use three relative sizes", async ({ page }) => {
   expect(widths[0]).toBeLessThan(widths[1]);
   expect(widths[1]).toBeLessThan(widths[2]);
   for (const image of await page.locator(".guestbook-placed img").all()) {
-    await expect(image).toHaveAttribute("src", /\.svg$/);
+    await expect(image).toHaveAttribute("src", /\.png$/);
     expect(await image.evaluate(el => getComputedStyle(el).imageRendering)).toBe("crisp-edges");
   }
 
@@ -246,9 +248,9 @@ test("stickers use pixel sprite assets", async ({ page }) => {
   await page.route("**/api/guestbook", route => route.fulfill({ json: { entries: [{ id: "palette", sticker: "fern", name: "Palette visitor", x: .3, y: .85, placedAt: "2026-11-10T12:00:00Z" }] } }));
   await page.goto("/side");
   await page.locator("#guestbook").scrollIntoViewIfNeeded();
-  await expect(page.getByRole("button", { name: "Fern", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/fern-soft.svg");
+  await expect(page.getByRole("button", { name: "Fern", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/fern-soft.png");
   const placed = page.locator(".guestbook-placed img");
-  await expect(placed).toHaveAttribute("src", "/guestbook/stickers/fern-soft.svg");
+  await expect(placed).toHaveAttribute("src", "/guestbook/stickers/fern-soft.png");
   const picker = page.getByRole("button", { name: "Fern", exact: true });
   await picker.click();
   expect(await page.locator(".guestbook-landscape").evaluate(el => getComputedStyle(el).cursor)).toBe("none");
@@ -256,8 +258,8 @@ test("stickers use pixel sprite assets", async ({ page }) => {
   await picker.hover();
   expect(await picker.locator("img").evaluate(el => getComputedStyle(el).filter)).not.toMatch(/saturate|contrast|brightness/);
   while (await page.getByRole("button", { name: "Next sticker page", exact: true }).isEnabled()) await page.getByRole("button", { name: "Next sticker page", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Mew", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/mew.svg");
-  await expect(page.getByRole("button", { name: "Celebi", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/celebi.svg");
+  await expect(page.getByRole("button", { name: "Mew", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/mew-pixel.png");
+  await expect(page.getByRole("button", { name: "Celebi", exact: true }).locator("img")).toHaveAttribute("src", "/guestbook/stickers/celebi-pixel.png");
 });
 
 for (const fallback of [false, true]) {
@@ -594,16 +596,16 @@ test("history opens at the latest entry and can scroll back to older logs", asyn
   await expect.poll(() => log.evaluate(el => el.scrollTop)).toBe(readingPosition);
 });
 
-test("Buttons includes the raised laggy link to Boris's site", async ({ page }) => {
+test("Buttons retains its current artwork and destination links", async ({ page }) => {
   await page.goto("/side");
-  const link = page.locator("#buttons").getByRole("link", { name: "laggy — Boris Kafidov", exact: true });
+  const link = page.locator("#buttons").getByRole("link", { name: "boris' portfolio!!", exact: true });
   await expect(link).toHaveAttribute("href", "https://kafidov.dev/");
-  await expect(link.locator("img")).toHaveAttribute("src", "/buttons/laggy.svg");
-  expect((await page.request.get("/buttons/laggy.svg")).ok()).toBe(true);
-  await expect(page.locator("#buttons").getByRole("link", { name: "Wildlife in the forest — Morten Hilmer", exact: true })).toHaveAttribute("href", "https://www.youtube.com/watch?v=F0GOOP82094");
-  expect((await page.request.get("/buttons/bunny-stream.svg")).ok()).toBe(true);
+  await expect(link.locator("img")).toHaveAttribute("src", "/buttons/boris-button.svg");
+  expect((await page.request.get("/buttons/boris-button.svg")).ok()).toBe(true);
+  await expect(page.locator("#buttons").getByRole("link", { name: "nature livestream", exact: true })).toHaveAttribute("href", "https://www.youtube.com/watch?v=F0GOOP82094");
+  expect((await page.request.get("/buttons/bunny-button.svg")).ok()).toBe(true);
   const buttons = page.locator("#buttons .site-button-wall img");
-  await expect(buttons).toHaveCount(2);
+  await expect(buttons).toHaveCount(8);
   await expect(buttons.first()).toHaveCSS("width", "88px");
   await expect(buttons.first()).toHaveCSS("height", "31px");
   await expect(page.locator(".site-button-wall")).toHaveCSS("column-gap", "24px");
@@ -662,11 +664,11 @@ test("flower sizing grows the requested flowers and preserves the exceptions", a
   expect(await page.evaluate(async () => { await document.fonts.load('12px "Barlow Semi Condensed"'); return document.fonts.check('12px "Barlow Semi Condensed"'); })).toBe(true);
 });
 
-test("site buttons show their destination links above on hover", async ({ page, isMobile }) => {
+test("site buttons show their destination names above on hover", async ({ page, isMobile }) => {
   test.skip(isMobile, "Hover is a desktop interaction");
   await page.goto("/side");
   const buttons = page.locator("#buttons .site-button-wall a");
-  await expect(buttons).toHaveCount(2);
+  await expect(buttons).toHaveCount(8);
   const destinations = ["https://kafidov.dev/", "https://www.youtube.com/watch?v=F0GOOP82094"];
   for (let i = 0; i < destinations.length; i++) {
     const button = buttons.nth(i);
@@ -674,8 +676,11 @@ test("site buttons show their destination links above on hover", async ({ page, 
     await button.hover();
     const tooltip = button.getByRole("tooltip");
     await expect(tooltip).toBeVisible();
-    await expect(tooltip).toHaveText(destinations[i]);
-    const label = (await tooltip.boundingBox())!, box = (await button.boundingBox())!;
-    expect(label.y + label.height).toBeLessThan(box.y);
+    await expect(tooltip).toHaveText(i === 0 ? "boris' portfolio!!" : "nature livestream");
+    await expect.poll(async () => {
+      await button.hover();
+      const label = await tooltip.boundingBox(), box = await button.boundingBox();
+      return !!label && !!box && label.y + label.height < box.y;
+    }).toBe(true);
   }
 });

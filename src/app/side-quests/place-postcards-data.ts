@@ -353,3 +353,12 @@ export const postcards = [
   },
 
 ] as const;
+
+// Add each new country here so the library can group it by continent.
+export const postcardContinents = {
+  Austria: "Europe",
+  Canada: "North America",
+  China: "Asia",
+  Germany: "Europe",
+  USA: "North America",
+} satisfies Record<(typeof postcards)[number]["country"], string>;

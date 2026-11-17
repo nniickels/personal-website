@@ -51,7 +51,6 @@ export const guestbookStickers = [
   { id: "alolan-vulpix", label: "Alolan Vulpix", zone: "snow", sprite: 38 },
   { id: "glaceon", label: "Glaceon", zone: "snow", sprite: 39 },
   { id: "sunflower", label: "Sunflower", zone: "land", sprite: 40 },
-  { id: "blossom", label: "Blossom", zone: "land", sprite: 41 },
   { id: "seedling", label: "Seedling", zone: "land", sprite: 42 },
   { id: "dog", label: "Dog", zone: "land", sprite: 43 },
   { id: "flying-bird", label: "Flying bird", zone: "sky", sprite: 44 },
@@ -108,7 +107,7 @@ export function guestbookTerrainAt(x: number, y: number): GuestbookTerrain | nul
   return guestbookMap.zones[terrainPixels[index]] as GuestbookTerrain;
 }
 
-const retiredGuestbookStickers: ReadonlySet<string> = new Set(["seedling", "blossom", "flying-bird"]);
+const retiredGuestbookStickers: ReadonlySet<string> = new Set(["seedling", "flying-bird"]);
 const guestbookBirds: ReadonlySet<string> = new Set([
   "songbird", "mourning-dove", "cardinal", "blue-jay", "owl", "barn-owl",
   "swan", "duck", "eurasian-coot", "black-swan",
@@ -134,7 +133,7 @@ export const guestbookStickersPerPage = 12;
 export const guestbookMobileStickersPerPage = 14;
 
 export function guestbookStickerImage(id: string) {
-  return `/guestbook/stickers/${id}${guestbookPokemonIds.has(id) ? "" : "-soft"}.svg`;
+  return `/guestbook/stickers/${id}${guestbookPokemonIds.has(id) ? "-pixel" : "-soft"}.png`;
 }
 
 export const guestbookPokemonIds: ReadonlySet<string> = new Set([

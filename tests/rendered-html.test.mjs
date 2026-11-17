@@ -444,8 +444,11 @@ test("keeps the Side interest sections and stats in the requested order", async 
     assert.ok(photo.length > 20_000);
   }
 
-  const postcardAssets = await readdir(new URL("../public/postcard-photos/", import.meta.url));
-  assert.equal(postcardAssets.length, 11);
+  const postcardAssets = (await readdir(new URL("../public/postcard-photos/", import.meta.url))).filter(file => /\.jpe?g$/i.test(file));
+  const postcardData = await readFile(new URL("../src/app/side-quests/place-postcards-data.ts", import.meta.url), "utf8");
+  const referencedPhotos = [...postcardData.matchAll(/photo: "\/postcard-photos\/([^"]+)"/g)].map(match => match[1]);
+  assert.ok(referencedPhotos.length > 0);
+  for (const photo of referencedPhotos) assert.ok(postcardAssets.includes(photo), `Missing postcard photo: ${photo}`);
   for (const asset of postcardAssets) {
     const photo = await readFile(new URL(`../public/postcard-photos/${asset}`, import.meta.url));
     assert.ok(photo.length > 1_000);

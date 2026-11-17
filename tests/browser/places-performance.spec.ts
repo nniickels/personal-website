@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { postcards } from "../../src/app/side-quests/place-postcards-data";
 
 // Keep postcard media bounded without changing the native page/animation model.
 test("Postcards loads only nearby optimized photos and remains interactive", async ({ page }, testInfo) => {
@@ -25,7 +26,10 @@ test("Postcards loads only nearby optimized photos and remains interactive", asy
     visiblePhotos: visible.length, photoBytes: entries.reduce((total, entry) => total + entry.bytes, 0) }));
   expect(initial.length).toBeLessThanOrEqual(4);
   expect(visible.length).toBeLessThanOrEqual(4);
-  expect(visible.every(url => /-(320|480|960|1440|1920)\.webp$/.test(url))).toBe(true);
+  expect(visible.every(url => {
+    const width = Number(url.match(/-(\d+)\.webp$/)?.[1]);
+    return width >= 160 && width <= 1920;
+  }), visible.join("\n")).toBe(true);
   expect(await page.locator(".postcard-photo img").count()).toBeLessThanOrEqual(4);
   for (const name of ["Next postcard", "Previous postcard", "Previous postcard", "Next postcard"]) {
     await page.getByRole("button", { name, exact: true }).click();
@@ -36,13 +40,52 @@ test("Postcards loads only nearby optimized photos and remains interactive", asy
   await expect(page.locator(".postcard-slot--0 .place-postcard")).toHaveClass(/is-flipped/);
   await page.getByRole("button", { name: /Photo side/ }).click();
   await page.locator(".postcard-number-display").click();
-  await page.getByRole("textbox", { name: /Postcard number/ }).fill("11");
+  await page.getByRole("textbox", { name: /Postcard number/ }).fill(String(postcards.length));
   await page.getByRole("textbox", { name: /Postcard number/ }).press("Enter");
-  await expect(page.locator(".postcard-number-display")).toHaveText("11");
+  await expect(page.locator(".postcard-number-display")).toHaveText(String(postcards.length));
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: "Next postcard", exact: true }).click();
   await expect(page.locator(".postcard-number-display")).toHaveText("1");
   await expect(page.getByRole("button", { name: "Next postcard", exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+
+test("unstack uses thumbnail transfers and releases all flight layers", async ({ page, isMobile }, testInfo) => {
+  test.skip(!["desktop", "mobile"].includes(testInfo.project.name));
+  await page.route("**/gc/**", route => route.fulfill({ body: "" }));
+  await page.route("https://webring.ca/**", route => route.fulfill({ body: "" }));
+  await page.route("**/api/stats", route => route.fulfill({ json: {} }));
+  const requests = new Set<string>();
+  page.on("request", request => { if (/\/media\/postcard-photos-/.test(request.url())) requests.add(request.url()); });
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: isMobile ? 4 : 1 });
+  await cdp.send("Performance.enable");
+  await page.goto("/side#favourite-places");
+  const section = page.locator("#favourite-places");
+  await expect.poll(() => section.locator(".postcard-slot--0 img").evaluate((image: HTMLImageElement) => image.complete && !!image.naturalWidth)).toBe(true);
+  const initial = new Set(requests);
+  const before = await cdp.send("Performance.getMetrics");
+  await section.getByRole("button", { name: "Unstack", exact: true }).click();
+  await expect(section.getByRole("button", { name: "Stack", exact: true })).toBeEnabled();
+  await expect(page.locator(".postcard-flight-layer")).toHaveCount(0);
+  await expect(section.locator(".postcard-library-entry")).toHaveCount(postcards.length);
+  const newRequests = [...requests].filter(url => !initial.has(url));
+  expect(newRequests.length).toBeGreaterThan(0);
+  expect(newRequests.every(url => /-160\.webp$/.test(url)), newRequests.join("\n")).toBe(true);
+  await section.getByRole("button", { name: "Stack", exact: true }).click();
+  await expect(section.getByRole("button", { name: "Unstack", exact: true })).toBeEnabled();
+  await expect(page.locator(".postcard-flight-layer, .postcard-flight")).toHaveCount(0);
+  expect(await section.locator(".postcard-photo img").count()).toBeLessThanOrEqual(4);
+  const after = await cdp.send("Performance.getMetrics");
+  const metric = (metrics: typeof before, name: string) => metrics.metrics.find(item => item.name === name)?.value ?? 0;
+  const measurements = { cpuThrottle: isMobile ? 4 : 1, initialImageRequests: initial.size,
+    unstackThumbnailRequests: newRequests.length, thumbnailWidth: 160,
+    scriptMs: Math.round((metric(after, "ScriptDuration") - metric(before, "ScriptDuration")) * 1000),
+    layoutMs: Math.round((metric(after, "LayoutDuration") - metric(before, "LayoutDuration")) * 1000),
+    taskMs: Math.round((metric(after, "TaskDuration") - metric(before, "TaskDuration")) * 1000) };
+  await testInfo.attach("postcard-transition-performance.json", { body: JSON.stringify(measurements, null, 2), contentType: "application/json" });
+  console.log(JSON.stringify({ project: testInfo.project.name, ...measurements }));
+  await cdp.detach();
 });

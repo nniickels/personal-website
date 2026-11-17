@@ -12,7 +12,7 @@ Phone copy and compact header spacing apply at widths up to 520px. The Playgroun
 | Side profile icons | Shows Pinterest, Spotify, Google Maps, AniList, and Instagram in one row. AniList links to `https://anilist.co/user/niickels/` and uses a smaller logo to balance its visual weight. | At phone widths, uses two rows: Pinterest, Spotify, and Google Maps above AniList and Instagram, with 8px horizontal and 6.4px vertical gaps. |
 | Side copy and rankings | Shows full introductory and interest paragraphs and expanded listening rankings. The first two tracks stay together across column breaks; link underlines animate beneath their labels within the same column. | Uses a shorter introduction and interest lists; Watching and Gaming lists use two columns. Top Tracks stays expanded, while artist and genre rankings use disclosures. Watching links to AniList through its heading; the Places introduction remains visible, and the two gaming widgets remain side by side. |
 | Side lifecycle | Gallery markup renders upfront; viewers load on demand. | Same lifecycle, with smaller responsive image candidates selected for the displayed size and screen density. |
-| Places postcards | Shows a three-layer stack with photo fronts and illustrated review backs. Previous/next navigation wraps around; selecting the counter opens a compact number input. | Uses the same controls, SVG turn arrows, and entries in a taller, narrower card. Individual crop focal points and screen density determine the image presentation. |
+| Places postcards | Three-layer stack with photo fronts and review backs; wrapping navigation and an editable counter. Unstack opens a country/continent library with three columns. | Taller, narrower cards with the same controls and crop focal points; the library uses two columns on phones. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
 | Guestbook | Sticker sheet beside the framed landscape; fullscreen and count below. | At widths up to 600px, controls sit above the landscape and a compact sheet below. Fullscreen expands the sheet into a scrolling grid. |
 | Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | In the accordion layout, settings appear before the scene and action buttons after it. The black-hole chart follows its actions; the stellar timeline appears before its playback actions. |
@@ -23,6 +23,7 @@ Phone copy and compact header spacing apply at widths up to 520px. The Playgroun
 
 | Feature | Cursor | Touchscreen |
 |---------|--------|-------------|
+| Site buttons | Desktop links open directly. | Mobile buttons ask for confirmation using the webring dialog styling. |
 | Links and controls | Hover and focus states brighten, underline, or raise interactive elements before selection. | Controls use touch-sized targets and activate without depending on hover. |
 | Idle meteor shower | Available above 700px with hover and a fine primary pointer. | Disabled; the logo navigates home immediately. |
 | Shooting-star wishes | Click a visible star to pause it and display a wish message. | Tap the single occasional shooting star on Main or Side (24-second cycle); shooting stars are hidden in Playground. |
@@ -40,4 +41,4 @@ Phone copy and compact header spacing apply at widths up to 520px. The Playgroun
 
 The Playground accordion applies at widths up to 700px in portrait, or heights up to 520px in landscape with a coarse pointer. Other viewports use the full experiment layout, including larger portrait tablets. Touch-specific controls and starfield adjustments separately use `(hover: none), (pointer: coarse)`; these checks do not impose a blanket playback-rate reduction.
 
-Places keeps only the three visible cards and the previous card mounted, with native lazy loading for visible photos and a prepared previous photo for backward navigation. Shuffling uses CSS transforms; reduced motion removes the flip transition and shortens the shuffle. See [Places postcards](places.md) for maintenance details.
+In stack view, Places keeps only the three visible cards and the previous card mounted. Stacking prioritizes the top photo; the previous photo is prepared for backward navigation. Shuffling uses CSS transforms; reduced motion removes the flip transition and shortens the shuffle. See [Places postcards](places.md) for maintenance details.

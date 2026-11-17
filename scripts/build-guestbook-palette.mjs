@@ -3,7 +3,9 @@ import { pixelSvg } from "./guestbook-pixel-svg.mjs";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile } from "node:fs/promises";
 
-// Apply one shared palette to the scalable sticker artwork.
+// Apply one shared palette to the sticker artwork.
+// Native pixel PNGs avoid seams between SVG cells at fractional Safari zoom.
+// Retain SVG exports as source artwork.
 const model = await readFile(new URL("../src/guestbook-model.ts", import.meta.url), "utf8");
 const pokemon = new Set(model.match(/guestbookPokemonIds[^=]*= new Set\(\[([\s\S]*?)\]/)[1].match(/"[^"]+"/g).map(value => JSON.parse(value)));
 const ids = [...model.matchAll(/id: "([^"]+)"[^\n]+sprite: /g)].map(match => match[1]).filter(id => !pokemon.has(id));
@@ -70,10 +72,12 @@ for (const id of ids) {
     else cells[i + 3] = 255;
   }
   await writeFile(new URL(`${id}-soft.svg`, directory), pixelSvg(cells, 64, 64));
+  await writeFile(new URL(`${id}-soft.png`, directory), await sharp(cells, { raw: { width: 64, height: 64, channels: 4 } }).png().toBuffer());
 }
 // Usagi's reference has more cells than the standard thumbnail frame can hold.
 const usagi = await sharp(fileURLToPath(new URL("../public/guestbook/supplied/usagi-grid.png", import.meta.url))).ensureAlpha().raw().toBuffer();
 await writeFile(new URL("usagi-soft.svg", directory), pixelSvg(usagi, 80, 80));
+await writeFile(new URL("usagi-soft.png", directory), await sharp(usagi, { raw: { width: 80, height: 80, channels: 4 } }).png().toBuffer());
 // Preserve every original Pokémon pixel and colour, using scalable cells too.
 for (const id of pokemon) {
   const filename = id === "xerneas" || id === "alolan-vulpix" ? `${id}.png` : `${id}-original.png`;
@@ -96,6 +100,7 @@ for (const id of pokemon) {
   const { data, info } = await sharp(native).extend({ left, top, right: frame - dimensions.width - left,
     bottom: frame - dimensions.height - top, background: "#0000" }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   await writeFile(new URL(`${id}.svg`, directory), pixelSvg(data, info.width, info.height));
+  await writeFile(new URL(`${id}-pixel.png`, directory), await sharp(data, { raw: info }).png().toBuffer());
 }
 console.log(`Built ${ids.length} logical-grid sprites.`);
 

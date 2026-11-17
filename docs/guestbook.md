@@ -4,15 +4,16 @@
 
 Add entries to `siteButtons` in `src/app/side-quests/data.ts`. Each entry has a
 `name`, site `href`, and local image path. Put 88×31 images in `public/buttons/`.
-Buttons show their destination URL on hover or focus.
-The laggy button uses Boris’s original [favicon](https://github.com/l2ggy/portfolio/blob/c29bec0ab768f4c70d45d36335e32daccca57473/public/favicon.svg).
+Buttons show their destination name on hover or focus. On mobile, tapping a button
+opens a native confirmation dialog using the webring styling. “No” or Escape cancels
+and restores focus; “Yes” opens the destination in a new tab. Desktop links open directly.
 
 ## Guestbook
 
 Visitors choose a pixel-art sticker from the paginated grid and click the
 landscape, or drag a sticker onto it. A popup asks for their name, an optional message, and confirmation. Invalid spots show
 a placement message. Names have a 20-character limit; optional messages allow 150 characters.
-Both fields show live character counts.
+Both fields show live character counts and use at least 16px text to prevent Safari focus zoom.
 Sticker images disable the browser’s long-press image menu so touch dragging stays uninterrupted.
 Hover or focus a placed sticker to see its name and date. History below
 the controls lists date, name, message, sticker, and placement number. It opens at the
@@ -44,11 +45,13 @@ use a softer palette baked into their shared images.
 it also runs with `npm run images:build`. Flowers use a light ivory tint; dahlia, calla lily, and sweet pea petal
 colours are set in the palette script. The leaf sheep’s dark eyes are preserved.
 Pokémon bypass this conversion.
-Sticker artwork uses SVG paths on a logical square-cell grid. Each cell has a
+Displayed stickers use native-resolution PNGs with pixelated scaling to prevent
+seams between SVG cells when Safari zooms. SVG exports are retained alongside
+the PNGs for source artwork. Each cell has a
 solid fill and a limited palette. Non-Pokémon sprites use a 64×64 frame,
 except Usagi at 80×80. Pokémon retain their native cells and colours in padded
 frames; supplied enlarged sprites are reduced only to their exact art-cell grid. Landscape hover and drag previews use the same
-SVG and size as placed stickers. Hover enlargement uses stepped size changes,
+PNG and size as placed stickers. Hover enlargement uses stepped size changes,
 with glow rendered behind the artwork.
 Stickers may overlap. Only almost identical
 centres are blocked. On touch screens, tap an existing sticker once to read its
