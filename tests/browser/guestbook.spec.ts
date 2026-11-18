@@ -9,11 +9,10 @@ test("guestbook asks for a name after placement and keeps confirmed entries", as
       await route.fulfill({ status: 201, json: { entry } });
     } else await route.fulfill({ json: { entries } });
   });
-  await page.goto("/side");
+  await page.goto("/side", { waitUntil: "domcontentloaded" });
   const section = page.locator("#guestbook");
-  const loaded = page.waitForResponse("**/api/guestbook");
   await section.scrollIntoViewIfNeeded();
-  await loaded;
+  await expect(section.locator(".guestbook-count")).toHaveText("0 stickers placed");
   await expect.poll(() => page.locator(".guestbook-sticker-options button").count()).toBe(isMobile ? 14 : 12);
   await expect(section.locator(".guestbook-description")).toHaveText("You made it to the end! Grab a sticker and place it on the landscape for everyone to see.");
   await expect(page.getByText("A little landscape for everyone who passes through.", { exact: true })).toHaveCount(0);
@@ -682,5 +681,73 @@ test("site buttons show their destination names above on hover", async ({ page, 
       const label = await tooltip.boundingBox(), box = await button.boundingBox();
       return !!label && !!box && label.y + label.height < box.y;
     }).toBe(true);
+  }
+});
+
+test("visitor websites save as name links and confirm on mobile without adding a history column", async ({ page, isMobile }) => {
+  const entries: Record<string, unknown>[] = [];
+  await page.context().route("https://garden.example/**", route => route.fulfill({ body: "Visitor’s garden" }));
+  await page.route("**/api/guestbook", async route => {
+    if (route.request().method() === "POST") {
+      const entry = { ...route.request().postDataJSON(), placedAt: "2026-11-17T12:00:00Z" };
+      entries.push(entry);
+      await route.fulfill({ status: 201, json: { entry } });
+    } else await route.fulfill({ json: { entries } });
+  });
+  await page.goto("/side", { waitUntil: "domcontentloaded" });
+  const section = page.locator("#guestbook");
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.locator(".guestbook-count")).toHaveText("0 stickers placed");
+  await page.getByRole("button", { name: "Oxeye daisy", exact: true }).click();
+  const scene = page.locator(".guestbook-landscape");
+  const box = (await scene.boundingBox())!;
+  await scene.click({ position: { x: box.width * .34, y: box.height * .75 } });
+  await page.getByLabel("Your name", { exact: true }).fill("Garden visitor");
+  await page.getByLabel("Your website (Optional)", { exact: true }).fill("https://garden.example/flowers");
+  await page.getByRole("button", { name: "Place sticker", exact: true }).click();
+  expect(entries).toHaveLength(1);
+  expect(entries[0].website).toBe("https://garden.example/flowers");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await section.scrollIntoViewIfNeeded();
+  const sticker = section.locator("a.guestbook-placed");
+  const name = section.locator(".guestbook-history-name a");
+  await expect(sticker).toHaveAttribute("href", "https://garden.example/flowers");
+  await expect(name).toHaveAttribute("href", "https://garden.example/flowers");
+  await expect(section.locator("th")).toHaveCount(5);
+  await expect(name).toHaveAttribute("title", "https://garden.example/flowers");
+  expect(await name.evaluate(el => getComputedStyle(el).textDecorationLine)).toContain("underline");
+  if (!isMobile) {
+    await sticker.hover();
+    await expect(sticker.getByRole("tooltip")).toContainText("https://garden.example/flowers");
+    expect(await sticker.locator(".guestbook-website-name").evaluate(el => getComputedStyle(el).textDecorationLine)).toContain("underline");
+  }
+  for (const link of [sticker, name]) {
+    if (isMobile) {
+      await link.tap();
+      const confirmation = page.getByRole("dialog", { name: "Redirect to Garden visitor’s site?", exact: true });
+      await expect(confirmation).toBeVisible();
+      await expect(confirmation).toHaveClass("webring-confirmation");
+      await confirmation.getByRole("button", { name: "No", exact: true }).click();
+      await expect(confirmation).not.toBeVisible();
+      await expect(link).toBeFocused();
+      await link.tap();
+      await page.keyboard.press("Escape");
+      await expect(confirmation).not.toBeVisible();
+      await link.tap();
+      const opened = page.waitForEvent("popup");
+      await confirmation.getByRole("button", { name: "Yes", exact: true }).click();
+      const popup = await opened;
+      await popup.waitForURL("https://garden.example/flowers");
+      await popup.close();
+    } else {
+      const opened = page.waitForEvent("popup");
+      await link.click();
+      const popup = await opened;
+      await popup.waitForURL("https://garden.example/flowers");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await popup.close();
+    }
+    await expect(page).toHaveURL(/\/side/);
+    await expect(section.locator(".guestbook-dialog")).not.toBeVisible();
   }
 });

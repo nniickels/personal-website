@@ -340,12 +340,12 @@ test("keeps the Side interest sections and stats in the requested order", async 
   assert.match(source, /id="pokemon-cards"/);
   assert.match(
     source,
-    /function navigateToSideQuestDestination[\s\S]*?target instanceof HTMLDetailsElement[\s\S]*?target\.dataset\.expandOnNavigate === "true"[\s\S]*?target\.querySelector<HTMLDetailsElement>\(":scope > details"\)[\s\S]*?dropdown\.open = true/,
+    /function openSideQuestDropdown[\s\S]*?target instanceof HTMLDetailsElement[\s\S]*?target\.dataset\.expandOnNavigate === "true"[\s\S]*?target\.querySelector<HTMLDetailsElement>\(":scope > details"\)[\s\S]*?dropdown\.open = true/,
   );
   assert.match(source, /onClick=\{\(event\) => navigateToSideQuestDestination\(event, item\.href, setCurrent\)\}/);
   assert.match(source, /prefers-reduced-motion: reduce/);
   assert.match(source, /id="photo-gallery" data-expand-on-navigate="true"/);
-  assert.doesNotMatch(source, /id="collections" data-expand-on-navigate/);
+  assert.match(source, /id="collections" data-expand-on-navigate="all"/);
 
   assert.match(source, /The Book of Laughter and Forgetting/);
   assert.match(source, /Batman: Arkham Knight/);

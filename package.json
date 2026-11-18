@@ -13,7 +13,7 @@
     "test": "npm run build && node --test tests/rendered-html.test.mjs tests/performance.test.mjs tests/guestbook.test.mjs",
     "images:build": "node scripts/build-images.mjs && node scripts/build-guestbook-palette.mjs",
     "prebuild": "npm run images:build",
-    "predev": "npm run images:build",
+    "predev": "node scripts/prepare-dev.mjs",
     "test:browser": "playwright test",
     "typecheck": "npm run images:build && tsc --noEmit --incremental false"
   },

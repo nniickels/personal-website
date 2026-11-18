@@ -13,6 +13,18 @@ import { listeningRankings, galleryPhotos, naturalThingsPhotos, scrapbookPhotos,
 
 const desktopIndexQuery = "(min-width: 701px) and (min-height: 521px), (min-width: 701px) and (pointer: fine)";
 
+function openSideQuestDropdown(target: HTMLElement) {
+  if (target.dataset.expandOnNavigate === "all") {
+    const dropdowns = target.querySelectorAll<HTMLDetailsElement>("details");
+    dropdowns.forEach(dropdown => { dropdown.open = true; });
+    return dropdowns[0] ?? null;
+  }
+  const dropdown = target instanceof HTMLDetailsElement ? target
+    : target.dataset.expandOnNavigate === "true" ? target.querySelector<HTMLDetailsElement>(":scope > details") : null;
+  if (dropdown) dropdown.open = true;
+  return dropdown;
+}
+
 function navigateToSideQuestDestination(
   event: ReactMouseEvent<HTMLAnchorElement>,
   href: string,
@@ -24,9 +36,7 @@ function navigateToSideQuestDestination(
   if (!(target instanceof HTMLElement)) return;
   event.preventDefault();
 
-  const dropdown = target instanceof HTMLDetailsElement ? target
-    : target.dataset.expandOnNavigate === "true" ? target.querySelector<HTMLDetailsElement>(":scope > details") : null;
-  if (dropdown) dropdown.open = true;
+  openSideQuestDropdown(target);
 
   window.history.replaceState(null, "", href);
   target.scrollIntoView({
@@ -110,6 +120,26 @@ function SideQuestIndex() {
 }
 
 export function FunContent() {
+  useEffect(() => {
+    let frame = 0;
+    function followHash() {
+      let id: string;
+      try { id = decodeURIComponent(window.location.hash.slice(1)); }
+      catch { return; }
+      const target = document.getElementById(id);
+      if (!target || !openSideQuestDropdown(target)) return;
+      // Hydration and opening the dropdown can change the anchor's layout.
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => target.scrollIntoView({ behavior: "instant" }));
+    }
+    followHash();
+    window.addEventListener("hashchange", followHash);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", followHash);
+    };
+  }, []);
+
   return (
     <div className="side-workspace">
       <SideQuestIndex />
@@ -268,7 +298,7 @@ function SideSections() {
         </div>
       </section>
 
-      <section className="section" id="collections">
+      <section className="section" id="collections" data-expand-on-navigate="all">
         <h2>Collections</h2>
         <div className="dropdown-list">
           <details className="dropdown-entry" id="natural-things">

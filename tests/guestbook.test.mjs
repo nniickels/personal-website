@@ -481,3 +481,32 @@ test("displayed PNG stickers preserve every source SVG pixel", async () => {
     assert.deepEqual(png.data, svg.data, id);
   }
 });
+
+test("guestbook normalizes optional websites, persists them, and includes them in retry identity", async () => {
+  const { call } = setup();
+  const submission = entry({ website: "  garden.neocities.org/about?q=flowers#hello  " });
+  const response = await call(submission);
+  assert.equal(response.status, 201);
+  const saved = (await response.json()).entry;
+  assert.equal(saved.website, "https://garden.neocities.org/about?q=flowers#hello");
+  assert.deepEqual((await (await call()).json()).entries, [saved]);
+  assert.equal((await call({ ...submission, website: saved.website })).status, 200);
+  assert.equal((await call({ ...submission, website: "https://different.example/" })).status, 409);
+  const blank = await setup().call(entry({ website: "   " }));
+  assert.equal(blank.status, 201);
+  assert.equal(Object.hasOwn((await blank.json()).entry, "website"), false);
+});
+
+test("guestbook rejects unsafe and malformed visitor websites", async () => {
+  for (const website of [
+    "javascript:alert(1)", "data:text/html,hello", "file:///tmp/site", "ftp://example.com", "https://",
+    "https://user:password@example.com", "https://exam ple.com", "https://example.com/\nhello",
+    "https://example.com/\\evil", "https://example.com/" + "x".repeat(500), 42, null,
+  ]) {
+    const { call } = setup();
+    assert.equal((await call(entry({ website }))).status, 400, JSON.stringify(website));
+    assert.deepEqual((await (await call()).json()).entries, []);
+  }
+  const { call } = setup();
+  assert.equal((await call(entry({ website: "http://example.com/" }))).status, 201);
+});

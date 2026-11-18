@@ -31,7 +31,7 @@ The `museum` category also covers gardens and other exhibitions. Google Maps is 
 
 ## Photos and cropping
 
-Keep high-resolution originals in `public/postcard-photos/`. Run `npm run privacy:strip-gallery-metadata` after adding JPEGs, then `npm run images:build`. Starting development or building production also runs image generation automatically. When replacing images during an active development session, run image generation explicitly so the manifest references the new files.
+Keep high-resolution originals in `public/postcard-photos/`. Run `npm run privacy:strip-gallery-metadata` after adding JPEGs, then `npm run images:build`. Initial development setup and production builds run image generation automatically; subsequent development starts reuse existing generated images. When replacing images during an active development session, run image generation explicitly so the manifest references the new files.
 
 Cards use `object-fit: cover` with each entry's `photoPosition`. Start at `50% 50%`; increasing the vertical percentage shows a lower part of a tall photograph, and increasing the horizontal percentage shows further right in a wide photograph. Check both desktop and mobile: the mobile frame is taller, so it crops landscape photos differently. Focal points adjust the displayed crop without modifying the original image.
 

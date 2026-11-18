@@ -23,4 +23,4 @@ Run `npm run privacy:strip-gallery-metadata` after adding gallery or postcard JP
 
 The website résumé source is `resume/resume.tex`. To rebuild `public/resume.pdf`, run `tectonic resume/resume.tex --outdir public` from the repository root, then confirm the PDF remains one page and inspect its layout before committing.
 
-For Places, edit `src/app/side-quests/place-postcards-data.ts` and put original JPEGs in `public/postcard-photos/`. Run `npm run images:build` after replacing photos while the dev server is running; `predev` and `prebuild` also generate the responsive WebP files and manifests. See [Places postcards](places.md) for the fields and crop controls.
+For Places, edit `src/app/side-quests/place-postcards-data.ts` and put original JPEGs in `public/postcard-photos/`. Run `npm run images:build` after replacing photos while the dev server is running; `predev` generates images on initial setup and otherwise reuses the generated files. Run `npm run images:build` after changing photos or sticker artwork; `prebuild` always regenerates assets for production. See [Places postcards](places.md) for the fields and crop controls.

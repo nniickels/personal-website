@@ -3,6 +3,7 @@ import stickerBases from "./guestbook-sticker-bases.json";
 
 export const guestbookNameLimit = 20;
 export const guestbookMessageLimit = 150;
+export const guestbookWebsiteLimit = 500;
 
 export type GuestbookZone = "sky" | "land" | "lake" | "tree" | "snow";
 
@@ -82,6 +83,7 @@ export type GuestbookEntry = {
   sticker: GuestbookStickerId;
   name: string;
   message?: string;
+  website?: string;
   x: number;
   y: number;
   placedAt: string;
@@ -169,6 +171,19 @@ export function allowsGuestbookPlacement(stickerId: string, x: number, y: number
   return guestbookAllowedZones(stickerId).some(zone => zone === terrain);
 }
 
+export function parseGuestbookWebsite(value: string): string | null {
+  const website = value.trim();
+  if (!website) return "";
+  if (website.length > guestbookWebsiteLimit || /[\s\u0000-\u001f\u007f-\u009f\\]/.test(website)) return null;
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(website) ? website : "https://" + website);
+    if (!["https:", "http:"].includes(url.protocol) || !url.hostname || url.username || url.password) return null;
+    return url.href.length <= guestbookWebsiteLimit ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 export function parseGuestbookSubmission(value: unknown): GuestbookSubmission | null {
   if (!value || typeof value !== "object") return null;
   const entry = value as Record<string, unknown>;
@@ -176,12 +191,15 @@ export function parseGuestbookSubmission(value: unknown): GuestbookSubmission | 
     || typeof entry.name !== "string" || typeof entry.sticker !== "string"
     || typeof entry.x !== "number" || typeof entry.y !== "number") return null;
   const name = entry.name.trim().normalize("NFC");
+  if (entry.website !== undefined && typeof entry.website !== "string") return null;
+  const website = parseGuestbookWebsite((entry.website as string | undefined) || "");
+  if (website === null) return null;
   if (entry.message !== undefined && typeof entry.message !== "string") return null;
   const message = ((entry.message as string | undefined) || "").replace(/\r\n?/g, "\n").trim().normalize("NFC");
   if (Array.from(message).length > guestbookMessageLimit || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/.test(message)) return null;
   if (!name || Array.from(name).length > guestbookNameLimit || /[\u0000-\u001f\u007f-\u009f]/.test(name)
     || !allowsGuestbookPlacement(entry.sticker, entry.x, entry.y)) return null;
-  return { id: entry.id, name, ...(message ? { message } : {}), sticker: entry.sticker as GuestbookStickerId, x: entry.x, y: entry.y };
+  return { id: entry.id, name, ...(message ? { message } : {}), ...(website ? { website } : {}), sticker: entry.sticker as GuestbookStickerId, x: entry.x, y: entry.y };
 }
 
 export function guestbookPlacementOccupied(entries: readonly GuestbookEntry[], x: number, y: number) {

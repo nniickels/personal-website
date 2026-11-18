@@ -11,11 +11,11 @@ and restores focus; “Yes” opens the destination in a new tab. Desktop links 
 ## Guestbook
 
 Visitors choose a pixel-art sticker from the paginated grid and click the
-landscape, or drag a sticker onto it. A popup asks for their name, an optional message, and confirmation. Invalid spots show
+landscape, or drag a sticker onto it. A popup asks for their name, an optional website, an optional message, and confirmation. Invalid spots show
 a placement message. Names have a 20-character limit; optional messages allow 150 characters.
-Both fields show live character counts and use at least 16px text to prevent Safari focus zoom.
+Name and message fields show live character counts and use at least 16px text to prevent Safari focus zoom.
 Sticker images disable the browser’s long-press image menu so touch dragging stays uninterrupted.
-Hover or focus a placed sticker to see its name and date. History below
+Hover or focus a placed sticker to see its name and date. An optional HTTP(S) website links the visitor’s underlined name in history and on the sticker, with its URL shown on hover. Mobile links use the webring-style “Redirect to [name]’s site?” confirmation. Desktop links open directly in a new tab. Website addresses without a scheme default to HTTPS; existing entries without websites remain unchanged. History below
 the controls lists date, name, message, sticker, and placement number. It opens at the
 latest entries at the top; scrolling down shows older entries. The log uses
 Barlow Semi Condensed with column headings.

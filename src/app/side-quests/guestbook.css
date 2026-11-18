@@ -39,6 +39,10 @@
 .guestbook-landscape .guestbook-placed { cursor: inherit; }
 .guestbook-preview { pointer-events: none; opacity: 1; z-index: 4; --sticker-growth: 0px; --sticker-glow: 0; }
 .guestbook-entry-label { display: none; position: fixed; inset: auto; margin: 0; z-index: 1003; padding: .4rem .55rem; border: 1px solid #8e9990; border-radius: 2px; background: #eeeee7; color: #46524b; font: 12px/1.35 "STIX Two Text", serif; width: max-content; max-width: min(280px, calc(100vw - 16px)); box-sizing: border-box; overflow-wrap: anywhere; max-height: calc(100dvh - 16px); overflow-y: auto; pointer-events: auto; }
+.guestbook-website-name { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.guestbook-entry-url { display: block; margin-top: .2rem; }
+.guestbook-landscape a.guestbook-placed { cursor: pointer; }
+.guestbook-dialog input[name="guestbook-website"] { margin-bottom: 1rem; }
 .guestbook-entry-label:popover-open { display: block; }
 .guestbook-placed:is(:hover, :focus) { z-index: 3; }
 .guestbook-placed:is(:hover, :focus) { --sticker-growth: 4px; --sticker-glow: 1; }

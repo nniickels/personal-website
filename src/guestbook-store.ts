@@ -56,12 +56,12 @@ export class Guestbook {
       return json({ error: "The entry could not be read." }, 400);
     }
     const submission = parseGuestbookSubmission(value);
-    if (!submission) return json({ error: "Choose a sticker, enter a name, and place it in its allowed area." }, 400);
+    if (!submission) return json({ error: "Choose a sticker, enter a name, use a valid http or https website if provided, and place it in its allowed area." }, 400);
     return this.state.storage.transaction(async (storage) => {
       const key = "entry:" + submission.id;
       const existing = await storage.get<GuestbookEntry>(key);
       if (existing) {
-        if (existing.sticker !== submission.sticker || (existing.message || "") !== (submission.message || "") || existing.name !== submission.name || existing.x !== submission.x || existing.y !== submission.y) {
+        if (existing.sticker !== submission.sticker || (existing.message || "") !== (submission.message || "") || (existing.website || "") !== (submission.website || "") || existing.name !== submission.name || existing.x !== submission.x || existing.y !== submission.y) {
           return json({ error: "That entry was already placed." }, 409);
         }
         return json({ entry: existing });

@@ -1,8 +1,8 @@
 "use client";
 
-import { memo, useEffect, useId, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, FormEvent, MouseEvent, PointerEvent } from "react";
-import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookPickerStickers, guestbookStickersPerPage, guestbookMobileStickersPerPage, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers } from "../../guestbook-model";
+import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookWebsiteLimit, parseGuestbookWebsite, guestbookPickerStickers, guestbookStickersPerPage, guestbookMobileStickersPerPage, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers } from "../../guestbook-model";
 import type { GuestbookEntry, GuestbookStickerId } from "../../guestbook-model";
 import GuestbookSticker from "./guestbook-art";
 import "./guestbook.css";
@@ -15,11 +15,11 @@ function showHoverLabel(label: HTMLElement, box: DOMRect) {
   label.style.left = Math.max(8, Math.min(window.innerWidth - size.width - 8, box.left + box.width / 2 - size.width / 2)) + "px";
   label.style.top = Math.max(8, Math.min(window.innerHeight - size.height - 8, box.top > size.height + 12 ? box.top - size.height - 6 : box.bottom + 6)) + "px";
 }
-function showEntryLabel(button: HTMLButtonElement) {
+function showEntryLabel(button: HTMLElement) {
   const label = button.querySelector<HTMLElement>(".guestbook-entry-label");
   if (label) showHoverLabel(label, button.getBoundingClientRect());
 }
-function hideEntryLabel(button: HTMLButtonElement) {
+function hideEntryLabel(button: HTMLElement) {
   const label = button.querySelector<HTMLElement>(".guestbook-entry-label");
   if (label?.matches(":popover-open")) label.hidePopover();
 }
@@ -30,7 +30,7 @@ function stickerLabel(entry: GuestbookEntry) {
 }
 
 const historyDateFormat = new Intl.DateTimeFormat(undefined, { month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: true });
-const StickerHistory = memo(function StickerHistory({ entries, expanded }: { entries: readonly GuestbookEntry[]; expanded: boolean }) {
+const StickerHistory = memo(function StickerHistory({ entries, expanded, confirmWebsite }: { entries: readonly GuestbookEntry[]; expanded: boolean; confirmWebsite: (event: MouseEvent<HTMLElement>, entry: GuestbookEntry) => void }) {
   const log = useRef<HTMLDivElement>(null);
   const atTop = useRef(true);
   const newestFirst = [...entries].sort((a, b) => b.placedAt.localeCompare(a.placedAt));
@@ -46,7 +46,8 @@ const StickerHistory = memo(function StickerHistory({ entries, expanded }: { ent
         <thead><tr><th scope="col">date</th><th scope="col">name</th><th scope="col">message</th><th scope="col">sticker</th><th scope="col" className="guestbook-history-number">#</th></tr></thead>
         <tbody>{newestFirst.map((entry, index) => <tr key={entry.id}>
           <td><time dateTime={entry.placedAt}>{historyDateFormat.format(new Date(entry.placedAt)).replace(",", "")}</time></td>
-          <td className="guestbook-history-name">{entry.name}</td>
+          <td className="guestbook-history-name">{entry.website ? <a className="guestbook-website-name" href={entry.website} title={entry.website} target="_blank" rel="ugc nofollow noopener noreferrer"
+            onClick={event => confirmWebsite(event, entry)}>{entry.name}</a> : entry.name}</td>
           <td className="guestbook-history-message">{entry.message}</td>
           <td className="guestbook-history-sticker">{guestbookStickers.find(sticker => sticker.id === entry.sticker)?.label || "Sticker"}</td>
           <td className="guestbook-history-number" aria-label={"Placement " + (newestFirst.length - index)}>{newestFirst.length - index}</td>
@@ -59,6 +60,9 @@ const StickerHistory = memo(function StickerHistory({ entries, expanded }: { ent
 export default function Guestbook() {
   const section = useRef<HTMLElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  const websiteDialog = useRef<HTMLDialogElement>(null);
+  const websiteTrigger = useRef<HTMLElement | null>(null);
+  const [websiteDestination, setWebsiteDestination] = useState<GuestbookEntry | null>(null);
   const scenery = useRef<HTMLImageElement>(null);
   const pickerTooltip = useRef<HTMLSpanElement>(null);
   const picker = useRef<HTMLElement>(null);
@@ -80,6 +84,7 @@ export default function Guestbook() {
   const [stickerId, setStickerId] = useState<GuestbookStickerId>("lilypad");
   const [name, setName] = useState("");
   const [visitorMessage, setVisitorMessage] = useState("");
+  const [website, setWebsite] = useState("");
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -158,7 +163,7 @@ export default function Guestbook() {
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     function escape(event: KeyboardEvent) {
-      if (event.key === "Escape" && !dialog.current?.open && !document.fullscreenElement) setExpanded(false);
+      if (event.key === "Escape" && !dialog.current?.open && !websiteDialog.current?.open && !document.fullscreenElement) setExpanded(false);
     }
     document.addEventListener("keydown", escape);
     return () => {
@@ -185,6 +190,17 @@ export default function Guestbook() {
     }
     window.addEventListener("scroll", dismissLabels, true);
     return () => window.removeEventListener("scroll", dismissLabels, true);
+  }, []);
+
+  const confirmWebsite = useCallback((event: MouseEvent<HTMLElement>, entry: GuestbookEntry) => {
+    event.stopPropagation();
+    if (!websiteDialog.current || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+      || !window.matchMedia("(max-width: 600px), (hover: none) and (pointer: coarse)").matches) return;
+    event.preventDefault();
+    hideEntryLabel(event.currentTarget);
+    websiteTrigger.current = event.currentTarget;
+    setWebsiteDestination(entry);
+    websiteDialog.current.showModal();
   }, []);
 
   function showPickerLabel(target: HTMLButtonElement, sticker: GuestbookStickerId, text: string) {
@@ -251,6 +267,7 @@ export default function Guestbook() {
       setPopup("");
       setName("");
       setVisitorMessage("");
+      setWebsite("");
       setPosition(next);
     }
     dialog.current?.showModal();
@@ -309,6 +326,10 @@ export default function Guestbook() {
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!position || !valid || occupied || saving || !loaded) return;
+    if (parseGuestbookWebsite(website) === null) {
+      setMessage("Enter a valid http or https website, or leave it blank.");
+      return;
+    }
     setSaving(true);
     setMessage("");
     requestId.current ??= crypto.randomUUID();
@@ -316,7 +337,7 @@ export default function Guestbook() {
       const response = await fetch("/api/guestbook", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: requestId.current, sticker: stickerId, name, message: visitorMessage, ...position }),
+        body: JSON.stringify({ id: requestId.current, sticker: stickerId, name, message: visitorMessage, website, ...position }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Your sticker could not be saved.");
@@ -351,11 +372,15 @@ export default function Guestbook() {
             const item = guestbookStickers.find((sticker) => sticker.id === entry.sticker);
             if (!item) return null;
             const label = stickerLabel(entry);
-            return <button type="button" key={entry.id} className="guestbook-placed"
+            const Placed = entry.website ? "a" : "button";
+            return <Placed type={entry.website ? undefined : "button"} href={entry.website} target={entry.website ? "_blank" : undefined}
+              rel={entry.website ? "ugc nofollow noopener noreferrer" : undefined} title={entry.website}
+              key={entry.id} className="guestbook-placed"
               style={stickerStyle(entry.sticker, entry.x, entry.y)}
               aria-label={item.label + " · " + label}
               onPointerEnter={event => showEntryLabel(event.currentTarget)} onPointerLeave={event => hideEntryLabel(event.currentTarget)}
               onFocus={event => showEntryLabel(event.currentTarget)} onBlur={event => hideEntryLabel(event.currentTarget)} onClick={(event) => {
+                if (entry.website) { confirmWebsite(event, entry); return; }
                 if (event.detail === 0) { event.stopPropagation(); return; }
                 // On touch, the first tap shows the label; a second can place
                 // through this sticker. Mouse clicks can overlap immediately.
@@ -366,8 +391,11 @@ export default function Guestbook() {
                 }
               }}>
               <GuestbookSticker id={entry.sticker} />
-              <span className="guestbook-entry-label" popover="manual" role="tooltip">{label}</span>
-            </button>;
+              <span className="guestbook-entry-label" popover="manual" role="tooltip">
+                <span className={entry.website ? "guestbook-website-name" : undefined}>{entry.name}</span>{label.slice(entry.name.length)}
+                {entry.website && <span className="guestbook-entry-url">{entry.website}</span>}
+              </span>
+            </Placed>;
           })}
           {!position && !popup && livePoint && <span className="guestbook-preview guestbook-live-preview"
             style={stickerStyle(liveSticker, livePoint.x, livePoint.y)} aria-hidden="true">
@@ -406,7 +434,7 @@ export default function Guestbook() {
             <button type="button" aria-label="Next sticker page" disabled={page + 1 >= pageCount} onClick={() => setPage(current => Math.min(pageCount - 1, current + 1))}>›</button>
           </nav>}
         </aside>
-        <StickerHistory entries={entries} expanded={expanded} />
+        <StickerHistory entries={entries} expanded={expanded} confirmWebsite={confirmWebsite} />
       </div>
       <span ref={pickerTooltip} id={id + "-sticker-tooltip"} role="tooltip" popover="manual" hidden={!pickerLabel} className="guestbook-picker-label">{pickerLabel?.text}</span>
       {dragging && !dragPoint && <span className="guestbook-drag-ghost" style={{ left: dragging.x, top: dragging.y }} aria-hidden="true">
@@ -426,6 +454,10 @@ export default function Guestbook() {
           <input id={id + "-name"} type="text" required aria-describedby={id + "-name-limit"} name="guestbook-display-name" autoComplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore="true" data-form-type="other" value={name} disabled={saving} autoFocus
             onChange={(event) => { setName(Array.from(event.target.value).slice(0, guestbookNameLimit).join("")); requestId.current = null; }} />
           <p id={id + "-name-limit"} className="data-note">{Array.from(name).length}/{guestbookNameLimit} characters used</p>
+          <label htmlFor={id + "-website"}>Your website <span className="guestbook-optional">(Optional)</span></label>
+          <input id={id + "-website"} name="guestbook-website" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+            maxLength={guestbookWebsiteLimit} value={website} disabled={saving}
+            onChange={event => { setWebsite(event.target.value); requestId.current = null; }} />
           <label htmlFor={id + "-message"}>Leave a message? <span className="guestbook-optional">(Optional)</span></label>
           <textarea id={id + "-message"} name="guestbook-message" rows={3} autoComplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore="true" aria-describedby={id + "-message-limit"} value={visitorMessage} disabled={saving}
             onChange={event => { setVisitorMessage(Array.from(event.target.value).slice(0, guestbookMessageLimit).join("")); requestId.current = null; }} />
@@ -436,6 +468,17 @@ export default function Guestbook() {
             <button type="submit" className="guestbook-action" disabled={!name.trim() || !valid || !!occupied || saving}>{saving ? "Saving…" : "Place sticker"}</button>
           </div>
         </form>}
+      </dialog>
+      <dialog ref={websiteDialog} className="webring-confirmation" aria-labelledby={id + "-website-confirmation-title"}
+        onClose={() => { setWebsiteDestination(null); websiteTrigger.current?.focus({ preventScroll: true }); }}>
+        <h2 id={id + "-website-confirmation-title"}>Redirect to {websiteDestination?.name}’s site?</h2>
+        <div className="webring-confirmation-actions">
+          <button type="button" autoFocus onClick={() => websiteDialog.current?.close()}>No</button>
+          <button type="button" onClick={() => {
+            if (websiteDestination?.website) window.open(websiteDestination.website, "_blank", "noopener,noreferrer");
+            websiteDialog.current?.close();
+          }}>Yes</button>
+        </div>
       </dialog>
     </section>
   );
