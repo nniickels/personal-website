@@ -50,3 +50,6 @@ yarn-error.log*
 
 # Local button animation experiments
 /public/buttons/wip/
+
+# Local original button artwork
+/public/buttons/sources/
