@@ -4,7 +4,7 @@ export function SiteFooter() {
   return (
     <footer className="bar bottombar">
       <div className="container footer-content">
-        <p>© {new Date().getFullYear()} Nicole Jiang</p>
+        <a className="text-btn" href="/sitemap">site map</a>
         <WebringConfirmation />
         <ViewCounter />
         <script src="https://webring.ca/embed.js" defer></script>

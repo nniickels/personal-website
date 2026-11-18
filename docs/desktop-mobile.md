@@ -2,6 +2,10 @@
 
 Phone copy and compact header spacing apply at widths up to 520px. The Playground accordion uses the rules below.
 
+The initial theme follows the system appearance and tracks system changes until a visitor chooses a mode. Manual choices are saved between visits.
+
+Light mode uses the botanical background in `public/backgrounds/light-botanical.webp`, fixed to the viewport with the flowers along the bottom. Its experiment scenes keep their dark backgrounds inside telescope-monitor frames; dark mode hides the frames and reticles.
+
 ## Wide and compact layouts
 
 | Feature | Wide layout | Compact layout |
@@ -15,7 +19,7 @@ Phone copy and compact header spacing apply at widths up to 520px. The Playgroun
 | Places postcards | Three-layer stack with photo fronts and review backs; wrapping navigation and an editable counter. Unstack opens a country/continent library with three columns. | Taller, narrower cards with the same controls and crop focal points; the library uses two columns on phones. |
 | Photo galleries | Displays wider multi-column mosaics and larger lightboxes. | Uses narrower responsive gallery columns and controls while preserving image aspect ratios. |
 | Guestbook | Sticker sheet beside the framed landscape; fullscreen and count below. | At widths up to 600px, controls sit above the landscape and a compact sheet below. Fullscreen expands the sheet into a scrolling grid. |
-| Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | In the accordion layout, settings appear before the scene and action buttons after it. The black-hole chart follows its actions; the stellar timeline appears before its playback actions. |
+| Playground workspaces | Uses side-by-side experiment visuals and controls when the viewport is wide enough. | In the accordion layout, settings appear before the scene and action buttons directly after it. The black-hole chart and stellar timeline follow their action buttons; Lensing places its actions below the side-view diagram. |
 | Playground explanations and results | Shows chart captions and model notes alongside the full explanations. | In the accordion layout, hides the black-hole chart caption and standalone model notes, includes concise model summaries inside Explanation, and arranges result cards in three columns. |
 | Playground lifecycle | All four experiment slots remain available; each experiment loads shortly before entering view. Offscreen motion pauses. | A single-open accordion initializes only requested experiments. React Activity retains visited experiments’ state while hiding their DOM and stopping effects. Rotation preserves settings and the selected panel. |
 

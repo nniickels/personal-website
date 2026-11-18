@@ -1,4 +1,5 @@
 "use client";
+import { ExperimentMonitor } from "./experiment-monitor";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { createFrameGate, useFrameValue, FrameRange, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars } from "./shared";
@@ -394,7 +395,7 @@ export default function StellarEvolutionExplorer({
             <span ref={progressReadout}>{`${mass.toFixed(1)} M☉ · ${Math.round(progress.current * 100)}%`}</span>
             <strong>{currentStage.label}</strong>
           </div>
-          {scene}
+          <ExperimentMonitor label="stellar evolution">{scene}</ExperimentMonitor>
 
         </div>
 

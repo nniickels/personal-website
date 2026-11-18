@@ -59,6 +59,22 @@ body {
   font: 400 15px/1.55 "STIX Two Text", "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
 }
 
+/* Botanical wallpaper is limited to light mode. */
+:root[data-theme="light"] .layout::before { background: none; }
+:root[data-theme="light"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--background) url("/backgrounds/light-botanical.webp") center bottom / cover no-repeat;
+  opacity: .65;
+}
+
+@media (max-width: 600px) {
+  :root[data-theme="light"] body::before { background-position: calc(50% - 220px) bottom; }
+}
+
 .night-sky {
   position: fixed;
   inset: var(--header-height) 0 var(--footer-height);
@@ -452,7 +468,28 @@ button {
   margin: 0 auto;
 }
 
+.site-map-title { font-size: 1.6rem; font-weight: 500; font-variant: small-caps; }
+.layout.site-map-layout { text-align: left; font-size: .88rem; gap: 1.2rem; }
+.site-map-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem 2rem; align-items: start; }
+.site-map-groups > section:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+.site-map-groups :is(h2, a) { font: inherit; font-variant: normal; letter-spacing: normal; }
+.site-map-groups h2, .site-map-spoilers > summary { margin: 0 0 .2rem; font-size: 1rem; font-weight: 700; }
+.site-map-spoilers > summary { cursor: pointer; }
+.site-map-spoilers li { line-height: 1.5; margin-bottom: .35rem; }
+.site-map-links { list-style: none; padding: 0 0 0 1rem; margin: 0; display: grid; justify-items: start; gap: 0; }
+.site-map-links a { display: inline-block; max-width: 100%; padding-block: .05rem; }
+.site-map-nested { padding-left: 1rem; }
+.serious-content .section[id] { scroll-margin-top: calc(var(--header-height) + 1rem); }
+@media (max-width: 700px) {
+  .site-map-groups { grid-template-columns: minmax(0, 1fr); }
+  .site-map-groups > section:nth-child(2) { grid-column: auto; grid-row: auto; }
+}
+@media (pointer: coarse) {
+  .site-map-links a { display: inline-flex; align-items: center; min-height: 36px; }
+}
+
 .topbar-content.container,
+.footer-content.container,
 .layout.container {
   width: min(760px, calc(100% - 2rem));
 }
@@ -932,6 +969,7 @@ dialog.webring-confirmation h2 { margin: 0; font-size: 1.2rem; font-weight: 500;
 @media (min-width: 701px) and (min-height: 521px),
   (min-width: 701px) and (pointer: fine) {
   .topbar-content.container,
+  .footer-content.container,
   .layout.container.mode-fun,
   .layout.container.playground-layout {
     width: min(61rem, calc(100% - 2rem));
@@ -1764,6 +1802,7 @@ dialog.webring-confirmation h2 { margin: 0; font-size: 1.2rem; font-weight: 500;
   }
 
   .topbar-content.container,
+  .footer-content.container,
   .layout.container {
     width: calc(100% - 2rem);
   }
@@ -1855,6 +1894,7 @@ dialog.webring-confirmation h2 { margin: 0; font-size: 1.2rem; font-weight: 500;
   }
 
   .topbar-content.container,
+  .footer-content.container,
   .layout.container {
     width: calc(100% - 1.25rem);
   }

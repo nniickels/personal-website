@@ -1,4 +1,5 @@
 "use client";
+import { ExperimentMonitor } from "./experiment-monitor";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, lensingFieldStars } from "./shared";
@@ -261,6 +262,7 @@ export default function OrbitalResonanceToy({
             <span>{bodyCount} {bodyCount === 1 ? "body" : "bodies"} · drag to rotate</span>
             <strong>{bodyCount === 1 ? "No resonance yet" : preset.label}</strong>
           </div>
+          <ExperimentMonitor label="orbital resonance">
           <svg
             ref={visualRef}
             className={`resonance-canvas${dragging ? " is-dragging" : ""}`}
@@ -312,6 +314,7 @@ export default function OrbitalResonanceToy({
               </g>
             ))}
           </svg>
+          </ExperimentMonitor>
         </div>
 
         {controls}

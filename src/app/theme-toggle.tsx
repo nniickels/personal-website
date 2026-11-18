@@ -12,6 +12,16 @@ export function ThemeToggle() {
   useEffect(() => {
     const themeToggle = toggleRef.current;
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const systemTheme = (): Theme => systemThemeQuery.matches ? "dark" : "light";
+    const defaultTheme = (): Theme => document.documentElement.dataset.themeReferral === "neocities" ? "light" : systemTheme();
+    let manualTheme: Theme | null = null;
+    try {
+      const saved = localStorage.getItem(storedThemeKey);
+      if (saved === "light" || saved === "dark") manualTheme = saved;
+    } catch {
+      // Keep the referral or system default when browser storage is unavailable.
+    }
 
     const applyTheme = (nextTheme: Theme) => {
       document.documentElement.dataset.theme = nextTheme;
@@ -32,8 +42,9 @@ export function ThemeToggle() {
 
     const handleToggle = () => {
       const currentTheme =
-        (document.documentElement.dataset.theme as Theme | undefined) ?? "dark";
+        (document.documentElement.dataset.theme as Theme | undefined) ?? defaultTheme();
       const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      manualTheme = nextTheme;
       try {
         localStorage.setItem(storedThemeKey, nextTheme);
       } catch {
@@ -42,10 +53,15 @@ export function ThemeToggle() {
       setTheme(nextTheme);
     };
 
-    applyTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    const handleSystemTheme = () => {
+      if (!manualTheme) setTheme(defaultTheme());
+    };
+    applyTheme(manualTheme ?? defaultTheme());
     themeToggle?.addEventListener("click", handleToggle);
+    systemThemeQuery.addEventListener("change", handleSystemTheme);
     return () => {
       themeToggle?.removeEventListener("click", handleToggle);
+      systemThemeQuery.removeEventListener("change", handleSystemTheme);
     };
   }, []);
 

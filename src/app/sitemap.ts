@@ -11,5 +11,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: "https://nicolejiang.com/playground",
     },
+    {
+      url: "https://nicolejiang.com/sitemap",
+    },
   ];
 }

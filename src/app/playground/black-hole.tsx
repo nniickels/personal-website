@@ -1,4 +1,5 @@
 "use client";
+import { ExperimentMonitor } from "./experiment-monitor";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createFrameGate, useFrameValue, useExperimentVisibility, useMobileVisualRef, SimulatorSlider, ExperimentGuide, clamp, formatMass } from "./shared";
@@ -794,7 +795,7 @@ export default function BlackHoleGrowthSimulator({
       <div className="simulator-workspace">
         <div className="simulator-visual-panel">
           <p className="rotation-hint">Drag to rotate in 3D</p>
-          {scene}
+          <ExperimentMonitor label="black-hole growth">{scene}</ExperimentMonitor>
 
           <div className="simulator-now" aria-live="polite">
             <span>{`z = ${currentRedshiftLabel}`}</span>

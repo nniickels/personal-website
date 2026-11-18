@@ -4,7 +4,7 @@ import test from "node:test";
 
 
 async function portfolioSource() {
-  const files = ["portfolio.tsx", "icons.tsx", "serious-content.tsx", "night-sky.tsx", "site-header.tsx", "site-footer.tsx", "view-counter.tsx", "side-quests/data.ts", "side-quests/fun-content.tsx", "side-quests/music-shelf.tsx", "side-quests/pokemon-shelf.tsx", "side-quests/image-gallery.tsx", "side-quests/music-shelf-viewer.tsx", "side-quests/pokemon-shelf-viewer.tsx", "side-quests/image-gallery-viewer.tsx"];
+  const files = ["portfolio.tsx", "profile-links.ts", "icons.tsx", "serious-content.tsx", "night-sky.tsx", "site-header.tsx", "site-footer.tsx", "view-counter.tsx", "side-quests/data.ts", "side-quests/fun-content.tsx", "side-quests/music-shelf.tsx", "side-quests/pokemon-shelf.tsx", "side-quests/image-gallery.tsx", "side-quests/music-shelf-viewer.tsx", "side-quests/pokemon-shelf-viewer.tsx", "side-quests/image-gallery-viewer.tsx"];
   return (await Promise.all(files.map((file) => readFile(new URL(`../src/app/${file}`, import.meta.url), "utf8")))).join("\n");
 }
 async function playgroundSource() {
@@ -65,7 +65,7 @@ test("server-renders Nicole Jiang's homepage", async () => {
   assert.match(html, /<a[^>]*href="https:\/\/www\.linkedin\.com\/in\/nicolejitong-jiang\/"[^>]*aria-label="LinkedIn"/);
   assert.match(html, /<a[^>]*href="https:\/\/github\.com\/nniickels"[^>]*aria-label="GitHub"/);
   assert.match(html, /<a[^>]*href="mailto:[^"]+"[^>]*aria-label="Email"/);
-  assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="Spotify"|aria-label="Instagram"/i);
+  assert.doesNotMatch(html, /aria-label="Google Maps"|aria-label="Pinterest"|aria-label="stats\.fm"|aria-label="Instagram"/i);
   assert.match(html, /class="[^"]*theme-toggle[^"]*"/i);
   assert.match(html, /href="\/playground"[^>]*><span class="desktop-only">play<\/span><span class="mobile-only">play<\/span><\/a>/);
   assert.match(html, /href="\/side"[^>]*><span class="desktop-only">side<\/span><span class="mobile-only">side<\/span><\/a>/);
@@ -160,14 +160,16 @@ test("keeps dates secondary and quiets the starfield behind reading content", as
   assert.match(css, /\.layout::before\s*\{[\s\S]*?color-mix\(in srgb, var\(--background\) 72%, transparent\)/);
 });
 
-test("defaults to dark mode and preserves explicit theme choices", async () => {
+test("initializes the system theme before page content and preserves explicit choices", async () => {
   const toggle = await readFile(new URL("../src/app/theme-toggle.tsx", import.meta.url), "utf8");
   const layout = await readFile(new URL("../src/app/layout.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
 
-  assert.doesNotMatch(toggle, /prefers-color-scheme/);
+  assert.match(toggle, /prefers-color-scheme/);
   assert.match(toggle, /localStorage\.setItem\(storedThemeKey, nextTheme\)/);
-  assert.match(await (await render()).text(), /data-theme="dark"/);
+  const html = await (await render()).text();
+  assert.ok(html.indexOf("prefers-color-scheme") < html.indexOf("<body"));
+  assert.match(layout, /prefers-color-scheme/);
   assert.match(layout, /portfolio-theme-override/);
   assert.match(css, /:root\[data-theme="light"\][\s\S]*?--home-logo-filter:\s*invert\(1\)/i);
   assert.match(css, /\.home-link img\s*\{[\s\S]*?filter:\s*var\(--home-logo-filter\)/i);
@@ -381,7 +383,7 @@ test("keeps the Side interest sections and stats in the requested order", async 
   );
   assert.match(
     source,
-    /const funLinks[\s\S]*?name: "Pinterest"[\s\S]*?name: "Spotify"[\s\S]*?name: "Google Maps"[\s\S]*?name: "AniList"[\s\S]*?name: "Instagram"/,
+    /const funLinks[\s\S]*?name: "Pinterest"[\s\S]*?name: "stats.fm"[\s\S]*?name: "Google Maps"[\s\S]*?name: "AniList"[\s\S]*?name: "Instagram"/,
   );
   assert.doesNotMatch(source, /Photo gallery placeholder/);
   assert.match(
@@ -529,7 +531,7 @@ test("publishes Side as its own shareable page", async () => {
   assert.match(html, /rel="canonical"[^>]*href="https:\/\/nicolejiang\.com\/side"/i);
   assert.match(html, /<h1[^>]*><span class="visually-hidden">nicole jiang<\/span><img[^>]*src="\/title-art\/nicole-jiang\.webp"[^>]*><\/h1>/i);
   assert.match(html, /aria-label="Pinterest"/i);
-  assert.match(html, /aria-label="Spotify"/i);
+  assert.match(html, /aria-label="stats\.fm"/i);
   assert.match(html, /aria-label="Instagram"/i);
   assert.match(html, /aria-label="Google Maps"/i);
   assert.equal(

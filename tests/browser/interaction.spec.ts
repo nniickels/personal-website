@@ -36,6 +36,54 @@ async function restoreFrames(page: Page) {
   await page.evaluate(() => (window as unknown as { restoreFrames(): void }).restoreFrames());
 }
 
+test("light mode frames every experiment without intercepting its controls", async ({ page }) => {
+  for (const id of ["black-hole-growth", "stellar-evolution", "gravitational-lensing", "orbital-resonance"]) {
+    await page.goto(`/playground#${id}`);
+    const monitor = page.locator(`#${id} .experiment-monitor`);
+    await expect(monitor).toBeAttached();
+    if (await page.locator("html").getAttribute("data-theme") !== "light") {
+      await page.getByRole("button", { name: "Switch to light mode" }).click();
+    }
+    await monitor.scrollIntoViewIfNeeded();
+    await expect(monitor.locator(".experiment-monitor-heading")).toBeVisible();
+    await expect(monitor.locator(".experiment-monitor-reticle")).toHaveCSS("pointer-events", "none");
+    await expect(monitor.locator(".experiment-monitor-field")).toHaveCSS("background-color", "rgb(18, 18, 18)");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const slider = page.locator(`#${id}`).getByRole("slider").first();
+    await expect(slider).toBeEnabled();
+    await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    await expect(monitor.locator(".experiment-monitor-heading")).not.toBeVisible();
+    await expect(monitor).toHaveCSS("display", "contents");
+  }
+});
+
+test("phone experiments keep settings above the scene and actions below it", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "This order is specific to the phone accordion");
+  for (const [id, scene] of [
+    ["black-hole-growth", ".black-hole-stage"], ["stellar-evolution", ".stellar-canvas"],
+    ["gravitational-lensing", ".lensing-canvas"], ["orbital-resonance", ".resonance-canvas"],
+  ]) {
+    await page.goto(`/playground#${id}`);
+    const section = page.locator(`#${id}`);
+    const primary = section.locator(".simulator-primary-action");
+    await expect(primary).toBeVisible();
+    const actionBounds = (await primary.boundingBox())!;
+    const sceneBounds = (await section.locator(scene).boundingBox())!;
+    const sliderBounds = (await section.locator(".simulator-slider").first().boundingBox())!;
+    expect(sliderBounds.y + sliderBounds.height).toBeLessThanOrEqual(sceneBounds.y);
+    expect(sceneBounds.y + sceneBounds.height).toBeLessThanOrEqual(actionBounds.y);
+    const secondary = section.locator(".stellar-timeline-panel, .lensing-depth-diagram");
+    if (await secondary.count()) {
+      const secondaryBounds = (await secondary.boundingBox())!;
+      if (id === "gravitational-lensing") expect(secondaryBounds.y + secondaryBounds.height).toBeLessThanOrEqual(actionBounds.y);
+      else expect(actionBounds.y + actionBounds.height).toBeLessThanOrEqual(secondaryBounds.y);
+    }
+    const colours = await primary.evaluate(el => ({ fill: getComputedStyle(el).backgroundColor, ink: getComputedStyle(el).color, pageInk: getComputedStyle(document.body).color }));
+    expect(colours.fill).toBe(colours.pageInk);
+    expect(colours.ink).not.toBe(colours.fill);
+  }
+});
+
 for (const [id, label] of [
   ["black-hole-growth", "Seed mass"],
   ["stellar-evolution", "Initial mass"],

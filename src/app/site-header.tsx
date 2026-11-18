@@ -3,7 +3,7 @@ import type { SyntheticEvent } from "react";
 import { ThemeToggle } from "./theme-toggle";
 import { ResponsiveImage } from "./responsive-image";
 import icons from "../generated/media/icons.json";
-export type SitePage = "serious" | "fun" | "playground";
+export type SitePage = "serious" | "fun" | "playground" | "sitemap";
 const prefetched = new Set<string>();
 
 function prefetchDestination(event: SyntheticEvent<HTMLElement>) {
@@ -34,7 +34,7 @@ export function SiteHeader({ page }: { page: SitePage }) {
                 <span className="mobile-only">play</span>
               </a>
             )}
-            {page === "playground" ? (
+            {page === "playground" || page === "sitemap" ? (
               <>
                 <a className="text-btn mode-switch" href="/">
                   <span className="desktop-only">main</span>

@@ -1,4 +1,5 @@
 "use client";
+import { ExperimentMonitor } from "./experiment-monitor";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from "react";
 import { formatMass, createFrameGate, useExperimentVisibility, useMobileVisualRef, useFrameValue, SimulatorSlider, ExperimentGuide, clamp, lensingFieldStars, LENS_CENTER } from "./shared";
@@ -293,6 +294,7 @@ export default function GravitationalLensingSandbox() {
             <strong>{lensModel.ringStrength > 0.82 ? "Einstein ring" : "Two-image lens"}</strong>
           </div>
 
+          <ExperimentMonitor label="gravitational lensing">
           <svg
             ref={visualRef}
             className="lensing-canvas"
@@ -360,6 +362,7 @@ export default function GravitationalLensingSandbox() {
               <text y="57" textAnchor="middle">foreground lens</text>
             </g>
           </svg>
+          </ExperimentMonitor>
 
           <svg
             className="lensing-depth-diagram"

@@ -16,7 +16,7 @@
 }
 .guestbook-picker-title { display: block; align-self: stretch; text-align: center; margin: 0 0 .75rem; padding-bottom: .6rem; border-bottom: 1px solid var(--sheet-edge); color: inherit; font: italic 700 .9rem/1.4 "STIX Two Text", Georgia, serif; font-variant: normal; letter-spacing: normal; }
 .guestbook-picker::after { content: ""; position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: linear-gradient(45deg, var(--sheet-fold) 49%, var(--background) 50%); pointer-events: none; }
-:root[data-theme="light"] .guestbook-picker { --sheet-surface: #f5f6f2; --sheet-edge: #9ca8a4; --sheet-ink: #4b6058; --sheet-fold: #e3e9e4; }
+:root[data-theme="light"] .guestbook-picker { --sheet-surface: #f5f5f5; --sheet-edge: #a4a4a7; --sheet-ink: #56565b; --sheet-fold: #e4e4e6; }
 
 .guestbook-sticker-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); flex: 1; min-height: 0; gap: 4px; }
 .guestbook-sticker-options button { display: grid; place-items: center; min-width: 0; position: relative; padding: 2px; border: 0; background: transparent; overflow: visible; }
@@ -123,8 +123,8 @@
   .guestbook-section.is-expanded .guestbook-sticker-options button { touch-action: pan-y; }
 }
 
-:root[data-theme="light"] .guestbook-picture-frame { border-color: #8b887a; background: repeating-linear-gradient(0deg, #b2ad9d 0, #b2ad9d 2px, #aaa697 3px, #b5b0a0 5px); box-shadow: inset 2px 2px #ffffff40, inset -2px -2px #7c786a, 0 5px 12px #0002; }
-:root[data-theme="light"] .guestbook-landscape { outline-color: #d9d6c9; box-shadow: 0 0 0 5px #8b887a; }
+:root[data-theme="light"] .guestbook-picture-frame { border-color: #838387; background: repeating-linear-gradient(0deg, #b0afb3 0, #b0afb3 2px, #a5a4a8 3px, #b5b4b8 5px); box-shadow: inset 2px 2px #ffffff40, inset -2px -2px #727176, 0 5px 12px #0002; }
+:root[data-theme="light"] .guestbook-landscape { outline-color: #dadade; box-shadow: 0 0 0 5px #838387; }
 
 .guestbook-history { grid-column: 1 / -1; grid-row: 3; padding-top: 2.5rem; min-width: 0; }
 .guestbook-history h3 { margin: 0 0 1rem; font-size: 1rem; font-weight: 400; font-variant: small-caps; }

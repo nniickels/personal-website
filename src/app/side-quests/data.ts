@@ -1,3 +1,5 @@
+import { neocitiesProfileLink } from "../profile-links";
+
 export const listeningRankings = [
   { kind: "genres", title: "Top 5 Genres", count: 5 },
   { kind: "artists", title: "Top 10 Artists", count: 10 },
@@ -304,7 +306,7 @@ export const siteButtons: readonly { name: string; href: string; image: string }
   { name: "language of flowers", href: "https://www.gutenberg.org/cache/epub/31591/pg31591-images.html", image: "/buttons/floral-button.svg" },
   { name: "galaxy zoo", href: "https://www.zooniverse.org/projects/zookeeper/galaxy-zoo", image: "/buttons/galaxy-button.svg" },
   { name: "messier objects", href: "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/", image: "/buttons/black-hole-button.svg" },
-  { name: "neocities profile", href: "https://neocities.org/site/nickels", image: "/buttons/neocities-button.svg" },
+  { name: "neocities profile", href: neocitiesProfileLink.href, image: "/buttons/neocities-button.svg" },
   { name: "stray shopping cart project", href: "https://www.montagueprojects.com/the-stray-shopping-cart-project", image: "/buttons/shopping-cart-button.svg" },
   { name: "wild bread", href: "https://wildbread.pictures/", image: "/buttons/wildbread-button.gif" },
   { name: "coffeeplant", href: "https://coffeeplant.neocities.org/", image: "/buttons/coffeeplant-button.svg" },

@@ -60,7 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('portfolio-theme-override');document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:'dark'}catch(e){}})()`,
+            __html: `(function(){var t,n=false;try{t=localStorage.getItem('portfolio-theme-override')}catch(e){}try{var h=new URL(document.referrer).hostname;n=h==='neocities.org'||h.endsWith('.neocities.org')}catch(e){}try{if(n)sessionStorage.setItem('portfolio-neocities-visit','1');n=n||sessionStorage.getItem('portfolio-neocities-visit')==='1'}catch(e){}if(n)document.documentElement.dataset.themeReferral='neocities';document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:(n?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})()`,
           }}
         />
       </head>

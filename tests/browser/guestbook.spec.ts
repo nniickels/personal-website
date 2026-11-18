@@ -513,7 +513,7 @@ test("the sticker sheet and landscape footer use the requested styling", async (
   await expect(title).toHaveCSS("font-style", "italic");
   await expect(section.locator(".guestbook-picker")).toHaveCSS("background-color", "rgb(43, 48, 50)");
   await page.evaluate(() => document.documentElement.dataset.theme = "light");
-  await expect(section.locator(".guestbook-picker")).toHaveCSS("background-color", "rgb(245, 246, 242)");
+  await expect(section.locator(".guestbook-picker")).toHaveCSS("background-color", "rgb(245, 245, 245)");
   expect(await section.locator(".guestbook-picker").evaluate(el => getComputedStyle(el).backgroundImage)).toContain("repeating-linear-gradient");
   const frame = (await section.locator(".guestbook-picture-frame").boundingBox())!;
   const button = (await page.getByRole("button", { name: "Fullscreen", exact: true }).boundingBox())!;

@@ -1,3 +1,41 @@
+.experiment-monitor,
+.experiment-monitor-field { display: contents; }
+.experiment-monitor-heading,
+.experiment-monitor-footer,
+.experiment-monitor-reticle { display: none; }
+
+:root[data-theme="light"] .experiment-monitor {
+  display: block;
+  min-width: 0;
+  padding: .6rem .7rem .45rem;
+  border: 1px solid #99999e;
+  background: #d5d5d8;
+  box-shadow: inset 1px 1px #ffffff, inset -2px -2px #96969b, 3px 4px #77777730;
+}
+:root[data-theme="light"] :is(.experiment-monitor-heading, .experiment-monitor-footer) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  color: #45454a;
+  font-size: .6rem;
+  line-height: 1.5;
+}
+:root[data-theme="light"] .experiment-monitor-heading { padding: 0 0 .5rem; letter-spacing: .08em; text-transform: uppercase; }
+:root[data-theme="light"] .experiment-monitor-heading > i { flex-shrink: 0; width: 5px; height: 5px; border-radius: 50%; background: #77777d; box-shadow: 0 0 0 2px #b6b6ba; }
+:root[data-theme="light"] .experiment-monitor-field { display: block; position: relative; min-width: 0; background: #121212; border: 4px ridge #86868d; border-radius: 3px; }
+:root[data-theme="light"] .experiment-monitor-field > :is(.stellar-canvas, .black-hole-stage) { border: 0; border-radius: 0; }
+:root[data-theme="light"] .experiment-monitor-reticle { display: block; position: absolute; inset: 9px; pointer-events: none; color: #c0c0c066; background: linear-gradient(currentColor, currentColor) center top / 1px 9px no-repeat, linear-gradient(currentColor, currentColor) center bottom / 1px 9px no-repeat, linear-gradient(currentColor, currentColor) left center / 9px 1px no-repeat, linear-gradient(currentColor, currentColor) right center / 9px 1px no-repeat; }
+:root[data-theme="light"] .experiment-monitor-reticle > i { position: absolute; width: 10px; height: 10px; border: solid currentColor; border-width: 0; }
+:root[data-theme="light"] .experiment-monitor-reticle > i:nth-child(1) { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+:root[data-theme="light"] .experiment-monitor-reticle > i:nth-child(2) { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+:root[data-theme="light"] .experiment-monitor-reticle > i:nth-child(3) { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+:root[data-theme="light"] .experiment-monitor-reticle > i:nth-child(4) { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+:root[data-theme="light"] .experiment-monitor-footer { padding-top: .5rem; font-size: .58rem; }
+@media (max-width: 600px) {
+  :root[data-theme="light"] .experiment-monitor { padding-inline: .45rem; }
+}
+
 .playground-layout {
   gap: 3.4rem;
   padding-bottom: calc(var(--footer-height) + 4rem);
@@ -331,13 +369,19 @@
 .simulator-presets button.is-active {
   border-color: var(--foreground);
   color: var(--foreground);
-  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent),
-    0 0 16px color-mix(in srgb, currentColor 32%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent);
 }
 
 .simulator-actions .simulator-primary-action {
-  border-color: var(--muted);
-  color: var(--foreground);
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+  font-weight: 600;
+}
+
+.simulator-actions .simulator-primary-action:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, var(--foreground) 88%, var(--background));
+  color: var(--background);
 }
 
 .simulator-workspace {
@@ -2427,7 +2471,7 @@
     row-gap: 1rem;
   }
 
-  /* Place settings above the scene and actions below it in phone layouts. */
+  /* Keep settings above the scene and actions below it on phones. */
   .simulator-controls {
     display: contents;
   }
@@ -2441,13 +2485,14 @@
   }
 
   .growth-chart-figure,
-  .stellar-timeline-panel {
+  .stellar-timeline-panel,
+  .lensing-depth-diagram {
     order: 2;
   }
 
-  .stellar-controls > .stellar-actions {
-    order: 3;
-  }
+  .lensing-visual-panel { display: contents; }
+  .lensing-instruction { margin-bottom: -1rem; }
+  .lensing-controls > .lensing-actions { order: 3; }
 
   .growth-chart-figure {
     grid-template-columns: minmax(0, 1fr);
