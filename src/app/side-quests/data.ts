@@ -305,6 +305,11 @@ export const siteButtons: readonly { name: string; href: string; image: string }
   { name: "galaxy zoo", href: "https://www.zooniverse.org/projects/zookeeper/galaxy-zoo", image: "/buttons/galaxy-button.svg" },
   { name: "messier objects", href: "https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/", image: "/buttons/black-hole-button.svg" },
   { name: "neocities profile", href: "https://neocities.org/site/nickels", image: "/buttons/neocities-button.svg" },
+  { name: "stray shopping cart project", href: "https://www.montagueprojects.com/the-stray-shopping-cart-project", image: "/buttons/shopping-cart-button.svg" },
+  { name: "wild bread", href: "https://wildbread.pictures/", image: "/buttons/wildbread-button.gif" },
+  { name: "coffeeplant", href: "https://coffeeplant.neocities.org/", image: "/buttons/coffeeplant-button.svg" },
+  { name: "ribo.zone", href: "https://ribo.zone/", image: "/buttons/ribo-button.gif" },
+  { name: "caramelfevers", href: "https://caramelfevers.neocities.org/", image: "/buttons/apples-button.svg" },
 
 
 ];

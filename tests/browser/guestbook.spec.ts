@@ -604,7 +604,20 @@ test("Buttons retains its current artwork and destination links", async ({ page 
   await expect(page.locator("#buttons").getByRole("link", { name: "nature livestream", exact: true })).toHaveAttribute("href", "https://www.youtube.com/watch?v=F0GOOP82094");
   expect((await page.request.get("/buttons/bunny-button.svg")).ok()).toBe(true);
   const buttons = page.locator("#buttons .site-button-wall img");
-  await expect(buttons).toHaveCount(8);
+  await expect(buttons).toHaveCount(13);
+  await expect(page.locator("#buttons .site-button-wall a").nth(8)).toHaveAttribute("href", "https://www.montagueprojects.com/the-stray-shopping-cart-project");
+  await expect(page.locator("#buttons .site-button-wall a").nth(9)).toHaveAttribute("href", "https://wildbread.pictures/");
+  await expect(page.locator("#buttons").getByRole("link", { name: "wild bread", exact: true }).locator("img")).toHaveAttribute("src", "/buttons/wildbread-button.gif");
+  await expect(page.locator("#buttons").getByRole("link", { name: "ribo.zone", exact: true }).locator("img")).toHaveAttribute("src", "/buttons/ribo-button.gif");
+  for (const [name, href] of [
+    ["wild bread", "https://wildbread.pictures/"],
+    ["stray shopping cart project", "https://www.montagueprojects.com/the-stray-shopping-cart-project"],
+    ["coffeeplant", "https://coffeeplant.neocities.org/"],
+    ["ribo.zone", "https://ribo.zone/"],
+    ["caramelfevers", "https://caramelfevers.neocities.org/"],
+  ]) {
+    await expect(page.locator("#buttons").getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  }
   await expect(buttons.first()).toHaveCSS("width", "88px");
   await expect(buttons.first()).toHaveCSS("height", "31px");
   await expect(page.locator(".site-button-wall")).toHaveCSS("column-gap", "24px");
@@ -667,7 +680,7 @@ test("site buttons show their destination names above on hover", async ({ page, 
   test.skip(isMobile, "Hover is a desktop interaction");
   await page.goto("/side");
   const buttons = page.locator("#buttons .site-button-wall a");
-  await expect(buttons).toHaveCount(8);
+  await expect(buttons).toHaveCount(13);
   const destinations = ["https://kafidov.dev/", "https://www.youtube.com/watch?v=F0GOOP82094"];
   for (let i = 0; i < destinations.length; i++) {
     const button = buttons.nth(i);

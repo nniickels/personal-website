@@ -47,3 +47,6 @@ yarn-error.log*
 /src/generated/media/
 /test-results*/
 /playwright-report/
+
+# Local button animation experiments
+/public/buttons/wip/

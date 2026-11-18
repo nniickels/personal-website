@@ -456,7 +456,7 @@ test("visitor names accept 20 characters and reject 21", async () => {
 test("site buttons render their current artwork at native 88×31 dimensions", async () => {
   const source = await readFile(new URL("../src/app/side-quests/data.ts", import.meta.url), "utf8");
   const files = [...source.matchAll(/image: "(\/buttons\/[^"]+)"/g)].map(match => match[1]);
-  assert.equal(files.length, 8);
+  assert.equal(files.length, 13);
   for (const file of files) {
     const svg = await readFile(new URL(`../public${file}`, import.meta.url));
     assert.doesNotMatch(svg.toString(), /<script|https?:[^"]+\.(?:png|jpg|webp)/);
