@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, FormEvent, MouseEvent, PointerEvent } from "react";
-import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookWebsiteLimit, parseGuestbookWebsite, guestbookPickerStickers, guestbookStickersPerPage, guestbookMobileStickersPerPage, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers } from "../../guestbook-model";
+import { allowsGuestbookPlacement, guestbookAllowedZones, guestbookNameLimit, guestbookMessageLimit, guestbookWebsiteLimit, parseGuestbookWebsite, guestbookPickerStickers, guestbookStickersPerPage, guestbookMobileStickersPerPage, guestbookStickerWidth, guestbookPlacementOccupied, guestbookStickers, guestbookStickerImage } from "../../guestbook-model";
 import type { GuestbookEntry, GuestbookStickerId } from "../../guestbook-model";
 import GuestbookSticker from "./guestbook-art";
 import "./guestbook.css";
@@ -78,7 +78,7 @@ export default function Guestbook() {
   const [popup, setPopup] = useState("");
   const inspectedEntry = useRef<string | null>(null);
   const requestId = useRef<string | null>(null);
-  const [active, setActive] = useState(false);
+  const preloadedStickers = useRef(new Map<string, HTMLImageElement>());
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [stickerId, setStickerId] = useState<GuestbookStickerId>("lilypad");
@@ -117,16 +117,14 @@ export default function Guestbook() {
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { rootMargin: "250px" });
-    if (section.current) observer.observe(section.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!active) return;
     const controller = new AbortController();
+    let active = false;
+    let pending = false;
+    let lastRefresh = 0;
+    let interval: number | undefined;
     async function refresh() {
-      if (document.hidden) return;
+      if (document.hidden || pending) return;
+      pending = true;
       try {
         const response = await fetch("/api/guestbook", { signal: controller.signal, cache: "no-store" });
         const data = await response.json();
@@ -136,19 +134,48 @@ export default function Guestbook() {
         ).values()]);
         setLoaded(true);
         setLoadError("");
+        lastRefresh = Date.now();
       } catch (error) {
         if (!controller.signal.aborted) setLoadError(error instanceof Error ? error.message : "The guestbook could not be loaded.");
+      } finally {
+        pending = false;
       }
     }
+    // Fetch once when Side hydrates; proximity only controls refresh polling.
     void refresh();
-    const interval = window.setInterval(refresh, 20_000);
-    document.addEventListener("visibilitychange", refresh);
+    const observer = new IntersectionObserver(([entry]) => {
+      active = entry.isIntersecting;
+      clearInterval(interval);
+      if (active) {
+        if (Date.now() - lastRefresh >= 20_000) void refresh();
+        interval = window.setInterval(refresh, 20_000);
+      }
+    }, { rootMargin: "250px" });
+    if (section.current) observer.observe(section.current);
+    const onVisibility = () => { if (active || !lastRefresh) void refresh(); };
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       controller.abort();
+      observer.disconnect();
       clearInterval(interval);
-      document.removeEventListener("visibilitychange", refresh);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [active]);
+  }, []);
+
+  useEffect(() => {
+    const sheet = expanded ? guestbookPickerStickers
+      : guestbookPickerStickers.slice(page * pageSize, (page + 1) * pageSize);
+    // Deduplicate shared artwork across signatures and the current picker page.
+    for (const sticker of [...entries.map(entry => entry.sticker), ...sheet.map(item => item.id)]) {
+      const source = guestbookStickerImage(sticker);
+      if (preloadedStickers.current.has(source)) continue;
+      const image = new Image();
+      image.decoding = "async";
+      image.src = source;
+      preloadedStickers.current.set(source, image);
+      void image.decode().catch(() => { /* The displayed image can retry normally. */ });
+    }
+  }, [entries, page, pageSize, expanded]);
 
   useEffect(() => {
     function syncFullscreen() {

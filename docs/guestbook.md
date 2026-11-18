@@ -19,7 +19,7 @@ Hover or focus a placed sticker to see its name and date. An optional HTTP(S) we
 the controls lists date, name, message, sticker, and placement number. It opens at the
 latest entries at the top; scrolling down shows older entries. The log uses
 Barlow Semi Condensed with column headings.
-The landscape refreshes every 20 seconds while it is near the viewport.
+Entries load when Side opens, with shared sticker artwork and the current picker page preloaded once per image. The landscape refreshes every 20 seconds while it is near the viewport; scrolling away stops polling without cancelling the initial load.
 The landscape has a narrow painting frame. Below it, the fullscreen control sits
 opposite the shared sticker count. The glassine sticker sheet has a spaced dashed border, folded corner,
 and italic STIX Two Text label, with separate light and dark colours.
