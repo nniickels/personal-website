@@ -72,7 +72,12 @@ body {
 }
 
 @media (max-width: 600px) {
-  :root[data-theme="light"] body::before { background-position: calc(50% - 220px) bottom; }
+  :root[data-theme="light"] body::before {
+    /* Keep the cover crop stable as mobile browser bars expand and collapse. */
+    bottom: auto;
+    height: 100lvh;
+    background-position: calc(50% - 220px) bottom;
+  }
 }
 
 .night-sky {

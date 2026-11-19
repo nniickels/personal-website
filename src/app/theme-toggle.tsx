@@ -14,10 +14,13 @@ export function ThemeToggle() {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const systemTheme = (): Theme => systemThemeQuery.matches ? "dark" : "light";
-    const defaultTheme = (): Theme => document.documentElement.dataset.themeReferral === "neocities" ? "light" : systemTheme();
+    const fromNeocities = document.documentElement.dataset.themeReferral === "neocities";
+    const defaultTheme = (): Theme => fromNeocities ? "light" : systemTheme();
     let manualTheme: Theme | null = null;
     try {
-      const saved = localStorage.getItem(storedThemeKey);
+      // A referral starts light, regardless of an earlier saved choice. Manual
+      // changes within this visit survive page navigation and reloads.
+      const saved = fromNeocities ? sessionStorage.getItem("portfolio-neocities-theme") : localStorage.getItem(storedThemeKey);
       if (saved === "light" || saved === "dark") manualTheme = saved;
     } catch {
       // Keep the referral or system default when browser storage is unavailable.
@@ -45,6 +48,10 @@ export function ThemeToggle() {
         (document.documentElement.dataset.theme as Theme | undefined) ?? defaultTheme();
       const nextTheme = currentTheme === "dark" ? "light" : "dark";
       manualTheme = nextTheme;
+      if (fromNeocities) {
+        try { sessionStorage.setItem("portfolio-neocities-theme", nextTheme); }
+        catch { /* The current page still remembers the manual choice. */ }
+      }
       try {
         localStorage.setItem(storedThemeKey, nextTheme);
       } catch {

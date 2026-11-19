@@ -2,9 +2,9 @@
 
 Phone copy and compact header spacing apply at widths up to 520px. The Playground accordion uses the rules below.
 
-The initial theme follows the system appearance and tracks system changes until a visitor chooses a mode. Manual choices are saved between visits.
+The initial theme follows the system appearance and tracks system changes until a visitor chooses a mode. Manual choices are saved between visits. A fresh Neocities referral starts light even with a saved dark choice; a manual change afterward lasts across navigation and reloads, until another Neocities arrival.
 
-Light mode uses the botanical background in `public/backgrounds/light-botanical.webp`, fixed to the viewport with the flowers along the bottom. Its experiment scenes keep their dark backgrounds inside telescope-monitor frames; dark mode hides the frames and reticles.
+Light mode uses the botanical background in `public/backgrounds/light-botanical.webp`, fixed to the viewport with the flowers along the bottom. On phones its layer uses the stable large viewport height so browser-bar movement does not resize or reposition the crop while scrolling. Its experiment scenes keep their dark backgrounds inside telescope-monitor frames; dark mode hides the frames and reticles.
 
 ## Wide and compact layouts
 

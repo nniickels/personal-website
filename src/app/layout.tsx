@@ -60,7 +60,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t,n=false;try{t=localStorage.getItem('portfolio-theme-override')}catch(e){}try{var h=new URL(document.referrer).hostname;n=h==='neocities.org'||h.endsWith('.neocities.org')}catch(e){}try{if(n)sessionStorage.setItem('portfolio-neocities-visit','1');n=n||sessionStorage.getItem('portfolio-neocities-visit')==='1'}catch(e){}if(n)document.documentElement.dataset.themeReferral='neocities';document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:(n?'light':(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))})()`,
+            __html: `(function(){
+              var t,n=false,v,external=false;
+              try{t=localStorage.getItem('portfolio-theme-override')}catch(e){}
+              try{var r=new URL(document.referrer),h=r.hostname;n=h==='neocities.org'||h.endsWith('.neocities.org');external=r.origin!==location.origin}catch(e){}
+              try{
+                var a=performance.getEntriesByType('navigation')[0],arrival=!a||a.type==='navigate';
+                if(n){sessionStorage.setItem('portfolio-neocities-visit','1');if(arrival)sessionStorage.removeItem('portfolio-neocities-theme')}
+                else if(external&&arrival){sessionStorage.removeItem('portfolio-neocities-visit');sessionStorage.removeItem('portfolio-neocities-theme')}
+                n=n||sessionStorage.getItem('portfolio-neocities-visit')==='1';v=sessionStorage.getItem('portfolio-neocities-theme');
+              }catch(e){}
+              if(n){document.documentElement.dataset.themeReferral='neocities';t=(v==='light'||v==='dark')?v:'light'}
+              document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+            })()`,
           }}
         />
       </head>

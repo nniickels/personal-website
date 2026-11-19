@@ -54,10 +54,58 @@ for (const referrer of ["https://neocities.org/site/nickels", "https://nickels.n
   });
 }
 
-test("saved dark choice takes precedence over a Neocities referral", async ({ page }) => {
+test("each Neocities arrival starts light even with a saved dark choice", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.addInitScript(() => localStorage.setItem("portfolio-theme-override", "dark"));
-  await page.goto("/", { referer: "https://neocities.org/site/nickels" });
+  for (const referer of ["https://neocities.org/site/nickels", "https://nickels.neocities.org/"]) {
+    await page.goto("/", { referer });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.locator("footer").getByRole("link", { name: "site map", exact: true }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  }
+});
+
+for (const saved of ["light", "dark"] as const) {
+  test(`returning visitors retain their saved ${saved} choice`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: saved === "light" ? "dark" : "light" });
+    await page.addInitScript(value => localStorage.setItem("portfolio-theme-override", value), saved);
+    await page.goto("/side");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", saved);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", saved);
+  });
+}
+
+test("a later non-Neocities arrival restores the saved choice", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("portfolio-theme-override", "dark"));
+  await page.goto("/", { referer: "https://nickels.neocities.org/" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.goto("/side", { referer: "https://example.org/" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("phone light wallpaper keeps its crop while scrolling", async ({ page }, testInfo) => {
+  test.skip(!["mobile", "phone-webkit"].includes(testInfo.project.name));
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await page.goto("/side");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  const wallpaper = () => page.evaluate(() => {
+    const css = getComputedStyle(document.body, "::before");
+    return { position: css.position, top: css.top, width: css.width, height: css.height,
+      backgroundSize: css.backgroundSize, backgroundPosition: css.backgroundPosition };
+  });
+  const before = await wallpaper();
+  expect(before.position).toBe("fixed");
+  expect(before.backgroundSize).toBe("cover");
+  await page.locator("#guestbook").scrollIntoViewIfNeeded();
+  await expect.poll(wallpaper).toEqual(before);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await expect.poll(wallpaper).toEqual(before);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("unrelated referral keeps the system default", async ({ page }) => {
