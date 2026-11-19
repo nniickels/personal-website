@@ -4,6 +4,10 @@
 
 Add entries to `siteButtons` in `src/app/side-quests/data.ts`. Each entry has a
 `name`, site `href`, and local image path. Put 88×31 images in `public/buttons/`.
+Rebuild the linked-site buttons with `node scripts/build-linked-buttons.mjs`,
+and the selected Neocities button with `node scripts/build-neocities-button.mjs`.
+Original artwork stays in the ignored `public/buttons/sources/` directory.
+
 Buttons show their destination name on hover or focus. On mobile, tapping a button
 opens a native confirmation dialog using the webring styling. “No” or Escape cancels
 and restores focus; “Yes” opens the destination in a new tab. Desktop links open directly.

@@ -311,7 +311,7 @@ export const siteButtons: readonly { name: string; href: string; image: string }
   { name: "wild bread", href: "https://wildbread.pictures/", image: "/buttons/wildbread-button.gif" },
   { name: "coffeeplant", href: "https://coffeeplant.neocities.org/", image: "/buttons/coffeeplant-button.svg" },
   { name: "ribo.zone", href: "https://ribo.zone/", image: "/buttons/ribo-button.gif" },
-  { name: "caramelfevers", href: "https://caramelfevers.neocities.org/", image: "/buttons/apples-button.svg" },
+  { name: "caramelfevers", href: "https://caramelfevers.neocities.org/", image: "/buttons/caramelfevers-button.gif" },
 
 
 ];

@@ -936,8 +936,6 @@ dialog.webring-confirmation h2 { margin: 0; font-size: 1.2rem; font-weight: 500;
   gap: 0.58rem;
 }
 
-.fun-content #buttons { margin-bottom: 2rem; }
-
 .site-buttons-description { margin: 0 0 .75rem; }
 
 .site-button-wall {
@@ -966,6 +964,38 @@ dialog.webring-confirmation h2 { margin: 0; font-size: 1.2rem; font-weight: 500;
   height: 31px;
   image-rendering: pixelated;
 }
+
+.site-link-heading { margin: 1.5rem 0 .6rem; }
+.site-link-content { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .75rem 1.5rem; }
+.site-own-button { flex: 0 0 88px; padding-top: .4rem; }
+.site-own-button img { image-rendering: auto; }
+.site-link-embed { position: relative; flex: 1 1 38rem; min-width: min(100%, 38rem); }
+.site-link-embed pre {
+  margin: 0;
+  padding: .5rem 2rem .5rem .6rem;
+  border: 1px solid var(--line);
+  font-size: .65rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.site-link-copy {
+  position: absolute;
+  top: .2rem;
+  right: .2rem;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.site-link-copy:hover { background: var(--line); }
+.site-link-copy:focus-visible { outline: 1px solid currentColor; outline-offset: 1px; }
 
 .side-quest-index {
   display: none;
