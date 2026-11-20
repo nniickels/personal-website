@@ -30,6 +30,7 @@ The source for [nicolejiang.com](https://nicolejiang.com).
 | `/` | Main — résumé-style education, research, projects, and service |
 | `/side` | Side — Photo Gallery, Listening, Collections, Places postcards, Gaming, Reading, and Watching |
 | `/playground` | Playground — draggable black-hole growth, stellar-evolution, gravitational-lensing, and orbital-resonance experiments |
+| `/sitemap` | Site map — “are you lost?” directory of pages, sections, profile/contact links, and Easter egg spoilers |
 
 The previous `/side-quests` route permanently redirects to `/side`.
 
