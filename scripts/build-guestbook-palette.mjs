@@ -21,6 +21,13 @@ for (const id of ids) {
     if (!data[pixel + 3]) continue;
     // Preserve the leaf sheep's tiny eyes instead of fading them with the body.
     if (id === "leaf-sheep" && Math.max(data[pixel], data[pixel + 1], data[pixel + 2]) < 75) continue;
+    // Keep the cat's narrow pupils distinct from its softened face mask.
+    const catX = (pixel / 4) % info.width;
+    const catY = Math.floor(pixel / 4 / info.width);
+    if (id === "cat" && (catX === 20 || catX === 26) && catY === 18) {
+      data.set([79, 68, 60], pixel);
+      continue;
+    }
     const [red, green, blue] = data.subarray(pixel, pixel + 3);
     if (id === "dahlia" && red > green * 1.5 && green < 85) {
       data.set(red < 130 ? [166, 89, 85] : red < 175 ? [193, 111, 93] : [216, 137, 106], pixel);
